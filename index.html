@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Club Booking Demo</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#171329;--sf:#231d42;--sf2:#2e2755;--tx:#f2effc;--mu:#a49dc8;--ac:#7c6cff;--free:#37d69a;--busy:#ff5d7a;--vip:#ffc857;--r:14px}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+#app{max-width:480px;margin:0 auto;padding:12px 14px calc(24px + env(safe-area-inset-bottom,0px))}
+button,select{font:inherit;color:inherit}
+.bar{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.seg{display:flex;flex:1;background:var(--sf);border-radius:12px;padding:3px}
+.seg button{flex:1;border:0;background:none;padding:8px 4px;border-radius:9px;font-size:13px;color:var(--mu);cursor:pointer}
+.seg button.on{background:var(--ac);color:#fff;font-weight:600}
+.lang{border:0;background:var(--sf);border-radius:12px;padding:10px 12px;font-size:13px;cursor:pointer}
+.note{font-size:12px;color:var(--mu);margin:0 2px 14px}
+h1{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:6px 0 14px}
+h2{font-size:16px;margin:20px 0 10px}
+.card{background:var(--sf);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.club{width:100%;text-align:left;border:0;cursor:pointer;display:block}
+.club b{font-size:17px}.club p,.mu{color:var(--mu);font-size:13px;margin-top:3px}
+.back{border:0;background:none;color:var(--mu);padding:6px 0;margin-bottom:4px;cursor:pointer;font-size:14px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--mu);margin:2px 0 12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.vipgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.seat{aspect-ratio:1;border-radius:10px;border:2px solid var(--free);background:transparent;font-weight:700;font-size:15px;cursor:pointer}
+.seat.busy{border-color:var(--busy);color:var(--busy);background:repeating-linear-gradient(135deg,transparent 0 6px,#ff5d7a22 6px 12px)}
+.seat.vip{border-color:var(--vip);border-radius:12px}
+.seat.vip.busy{border-color:var(--busy)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:2px solid var(--sf2);background:none;border-radius:12px;padding:9px 14px;cursor:pointer;font-size:14px}
+.chip.on{border-color:var(--ac);background:var(--sf2)}
+select{width:100%;background:var(--sf);border:2px solid var(--sf2);border-radius:12px;padding:12px;font-size:15px}
+.tar{display:flex;justify-content:space-between;width:100%;border:2px solid var(--sf2);background:none;border-radius:12px;padding:13px 14px;margin-bottom:8px;cursor:pointer;font-size:15px}
+.tar.on{border-color:var(--ac);background:var(--sf2)}
+.cta{width:100%;border:0;background:var(--ac);color:#fff;font-weight:700;font-size:16px;padding:15px;border-radius:14px;margin-top:12px;cursor:pointer}
+.cta.ok{background:var(--free);color:#0c2a1f}.cta.no{background:var(--sf2)}
+.row{display:flex;gap:8px}.row .cta{margin-top:10px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px;margin-top:6px}
+.t-new{background:#ffc85730;color:var(--vip)}.t-ok{background:#37d69a30;color:var(--free)}.t-no{background:#ff5d7a30;color:var(--busy)}
+.cardnum{font-size:22px;font-weight:800;letter-spacing:1px;margin:8px 0}
+.file{display:block;border:2px dashed var(--sf2);border-radius:12px;padding:16px;text-align:center;color:var(--mu);cursor:pointer;margin-top:12px}
+.err{color:var(--busy);font-size:14px;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--free);color:#0c2a1f;font-weight:600;padding:12px 18px;border-radius:12px;font-size:14px}
+:focus-visible{outline:2px solid var(--vip);outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();}
+const L={
+ru:{title:"Брони в клубах",user:"Пользователь",admin:"Админ клуба",sys:"Сис админ",demo:"Демо: роль переключается вверху, данные тестовые",clubs:"Клубы",mine:"Мои брони",back:"← Назад",vip:"VIP зона",main:"Основной зал",free:"Свободно",busy:"Занято",seat:"Место",days:["Сегодня","Завтра","Послезавтра"],start:"Время начала",tariff:"Тариф",h:"ч",next:"Продолжить",pay:"Оплата",payInfo:"Переведите сумму на карту клуба и прикрепите скриншот чека.",card:"Карта клуба",attach:"Прикрепить скриншот чека",paid:"Я оплатил",needShot:"Прикрепите скриншот чека",conflict:"Это время на этом месте уже занято",closed:"В это время клуб закрыт",pick:"Выберите тариф",sNew:"Ждёт ответа клуба",sOk:"Бронь подтверждена",sNo:"Отклонено",sExp:"Время ответа истекло",tNew:"Новые",tOk:"Подтверждённые",tNo:"Отклонённые",yes:"Подтвердить",no:"Отклонить",shot:"Скриншот приложен",manual:"Занять место вручную",occ:"Занять",empty:"Пока пусто",reg:"Заявки на регистрацию",act:"Подключённые клубы",appr:"Одобрить",sent:"Заявка отправлена в клуб",from:"от",per:"/ час",sum:"сум",takenBy:"Занято сейчас",manualTag:"Занято админом",hours:"Часы работы",busyAt:"Уже занято"},
+uz:{title:"Klublarda bron",user:"Foydalanuvchi",admin:"Klub admini",sys:"Tizim admini",demo:"Demo: rolni yuqorida almashtiring, ma’lumotlar sinov uchun",clubs:"Klublar",mine:"Mening bronlarim",back:"← Orqaga",vip:"VIP zona",main:"Asosiy zal",free:"Bo‘sh",busy:"Band",seat:"Joy",days:["Bugun","Ertaga","Indinga"],start:"Boshlanish vaqti",tariff:"Tarif",h:"soat",next:"Davom etish",pay:"To‘lov",payInfo:"Summani klub kartasiga o‘tkazing va chek skrinshotini biriktiring.",card:"Klub kartasi",attach:"Chek skrinshotini biriktirish",paid:"To‘ladim",needShot:"Chek skrinshotini biriktiring",conflict:"Bu joy shu vaqtda band",closed:"Klub bu vaqtda yopiq",pick:"Tarifni tanlang",sNew:"Klub javobini kutmoqda",sOk:"Bron tasdiqlandi",sNo:"Rad etildi",sExp:"Javob vaqti tugadi",tNew:"Yangi",tOk:"Tasdiqlangan",tNo:"Rad etilgan",yes:"Tasdiqlash",no:"Rad etish",shot:"Skrinshot biriktirilgan",manual:"Joyni qo‘lda band qilish",occ:"Band qilish",empty:"Hozircha bo‘sh",reg:"Ro‘yxatdan o‘tish so‘rovlari",act:"Ulangan klublar",appr:"Ma’qullash",sent:"So‘rov klubga yuborildi",from:"dan",per:"/ soat",sum:"so‘m",takenBy:"Hozir band",manualTag:"Admin band qilgan",hours:"Ish vaqti",busyAt:"Allaqachon band"}
+};
+const clubs=[
+{id:1,name:"Cyber Arena",addr:"Ташкент, Чиланзар",open:0,close:24,card:"8600 1234 5678 9012",ok:true,tar:[[1,40000],[3,120000],[5,130000]]},
+{id:2,name:"Next Level",addr:"Ташкент, Юнусабад",open:10,close:24,card:"8600 4455 6677 8899",ok:true,tar:[[1,30000],[2,55000],[4,100000]]},
+{id:3,name:"Pixel Zone",addr:"Самарканд, центр",open:12,close:24,card:"8600 1111 2222 3333",ok:false,tar:[[1,25000],[3,65000]]},
+{id:4,name:"Level Up",addr:"Бухара",open:0,close:24,card:"8600 9999 8888 7777",ok:false,tar:[[1,20000],[5,80000]]}];
+const MAIN=[...Array(15)].map((_,i)=>String(i+1)),VIP=["V1","V2","V3","V4"];
+let bk=[
+{id:1,club:1,seat:"3",day:0,start:14,hours:3,st:"ok",by:"user"},
+{id:2,club:1,seat:"7",day:0,start:18,hours:2,st:"ok",by:"user"},
+{id:3,club:1,seat:"V2",day:0,start:20,hours:5,st:"ok",by:"user"},
+{id:4,club:2,seat:"5",day:0,start:16,hours:2,st:"ok",by:"user"}];
+let nid=10,S={role:"user",lang:"ru",view:"home",club:null,seat:null,day:0,start:null,tar:null,tab:"new",err:"",shot:"",toast:""};
+const t=k=>L[S.lang][k],$=id=>document.getElementById(id);
+const fm=n=>n.toLocaleString("ru-RU").replace(/\u00a0/g," ")+" "+t("sum");
+const hh=h=>String(h%24).padStart(2,"0")+":00";
+const C=id=>clubs.find(c=>c.id===id);
+const rng=b=>t("days")[b.day]+" "+hh(b.start)+"–"+hh(b.start+b.hours);
+const abs=(d,s)=>d*24+s;
+function clash(c,seat,d,s,h){const a=abs(d,s),e=a+h;return bk.some(b=>b.club===c&&b.seat===seat&&(b.st==="ok"||b.st==="new")&&a<abs(b.day,b.start)+b.hours&&abs(b.day,b.start)<e)}
+function closedAt(c,d,s,h){const k=C(c);return !(k.open===0&&k.close===24)&&(s<k.open||s+h>k.close)}
+function stTxt(b){return {new:t("sNew"),ok:t("sOk"),no:t("sNo"),exp:t("sExp")}[b.st]}
+function tag(b){const c=b.st==="new"?"t-new":b.st==="ok"?"t-ok":"t-no";return `<span class="tag ${c}">${stTxt(b)}</span>`}
+function cd(b){return b.st==="new"?` <span class="mu" data-exp="${b.created+3e5}"></span>`:""}
+function minHour(c){return Math.min(...c.tar.map(x=>x[1]/x[0]))}
+
+function head(){
+ const r=["user","admin","sys"].map(x=>`<button class="${S.role===x?"on":""}" onclick="setRole('${x}')">${t(x)}</button>`).join("");
+ return `<div class="bar"><div class="seg">${r}</div><button class="lang" onclick="setLang()">${S.lang==="ru"?"UZ":"RU"}</button></div><p class="note">${t("demo")}</p>`}
+
+function home(){
+ const list=clubs.filter(c=>c.ok).map(c=>`<button class="card club" onclick="openClub(${c.id})"><b>${c.name}</b><p>${c.addr}</p><p>${t("hours")}: ${c.open===0&&c.close===24?"24/7":hh(c.open)+"–"+hh(c.close)} · ${t("from")} ${fm(Math.round(minHour(c)))} ${t("per")}</p></button>`).join("");
+ const my=bk.filter(b=>b.by==="user"&&b.mine).map(b=>`<div class="card"><b>${C(b.club).name} · ${t("seat")} ${b.seat}</b><p class="mu">${rng(b)} · ${fm(b.price)}</p>${tag(b)}${cd(b)}</div>`).join("");
+ return `<h1>${t("title")}</h1><h2>${t("clubs")}</h2>${list}${my?`<h2>${t("mine")}</h2>${my}`:""}`}
+
+function seatBtn(id,vip){const c=S.club,now=clash(c,id,0,new Date().getHours(),1);
+ return `<button class="seat${vip?" vip":""}${now?" busy":""}" aria-label="${t("seat")} ${id}" onclick="openSeat('${id}')">${id}</button>`}
+function clubView(){const c=C(S.club);
+ return `<button class="back" onclick="go('home')">${t("back")}</button><h1>${c.name}</h1>
+ <div class="legend"><span><i style="background:var(--free)"></i>${t("free")}</span><span><i style="background:var(--busy)"></i>${t("busy")}</span><span><i style="background:var(--vip)"></i>${t("vip")}</span></div>
+ <h2>${t("main")}</h2><div class="grid">${MAIN.map(i=>seatBtn(i,false)).join("")}</div>
+ <h2>${t("vip")}</h2><div class="vipgrid">${VIP.map(i=>seatBtn(i,true)).join("")}</div>`}
+
+function startOpts(c){const k=C(c),a=k.open,z=k.close;let o="";for(let h=a;h<z;h++)o+=`<option value="${h}" ${S.start===h?"selected":""}>${hh(h)}</option>`;return o}
+function seatView(){const c=C(S.club);if(S.start===null)S.start=Math.max(c.open,Math.min(new Date().getHours()+1,c.close-1));
+ const ex=bk.filter(b=>b.club===c.id&&b.seat===S.seat&&b.st==="ok").map(b=>`<p class="mu">${t("busyAt")}: ${rng(b)}</p>`).join("");
+ const days=t("days").map((d,i)=>`<button class="chip ${S.day===i?"on":""}" onclick="S.day=${i};render()">${d}</button>`).join("");
+ const tars=c.tar.map((x,i)=>`<button class="tar ${S.tar===i?"on":""}" onclick="S.tar=${i};render()"><span>${x[0]} ${t("h")}</span><b>${fm(x[1])}</b></button>`).join("");
+ return `<button class="back" onclick="go('club')">${t("back")}</button><h1>${c.name} · ${t("seat")} ${S.seat}</h1>${ex}
+ <h2>${t("days")?"":""}</h2><div class="chips">${days}</div>
+ <h2>${t("start")}</h2><select onchange="S.start=+this.value">${startOpts(c.id)}</select>
+ <h2>${t("tariff")}</h2>${tars}${S.err?`<p class="err">${S.err}</p>`:""}
+ <button class="cta" onclick="toPay()">${t("next")}</button>`}
+
+function payView(){const c=C(S.club),x=c.tar[S.tar];
+ return `<button class="back" onclick="go('seat')">${t("back")}</button><h1>${t("pay")}</h1>
+ <div class="card"><b>${c.name} · ${t("seat")} ${S.seat}</b><p class="mu">${t("days")[S.day]} ${hh(S.start)}–${hh(S.start+x[0])} · ${x[0]} ${t("h")}</p><p class="cardnum" style="margin-top:12px;font-size:20px">${fm(x[1])}</p></div>
+ <div class="card"><p class="mu">${t("payInfo")}</p><p class="mu" style="margin-top:10px">${t("card")}</p><p class="cardnum">${c.card}</p></div>
+ <label class="file"><input type="file" accept="image/*" hidden onchange="$('fn').textContent=this.files[0]?this.files[0].name:'';S.shot=this.files[0]?this.files[0].name:'';"><span id="fn">${S.shot||t("attach")}</span></label>
+ ${S.err?`<p class="err">${S.err}</p>`:""}<button class="cta" onclick="submitPay()">${t("paid")}</button>`}
+
+function adminView(){const c=C(1);const tabs=[["new","tNew"],["ok","tOk"],["no","tNo"]];
+ const seg=tabs.map(([k,l])=>`<button class="${S.tab===k?"on":""}" onclick="S.tab='${k}';render()">${t(l)} (${bkTab(k).length})</button>`).join("");
+ const items=bkTab(S.tab).map(b=>`<div class="card"><b>${t("seat")} ${b.seat} · ${rng(b)}</b><p class="mu">${b.by==="manual"?t("manualTag"):fm(b.price)}</p>${b.by==="user"?`<p class="mu">📎 ${t("shot")}</p>`:""}${tag(b)}${cd(b)}${b.st==="new"?`<div class="row"><button class="cta ok" onclick="decide(${b.id},'ok')">${t("yes")}</button><button class="cta no" onclick="decide(${b.id},'no')">${t("no")}</button></div>`:""}</div>`).join("")||`<p class="mu">${t("empty")}</p>`;
+ const seats=[...MAIN,...VIP].map(s=>`<option>${s}</option>`).join("");
+ const hrs=[1,2,3,4,5].map(n=>`<option>${n}</option>`).join("");
+ return `<h1>${c.name}</h1><div class="seg" style="margin-bottom:12px">${seg}</div>${items}
+ <h2>${t("manual")}</h2><div class="card"><div class="row"><select id="ms">${seats}</select><select id="md">${t("days").map((d,i)=>`<option value="${i}">${d}</option>`).join("")}</select></div><div class="row" style="margin-top:8px"><select id="mh">${[...Array(24)].map((_,h)=>`<option value="${h}">${hh(h)}</option>`).join("")}</select><select id="mn">${hrs}</select></div>${S.err?`<p class="err">${S.err}</p>`:""}<button class="cta" onclick="manual()">${t("occ")}</button></div>`}
+function bkTab(k){return bk.filter(b=>b.club===1&&(k==="no"?(b.st==="no"||b.st==="exp"):b.st===k))}
+
+function sysView(){
+ const pend=clubs.filter(c=>!c.ok&&!c.gone).map(c=>`<div class="card"><b>${c.name}</b><p class="mu">${c.addr}</p><p class="mu">${t("card")}: ${c.card}</p><div class="row"><button class="cta ok" onclick="club(${c.id},true)">${t("appr")}</button><button class="cta no" onclick="club(${c.id},false)">${t("no")}</button></div></div>`).join("")||`<p class="mu">${t("empty")}</p>`;
+ const act=clubs.filter(c=>c.ok).map(c=>`<div class="card"><b>${c.name}</b><p class="mu">${c.addr}</p></div>`).join("");
+ return `<h1>${t("sys")}</h1><h2>${t("reg")}</h2>${pend}<h2>${t("act")}</h2>${act}`}
+
+function render(){
+ let v=S.role==="admin"?adminView():S.role==="sys"?sysView():({home,club:clubView,seat:seatView,pay:payView})[S.view]();
+ $("app").innerHTML=head()+v+(S.toast?`<div class="toast">${S.toast}</div>`:"");
+}
+function setRole(r){S.role=r;S.err="";render()}
+function setLang(){S.lang=S.lang==="ru"?"uz":"ru";render()}
+function go(v){S.view=v;S.err="";render()}
+function openClub(id){S.club=id;go("club")}
+function openSeat(s){S.seat=s;S.start=null;S.tar=null;S.day=0;go("seat")}
+function toPay(){const c=C(S.club);if(S.tar===null){S.err=t("pick");return render()}
+ const h=c.tar[S.tar][0];
+ if(closedAt(c.id,S.day,S.start,h)){S.err=t("closed");return render()}
+ if(clash(c.id,S.seat,S.day,S.start,h)){S.err=t("conflict");return render()}
+ S.shot="";go("pay")}
+function submitPay(){if(!S.shot){S.err=t("needShot");return render()}
+ const c=C(S.club),x=c.tar[S.tar];
+ bk.push({id:nid++,club:c.id,seat:S.seat,day:S.day,start:S.start,hours:x[0],price:x[1],st:"new",by:"user",mine:true,created:Date.now()});
+ S.toast=t("sent");S.view="home";S.err="";render();setTimeout(()=>{S.toast="";render()},2500)}
+function decide(id,st){bk.find(b=>b.id===id).st=st;render()}
+function manual(){const s=$("ms").value,d=+$("md").value,h=+$("mh").value,n=+$("mn").value;
+ if(closedAt(1,d,h,n)){S.err=t("closed");return render()}
+ if(clash(1,s,d,h,n)){S.err=t("conflict");return render()}
+ bk.push({id:nid++,club:1,seat:s,day:d,start:h,hours:n,st:"ok",by:"manual"});S.err="";S.tab="ok";render()}
+function club(id,ok){const c=C(id);if(ok)c.ok=true;else c.gone=true;render()}
+setInterval(()=>{const now=Date.now();let ch=false;
+ bk.forEach(b=>{if(b.st==="new"&&b.created+3e5<=now){b.st="exp";ch=true}});
+ if(ch&&(S.role!=="user"||S.view==="home"))return render();
+ document.querySelectorAll("[data-exp]").forEach(e=>{const r=Math.max(0,+e.dataset.exp-now);e.textContent=String(Math.floor(r/6e4)).padStart(2,"0")+":"+String(Math.floor(r/1e3)%60).padStart(2,"0")})},1000);
+render();
+</script>
+</body>
+</html>
