@@ -64,19 +64,13 @@ body {
   padding: 14px 16px 30px;
 }
 
-/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.03); }
-}
-
 .anim-fade {
-  animation: fadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Top Role Switcher Bar */
@@ -84,7 +78,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .role-seg {
@@ -127,19 +121,13 @@ body {
   border-radius: var(--radius-md);
   padding: 9px 13px;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.lang-btn:active {
-  transform: scale(0.94);
-}
-
-/* Header & Brand */
 .brand-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .brand-title {
@@ -180,7 +168,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .demo-dot {
@@ -191,7 +179,6 @@ body {
   box-shadow: 0 0 8px var(--neon-cyan);
 }
 
-/* Titles */
 h2.section-title {
   font-size: 14px;
   font-weight: 700;
@@ -221,22 +208,9 @@ h2.section-title {
   width: 100%;
 }
 
-.club-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--accent-grad);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
 .club-card:active {
   transform: scale(0.98);
   border-color: rgba(139, 92, 246, 0.4);
-}
-
-.club-card:hover::before {
-  opacity: 1;
 }
 
 .club-head {
@@ -298,7 +272,6 @@ h2.section-title {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Back Button */
 .back-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
@@ -312,15 +285,8 @@ h2.section-title {
   gap: 6px;
   cursor: pointer;
   margin-bottom: 12px;
-  transition: all 0.2s ease;
 }
 
-.back-btn:active {
-  transform: scale(0.95);
-  color: #fff;
-}
-
-/* Legend */
 .legend-bar {
   display: flex;
   gap: 16px;
@@ -345,7 +311,6 @@ h2.section-title {
   border-radius: 4px;
 }
 
-/* Cinema Style Seat Grid */
 .grid-main {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -370,7 +335,6 @@ h2.section-title {
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -385,7 +349,6 @@ h2.section-title {
   color: var(--neon-green);
   font-weight: 500;
   margin-top: 2px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .seat-btn:active {
@@ -415,7 +378,6 @@ h2.section-title {
   color: var(--neon-red);
 }
 
-/* Chips / Day Selector */
 .chip-group {
   display: flex;
   gap: 8px;
@@ -432,7 +394,6 @@ h2.section-title {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
   text-align: center;
 }
 
@@ -444,7 +405,6 @@ h2.section-title {
   font-weight: 700;
 }
 
-/* Custom Select */
 .styled-select {
   width: 100%;
   background: var(--surface);
@@ -463,7 +423,6 @@ h2.section-title {
   border-color: var(--neon-cyan);
 }
 
-/* Tariffs */
 .tariff-card {
   width: 100%;
   background: var(--surface);
@@ -475,7 +434,6 @@ h2.section-title {
   justify-content: space-between;
   margin-bottom: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
   color: var(--text);
 }
 
@@ -491,7 +449,6 @@ h2.section-title {
   font-size: 16px;
 }
 
-/* Primary CTA Button */
 .cta-btn {
   width: 100%;
   background: var(--accent-grad);
@@ -505,7 +462,6 @@ h2.section-title {
   cursor: pointer;
   margin-top: 14px;
   box-shadow: var(--accent-glow);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -514,7 +470,6 @@ h2.section-title {
 
 .cta-btn:active {
   transform: scale(0.97);
-  box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
 }
 
 .cta-btn.ok {
@@ -529,7 +484,6 @@ h2.section-title {
   color: var(--neon-red);
 }
 
-/* Payment Screen */
 .card-box {
   background: var(--surface-card);
   border: 1px solid var(--border);
@@ -562,15 +516,8 @@ h2.section-title {
   color: var(--text-muted);
   cursor: pointer;
   margin-top: 14px;
-  transition: all 0.2s ease;
 }
 
-.file-upload-zone:hover {
-  border-color: var(--neon-purple);
-  color: #fff;
-}
-
-/* Toast */
 .toast-msg {
   position: fixed;
   left: 50%;
@@ -592,9 +539,6 @@ h2.section-title {
   font-size: 13px;
   font-weight: 600;
   margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .status-tag {
@@ -672,7 +616,7 @@ const L = {
     pick: "Выберите тарифный план",
     sNew: "Ожидает подтверждения админом",
     sOk: "Бронь подтверждена ✓",
-    sNo: "Отклонено",
+    sNo: "Отклонено ✕",
     sExp: "Время оплаты истекло (5 мин)",
     tNew: "Новые заявки",
     tOk: "Одобренные",
@@ -725,7 +669,7 @@ const L = {
     pick: "Tarifni tanlang",
     sNew: "Klub tasdig‘ini kutmoqda",
     sOk: "Bron tasdiqlandi ✓",
-    sNo: "Rad etildi",
+    sNo: "Rad etildi ✕",
     sExp: "Vaqt tugadi (5 daqiqa)",
     tNew: "Yangi so‘rovlar",
     tOk: "Tasdiqlangan",
@@ -768,7 +712,21 @@ let bk = [
 ];
 
 let nid = 10;
-let S = { role: "user", lang: "ru", view: "home", club: null, seat: null, day: 0, start: null, tar: null, tab: "new", err: "", shot: "", toast: "" };
+let S = {
+  role: "user",
+  lang: "ru",
+  view: "home",
+  club: null,
+  adminClubId: 1,
+  seat: null,
+  day: 0,
+  start: null,
+  tar: null,
+  tab: "new",
+  err: "",
+  shot: "",
+  toast: ""
+};
 
 const t = k => L[S.lang][k];
 const $ = id => document.getElementById(id);
@@ -794,12 +752,13 @@ function minHour(c) {
 
 function tagHtml(b) {
   const cls = b.st === "new" ? "st-new" : b.st === "ok" ? "st-ok" : "st-no";
-  const txt = { new: t("sNew"), ok: t("sOk"), no: t("sNo"), exp: t("sExp") }[b.st];
+  const txt = { new: t("sNew"), ok: t("sOk"), no: t("sNo"), exp: t("sExp") }[b.st] || b.st;
   return `<span class="status-tag ${cls}">${txt}</span>`;
 }
 
 function cdHtml(b) {
-  return b.st === "new" ? ` <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-gold);font-size:12px;" data-exp="${b.created + 3e5}"></span>` : "";
+  if (b.st !== "new") return "";
+  return ` <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-gold);font-size:12px;" data-exp="${b.created + 3e5}"></span>`;
 }
 
 function head() {
@@ -980,15 +939,21 @@ function payView() {
 }
 
 function adminView() {
-  const c = C(1);
+  const curClub = C(S.adminClubId) || C(1);
+  const activeClubs = clubs.filter(c => c.ok);
+  
+  const clubSelectOptions = activeClubs.map(c => `
+    <option value="${c.id}" ${c.id === curClub.id ? 'selected' : ''}>🏢 ${c.name}</option>
+  `).join("");
+
   const tabs = [["new", "tNew"], ["ok", "tOk"], ["no", "tNo"]];
   const seg = tabs.map(([k, l]) => `
     <button class="role-btn ${S.tab === k ? 'active' : ''}" onclick="S.tab='${k}';haptic();render()">
-      ${t(l)} (${bkTab(k).length})
+      ${t(l)} (${bkTab(k, curClub.id).length})
     </button>
   `).join("");
 
-  const items = bkTab(S.tab).map(b => `
+  const items = bkTab(S.tab, curClub.id).map(b => `
     <div class="card-box anim-fade">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <b>ПК #${b.seat} · ${rng(b)}</b>
@@ -1010,7 +975,12 @@ function adminView() {
 
   return `
     <div class="anim-fade">
-      <h1 style="font-size:22px;font-weight:800;margin-bottom:12px;">💻 Панель клуба: ${c.name}</h1>
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">💻 Панель администратора клуба</h1>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Выберите клуб для управления заявками:</p>
+      <select class="styled-select" onchange="S.adminClubId=+this.value;haptic();render()">
+        ${clubSelectOptions}
+      </select>
+
       <div class="role-seg" style="margin-bottom:16px;">${seg}</div>
       ${items}
 
@@ -1025,14 +995,14 @@ function adminView() {
           <select id="mn" class="styled-select">${hrs}</select>
         </div>
         ${S.err ? `<div class="error-text">❌ ${S.err}</div>` : ""}
-        <button class="cta-btn" onclick="manual()">${t("occ")}</button>
+        <button class="cta-btn" onclick="manual(${curClub.id})">${t("occ")}</button>
       </div>
     </div>
   `;
 }
 
-function bkTab(k) {
-  return bk.filter(b => b.club === 1 && (k === "no" ? (b.st === "no" || b.st === "exp") : b.st === k));
+function bkTab(k, clubId) {
+  return bk.filter(b => b.club === clubId && (k === "no" ? (b.st === "no" || b.st === "exp") : b.st === k));
 }
 
 function sysView() {
@@ -1058,6 +1028,7 @@ function sysView() {
   return `
     <div class="anim-fade">
       <h1 style="font-size:22px;font-weight:800;margin-bottom:12px;">👑 Главный администратор Nova</h1>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Здесь вы одобряете клубы, которые оплатили доступ к платформе Nova</p>
       <h2 class="section-title">📥 ${t("reg")}</h2>
       ${pend}
       <h2 class="section-title">✅ ${t("act")}</h2>
@@ -1103,6 +1074,8 @@ function submitPay() {
     mine: true,
     created: Date.now()
   });
+  // Auto switch admin view to this club so testing is immediate!
+  S.adminClubId = c.id;
   haptic("success");
   S.toast = t("sent");
   S.view = "home";
@@ -1112,16 +1085,19 @@ function submitPay() {
 }
 
 function decide(id, st) {
-  bk.find(b => b.id === id).st = st;
+  const item = bk.find(b => b.id === id);
+  if (item) {
+    item.st = st;
+  }
   haptic("success");
   render();
 }
 
-function manual() {
+function manual(clubId) {
   const s = $("ms").value, d = +$("md").value, h = +$("mh").value, n = +$("mn").value;
-  if (closedAt(1, d, h, n)) { S.err = t("closed"); haptic("warning"); return render(); }
-  if (clash(1, s, d, h, n)) { S.err = t("conflict"); haptic("warning"); return render(); }
-  bk.push({ id: nid++, club: 1, seat: s, day: d, start: h, hours: n, st: "ok", by: "manual" });
+  if (closedAt(clubId, d, h, n)) { S.err = t("closed"); haptic("warning"); return render(); }
+  if (clash(clubId, s, d, h, n)) { S.err = t("conflict"); haptic("warning"); return render(); }
+  bk.push({ id: nid++, club: clubId, seat: s, day: d, start: h, hours: n, st: "ok", by: "manual" });
   S.err = "";
   S.tab = "ok";
   haptic("success");
