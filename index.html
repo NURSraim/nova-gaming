@@ -3,40 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Nova Gaming — Cyber Lounge & PC Booking</title>
+<title>NOVA // TACTICAL CYBER BOOKING</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Oswald:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0b0914;
-  --bg-gradient: radial-gradient(circle at 50% 0%, #1f1442 0%, #0b0914 70%);
-  --surface: rgba(26, 21, 48, 0.7);
-  --surface-hover: rgba(38, 30, 71, 0.85);
-  --surface-card: rgba(22, 17, 43, 0.75);
-  --border: rgba(140, 120, 240, 0.15);
-  --border-focus: rgba(0, 240, 255, 0.5);
-  
-  --text: #f5f3ff;
-  --text-muted: #948db8;
-  --text-dim: #625b85;
-  
-  --neon-cyan: #00f0ff;
-  --neon-purple: #8b5cf6;
-  --neon-green: #00ffa3;
-  --neon-red: #ff3366;
-  --neon-gold: #ffb703;
-  
-  --accent-grad: linear-gradient(135deg, #8b5cf6 0%, #00f0ff 100%);
-  --accent-glow: 0 0 25px rgba(139, 92, 246, 0.4);
-  --green-glow: 0 0 15px rgba(0, 255, 163, 0.3);
-  --gold-glow: 0 0 18px rgba(255, 183, 3, 0.4);
-  
-  --radius-xl: 20px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
+  --bg-obsidian: #0b0c10;
+  --bg-carbon: #12141b;
+  --bg-panel: #171a24;
+  --paper: #f2ede2;
+  --paper-dim: #dfd9cc;
+  --crimson: #ff2442;
+  --crimson-dark: #b81229;
+  --cyan: #00f0ff;
+  --lime: #00ff9d;
+  --amber: #ffb800;
+  --text-light: #f5f3ef;
+  --text-muted: #8e93a6;
+  --text-dark: #0b0c10;
+  --border-tech: rgba(242, 237, 226, 0.14);
+  --border-strong: rgba(242, 237, 226, 0.32);
+  --font-display: 'Oswald', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 * {
@@ -48,519 +39,876 @@
 }
 
 body {
-  background: var(--bg);
-  background-image: var(--bg-gradient);
+  background-color: var(--bg-obsidian);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(255, 36, 66, 0.12) 0%, transparent 55%),
+    linear-gradient(rgba(242, 237, 226, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242, 237, 226, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
   background-attachment: fixed;
-  color: var(--text);
-  font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+  color: var(--text-light);
+  font-family: var(--font-sans);
   min-height: 100vh;
   overflow-x: hidden;
-  padding-bottom: env(safe-area-inset-bottom, 20px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 92px);
 }
 
 #app {
-  max-width: 460px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 14px 16px 30px;
+  padding: 12px 14px 28px;
+  position: relative;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.anim-fade {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes pulseLive {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.92); }
 }
 
-/* Top Role Switcher Bar */
-.top-bar {
+.anim-in {
+  animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* TACTICAL HUD TOP BAR */
+.hud-top-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-tech);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.hud-coords {
   display: flex;
   align-items: center;
+  gap: 6px;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--lime);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--lime);
+  animation: pulseLive 1.8s infinite;
+}
+
+.top-bar {
+  display: flex;
+  align-items: stretch;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .role-seg {
   display: flex;
   flex: 1;
-  background: rgba(18, 14, 34, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 4px;
+  background: var(--bg-carbon);
+  border: 1px solid var(--border-tech);
+  padding: 3px;
+  gap: 3px;
 }
 
 .role-btn {
   flex: 1;
-  background: none;
-  border: 0;
+  background: transparent;
+  border: none;
   color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   padding: 8px 4px;
-  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .role-btn.active {
-  background: var(--accent-grad);
+  background: var(--crimson);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
-  font-weight: 700;
+  box-shadow: 0 0 14px rgba(255, 36, 66, 0.4);
 }
 
 .lang-btn {
-  background: rgba(18, 14, 34, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  color: var(--neon-cyan);
-  font-weight: 700;
-  font-size: 12px;
-  border-radius: var(--radius-md);
-  padding: 9px 13px;
+  background: var(--paper);
+  color: var(--text-dark);
+  border: none;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 11px;
+  padding: 0 12px;
   cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: transform 0.12s ease;
 }
 
-.brand-header {
+.lang-btn:active {
+  transform: scale(0.95);
+}
+
+/* POSTER HERO HEADER */
+.poster-masthead {
+  position: relative;
+  background: var(--paper);
+  color: var(--text-dark);
+  padding: 14px 16px 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-left: 6px solid var(--crimson);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+
+.poster-masthead::after {
+  content: "NOVA // 26";
+  position: absolute;
+  right: -8px;
+  bottom: -18px;
+  font-family: var(--font-display);
+  font-size: 74px;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(11, 12, 16, 0.06);
+  pointer-events: none;
+  letter-spacing: -0.03em;
+}
+
+.masthead-kicker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--crimson);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.masthead-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 0.94;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--text-dark);
+}
+
+.masthead-sub {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(11, 12, 16, 0.15);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #333640;
 }
 
-.brand-title {
+.barcode-strip {
+  display: inline-block;
+  width: 68px;
+  height: 14px;
+  background: repeating-linear-gradient(
+    90deg,
+    #0b0c10 0px,
+    #0b0c10 2px,
+    transparent 2px,
+    transparent 4px,
+    #0b0c10 4px,
+    #0b0c10 5px,
+    transparent 5px,
+    transparent 8px,
+    #0b0c10 8px,
+    #0b0c10 11px,
+    transparent 11px,
+    transparent 13px
+  );
+}
+
+.barcode-strip.light {
+  background: repeating-linear-gradient(
+    90deg,
+    #f2ede2 0px,
+    #f2ede2 2px,
+    transparent 2px,
+    transparent 4px,
+    #f2ede2 4px,
+    #f2ede2 5px,
+    transparent 5px,
+    transparent 8px,
+    #f2ede2 8px,
+    #f2ede2 11px,
+    transparent 11px,
+    transparent 13px
+  );
+  opacity: 0.75;
+}
+
+/* SECTION HEADERS */
+.sec-head {
   display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 18px 0 10px;
+  border-bottom: 1px solid var(--border-tech);
+  padding-bottom: 5px;
 }
 
-.brand-badge {
-  background: var(--accent-grad);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 800;
-}
-
-.brand-logo-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--accent-grad);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 17px;
-  box-shadow: var(--accent-glow);
-}
-
-.demo-banner {
-  background: rgba(139, 92, 246, 0.08);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: var(--radius-sm);
-  padding: 6px 12px;
-  font-size: 11px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 16px;
-}
-
-.demo-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--neon-cyan);
-  box-shadow: 0 0 8px var(--neon-cyan);
-}
-
-h2.section-title {
-  font-size: 14px;
+.sec-title {
+  font-family: var(--font-display);
+  font-size: 20px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
-  margin: 18px 0 10px;
+  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.sec-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--crimson);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* ARKNIGHTS / R6 DOSSIER CLUB POSTER CARD */
+.poster-card {
+  display: grid;
+  grid-template-columns: 58px 1fr;
   gap: 6px;
-}
-
-/* Club Cards */
-.club-card {
-  background: var(--surface-card);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.16s ease;
+}
+
+.poster-card:active {
+  transform: scale(0.985);
+}
+
+.poster-index-col {
+  background: var(--bg-carbon);
+  border: 1px solid var(--border-strong);
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--font-mono);
   position: relative;
-  overflow: hidden;
-  text-align: left;
+}
+
+.poster-idx-num {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--paper);
+}
+
+.poster-idx-meta {
+  font-size: 9px;
+  line-height: 1.35;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin: 6px 0;
+}
+
+.poster-idx-meta b {
   display: block;
-  width: 100%;
+  color: var(--paper);
+  font-size: 10px;
 }
 
-.club-card:active {
-  transform: scale(0.98);
-  border-color: rgba(139, 92, 246, 0.4);
+.poster-idx-status {
+  background: var(--crimson);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  text-align: center;
+  padding: 3px 2px;
+  letter-spacing: 0.06em;
 }
 
-.club-head {
+.poster-main-col {
+  position: relative;
+  background: linear-gradient(135deg, #1a1016 0%, #0f1118 65%, #181b26 100%);
+  border: 1px solid var(--border-strong);
+  padding: 12px 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 142px;
+}
+
+.poster-card:nth-child(even) .poster-main-col {
+  background: linear-gradient(135deg, #0e1924 0%, #0f1118 65%, #161c28 100%);
+}
+
+.poster-card:nth-child(even) .poster-idx-status {
+  background: var(--cyan);
+  color: #0b0c10;
+}
+
+.poster-bg-word {
+  position: absolute;
+  left: 6px;
+  top: -8px;
+  font-family: var(--font-display);
+  font-size: 86px;
+  font-weight: 700;
+  line-height: 0.85;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  color: rgba(255, 36, 66, 0.16);
+  pointer-events: none;
+  z-index: 0;
+  white-space: nowrap;
+}
+
+.poster-card:nth-child(even) .poster-bg-word {
+  color: rgba(0, 240, 255, 0.13);
+}
+
+.poster-silhouette {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 118px;
+  height: 132px;
+  opacity: 0.26;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.poster-top-row {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 8px;
+  gap: 8px;
 }
 
-.club-name {
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.3px;
+.poster-club-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--paper);
 }
 
-.club-addr {
-  font-size: 13px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 12px;
-}
-
-.club-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.badge {
+.poster-club-addr {
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.badge-green {
-  background: rgba(0, 255, 163, 0.12);
-  color: var(--neon-green);
-  border: 1px solid rgba(0, 255, 163, 0.25);
-}
-
-.badge-purple {
-  background: rgba(139, 92, 246, 0.15);
-  color: #c4b5fd;
-  border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-.badge-price {
-  background: rgba(0, 240, 255, 0.12);
-  color: var(--neon-cyan);
-  border: 1px solid rgba(0, 240, 255, 0.25);
-  margin-left: auto;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.back-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
   color: var(--text-muted);
-  padding: 7px 14px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  margin-bottom: 12px;
+  margin-top: 4px;
 }
 
+.poster-price-pill {
+  background: var(--paper);
+  color: var(--text-dark);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 8px;
+  white-space: nowrap;
+  border-left: 3px solid var(--crimson);
+}
+
+.poster-bottom-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(242, 237, 226, 0.18);
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.spec-chip {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 7px;
+  background: rgba(11, 12, 16, 0.78);
+  border: 1px solid var(--border-tech);
+  color: var(--paper);
+  text-transform: uppercase;
+}
+
+.spec-chip.highlight {
+  border-color: var(--crimson);
+  color: #ff6b81;
+}
+
+.spec-chip.live {
+  border-color: rgba(0, 255, 157, 0.4);
+  color: var(--lime);
+}
+
+/* DOSSIER HERO POSTER INSIDE CLUB VIEW */
+.club-hero-poster {
+  position: relative;
+  background: var(--crimson);
+  color: var(--paper);
+  border: 2px solid var(--paper);
+  padding: 14px 14px 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.club-hero-watermark {
+  position: absolute;
+  left: -4px;
+  top: 12px;
+  font-family: var(--font-display);
+  font-size: 104px;
+  font-weight: 700;
+  line-height: 0.8;
+  color: rgba(11, 12, 16, 0.18);
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.club-hero-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  background: var(--bg-obsidian);
+  color: var(--paper);
+  padding: 4px 8px;
+  margin-bottom: 10px;
+}
+
+.club-hero-title {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(11, 12, 16, 0.35);
+}
+
+.club-hero-loadout {
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+  color: var(--text-dark);
+  padding: 8px 10px;
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+/* TACTICAL FILTER / TIME STRIP ON CLUB VIEW */
+.tactical-filter-box {
+  background: var(--bg-carbon);
+  border: 1px solid var(--border-strong);
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.filter-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.day-pills {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.day-pill {
+  flex: 1;
+  background: var(--bg-obsidian);
+  border: 1px solid var(--border-tech);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.day-pill.active {
+  background: var(--paper);
+  color: var(--text-dark);
+  border-color: var(--paper);
+}
+
+/* SEAT MATRIX */
 .legend-bar {
   display: flex;
-  gap: 16px;
-  background: rgba(18, 14, 34, 0.6);
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  font-size: 12px;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
   color: var(--text-muted);
-  margin: 12px 0 16px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
-.legend-box {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
 }
 
 .grid-main {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 9px;
+  gap: 7px;
   margin-bottom: 16px;
 }
 
 .grid-vip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 18px;
 }
 
 .seat-btn {
-  aspect-ratio: 1;
-  background: rgba(26, 21, 48, 0.6);
-  border: 2px solid var(--neon-green);
-  border-radius: 12px;
-  color: #fff;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 15px;
-  font-weight: 700;
+  position: relative;
+  background: var(--bg-carbon);
+  border: 1px solid rgba(0, 255, 157, 0.35);
+  color: var(--paper);
+  padding: 8px 4px 6px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  gap: 3px;
+  transition: all 0.14s ease;
 }
 
-.seat-btn::after {
-  content: 'ПК';
-  font-size: 9px;
-  color: var(--neon-green);
-  font-weight: 500;
-  margin-top: 2px;
+.seat-btn .seat-code {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
 }
 
-.seat-btn:active {
-  transform: scale(0.9);
+.seat-btn .seat-state {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--lime);
+  text-transform: uppercase;
 }
 
 .seat-btn.vip {
-  border-color: var(--neon-gold);
-  background: rgba(255, 183, 3, 0.08);
+  border-color: rgba(255, 184, 0, 0.55);
+  background: linear-gradient(180deg, rgba(255, 184, 0, 0.12) 0%, var(--bg-carbon) 100%);
 }
 
-.seat-btn.vip::after {
-  content: 'VIP';
-  color: var(--neon-gold);
+.seat-btn.vip .seat-state {
+  color: var(--amber);
 }
 
 .seat-btn.busy {
-  border-color: rgba(255, 51, 102, 0.4);
-  background: rgba(255, 51, 102, 0.08);
-  color: var(--text-dim);
-  cursor: not-allowed;
-  opacity: 0.6;
+  border-color: rgba(255, 36, 66, 0.45);
+  background: rgba(255, 36, 66, 0.12);
+  opacity: 0.72;
 }
 
-.seat-btn.busy::after {
-  content: 'ЗАНЯТ';
-  color: var(--neon-red);
+.seat-btn.busy .seat-state {
+  color: var(--crimson);
 }
 
-.chip-group {
+.seat-btn.selected {
+  background: var(--paper) !important;
+  color: var(--text-dark) !important;
+  border: 2px solid var(--crimson) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 36, 66, 0.35);
+}
+
+.seat-btn.selected .seat-code {
+  color: var(--text-dark);
+}
+
+.seat-btn.selected .seat-state {
+  color: var(--crimson);
+}
+
+/* TACTICAL LOADOUT BOOKING PANEL */
+.loadout-panel {
+  background: var(--paper);
+  color: var(--text-dark);
+  border-left: 6px solid var(--crimson);
+  padding: 14px;
+  margin-top: 10px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+
+.loadout-head {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--text-dark);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-.chip-btn {
-  flex: 1;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  border-radius: var(--radius-md);
-  padding: 11px 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-}
-
-.chip-btn.active {
-  background: var(--accent-grad);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: var(--accent-glow);
+.loadout-title {
+  font-family: var(--font-display);
+  font-size: 24px;
   font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
+.tariff-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin: 10px 0 12px;
+}
+
+.tariff-tile {
+  background: #e5dfd2;
+  border: 2px solid transparent;
+  padding: 9px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.tariff-tile.active {
+  background: var(--bg-obsidian);
+  color: var(--paper);
+  border-color: var(--crimson);
+}
+
+.tariff-hrs {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.tariff-sum {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  margin-top: 4px;
+  color: var(--crimson);
+}
+
+.tariff-tile.active .tariff-sum {
+  color: var(--lime);
+}
+
+/* SELECTS & BUTTONS */
 .styled-select {
   width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  color: #fff;
-  padding: 13px 14px;
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  outline: none;
-  cursor: pointer;
-}
-
-.styled-select:focus {
-  border-color: var(--neon-cyan);
-}
-
-.tariff-card {
-  width: 100%;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  background: var(--bg-obsidian);
+  color: var(--paper);
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 12px;
   margin-bottom: 10px;
+  outline: none;
+}
+
+.back-btn {
+  background: var(--bg-carbon);
+  color: var(--paper);
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  margin-bottom: 12px;
   cursor: pointer;
-  color: var(--text);
-}
-
-.tariff-card.active {
-  border-color: var(--neon-cyan);
-  background: rgba(0, 240, 255, 0.08);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
-}
-
-.tariff-card b {
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--neon-cyan);
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .cta-btn {
   width: 100%;
-  background: var(--accent-grad);
-  border: 0;
+  background: var(--crimson);
   color: #fff;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.2px;
-  padding: 16px;
-  border-radius: var(--radius-lg);
+  border: none;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 13px 16px;
   cursor: pointer;
-  margin-top: 14px;
-  box-shadow: var(--accent-glow);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  justify-content: space-between;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  transition: transform 0.12s ease, filter 0.12s ease;
 }
 
 .cta-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.985);
 }
 
 .cta-btn.ok {
-  background: linear-gradient(135deg, #00ffa3 0%, #00b4d8 100%);
-  color: #05261e;
-  box-shadow: var(--green-glow);
+  background: var(--lime);
+  color: var(--text-dark);
 }
 
 .cta-btn.no {
-  background: rgba(255, 51, 102, 0.15);
-  border: 1px solid rgba(255, 51, 102, 0.3);
-  color: var(--neon-red);
+  background: #282c3a;
+  color: var(--crimson);
+  border: 1px solid var(--crimson);
 }
 
+/* CARDS & PAYMENT DOSSIER */
 .card-box {
-  background: var(--surface-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 18px;
+  background: var(--bg-carbon);
+  border: 1px solid var(--border-strong);
+  padding: 14px;
   margin-bottom: 12px;
+  position: relative;
 }
 
 .card-number-display {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 20px;
+  background: var(--bg-obsidian);
+  border: 1px dashed var(--crimson);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 17px;
   font-weight: 800;
-  letter-spacing: 2px;
-  color: var(--neon-cyan);
-  margin: 10px 0;
-  background: rgba(0, 0, 0, 0.35);
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  border: 1px dashed rgba(0, 240, 255, 0.3);
-  text-align: center;
+  letter-spacing: 0.08em;
+  padding: 12px;
+  margin: 10px 0 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.copy-pill {
+  background: var(--crimson);
+  color: #fff;
+  font-size: 10px;
+  padding: 4px 8px;
 }
 
 .file-upload-zone {
-  display: block;
-  border: 2px dashed var(--border);
-  background: rgba(26, 21, 48, 0.35);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  text-align: center;
-  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(242, 237, 226, 0.05);
+  border: 2px dashed var(--border-strong);
+  padding: 18px 14px;
+  margin-bottom: 14px;
   cursor: pointer;
-  margin-top: 14px;
-}
-
-.toast-msg {
-  position: fixed;
-  left: 50%;
-  bottom: 30px;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #00ffa3 0%, #00b4d8 100%);
-  color: #05261e;
-  font-weight: 700;
-  padding: 12px 24px;
-  border-radius: 99px;
-  font-size: 14px;
-  box-shadow: 0 8px 24px rgba(0, 255, 163, 0.4);
-  z-index: 999;
-  animation: fadeIn 0.3s ease;
-}
-
-.error-text {
-  color: var(--neon-red);
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
 }
 
 .status-tag {
   display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  margin-top: 6px;
+}
+
+.st-new { background: rgba(255, 184, 0, 0.15); color: var(--amber); border: 1px solid var(--amber); }
+.st-ok { background: rgba(0, 255, 157, 0.15); color: var(--lime); border: 1px solid var(--lime); }
+.st-no { background: rgba(255, 36, 66, 0.15); color: var(--crimson); border: 1px solid var(--crimson); }
+
+.error-text {
+  background: rgba(255, 36, 66, 0.16);
+  border-left: 4px solid var(--crimson);
+  color: #ff8fa0;
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 99px;
-  margin-top: 8px;
+  padding: 9px 10px;
+  margin: 10px 0;
 }
-.st-new { background: rgba(255, 183, 3, 0.15); color: var(--neon-gold); border: 1px solid rgba(255, 183, 3, 0.3); }
-.st-ok { background: rgba(0, 255, 163, 0.15); color: var(--neon-green); border: 1px solid rgba(0, 255, 163, 0.3); }
-.st-no { background: rgba(255, 51, 102, 0.15); color: var(--neon-red); border: 1px solid rgba(255, 51, 102, 0.3); }
 
 .row-btns {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-top: 10px;
 }
 
-.row-btns .cta-btn {
-  margin-top: 0;
+.toast-msg {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--paper);
+  color: var(--text-dark);
+  border-left: 6px solid var(--lime);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 12px 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  width: calc(100% - 28px);
+  max-width: 440px;
 }
 </style>
 </head>
@@ -573,8 +921,8 @@ const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
-  if (tg.setHeaderColor) tg.setHeaderColor("#0b0914");
-  if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0914");
+  if (tg.setHeaderColor) tg.setHeaderColor("#0b0c10");
+  if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0c10");
 }
 
 function haptic(type = "light") {
@@ -587,118 +935,122 @@ function haptic(type = "light") {
 
 const L = {
   ru: {
-    brand: "NOVA GAMING",
-    user: "Игрок",
-    admin: "Админ клуба",
-    sys: "Сис админ",
-    demo: "ДЕМО-РЕЖИМ: переключайте роли вверху для теста",
-    clubs: "Компьютерные клубы",
-    mine: "Мои активные брони",
-    back: "← Назад",
-    vip: "VIP Зона (Bootcamp)",
-    main: "Основной зал",
-    free: "Свободен",
-    busy: "Занят",
-    seat: "ПК",
-    days: ["Сегодня", "Завтра", "Послезавтра"],
-    start: "Время посадки",
-    tariff: "Тарифный план",
-    h: "ч",
-    next: "Перейти к бронированию →",
-    pay: "Оплата и подтверждение",
-    payInfo: "Переведите сумму на карту клуба (Kaspi / Uzcard / Humo) и прикрепите чек.",
-    card: "Номер карты клуба",
-    attach: "📸 Прикрепить скриншот чека",
-    paid: "Подтвердить бронь ✓",
-    needShot: "Пожалуйста, прикрепите скриншот чека!",
-    conflict: "Этот ПК уже забронирован на данное время",
-    closed: "В выбранное время клуб не работает",
-    pick: "Выберите тарифный план",
-    sNew: "Ожидает подтверждения админом",
-    sOk: "Бронь подтверждена ✓",
-    sNo: "Отклонено ✕",
-    sExp: "Время оплаты истекло (5 мин)",
-    tNew: "Новые заявки",
-    tOk: "Одобренные",
-    tNo: "Отклонённые",
-    yes: "Подтвердить ✓",
-    no: "Отклонить ✕",
-    shot: "Чек об оплате прикреплен",
-    manual: "Посадить клиента вручную (стойка)",
-    occ: "Занять ПК",
-    empty: "Заявок в этой категории нет",
-    reg: "Заявки на подключение клубов к Nova",
-    act: "Подключённые киберарены",
-    appr: "Одобрить подключение",
-    sent: "🚀 Бронь отправлена администратору клуба!",
-    from: "от",
-    per: "/ час",
-    sum: "сум",
-    takenBy: "Занят сейчас",
-    manualTag: "Посадка от стойки (Админ)",
-    hours: "График",
-    busyAt: "Занят в слоты"
+    brand: "NOVA // TACTICAL BOOKING",
+    heroTitle: "ВЫБЕРИ СВОЮ АРЕНУ",
+    heroSub: "ТАШКЕНТ · СИСТЕМА БРОНИРОВАНИЯ КИБЕР-КЛУБОВ",
+    user: "01. ИГРОК",
+    admin: "02. АДМИН",
+    sys: "03. ROOT",
+    clubs: "ДОСЬЕ КИБЕРАРЕН",
+    mine: "АКТИВНЫЕ СЕССИИ",
+    back: "← НАЗАД В КАТАЛОГ",
+    vip: "ZONE VIP // BOOTCAMP",
+    main: "ZONE A // ОСНОВНОЙ ЗАЛ",
+    free: "FREE [LIVE]",
+    busy: "RESERVED",
+    seat: "ЮНИТ",
+    days: ["СЕГОДНЯ", "ЗАВТРА", "ПОСЛЕЗАВТРА"],
+    start: "ВРЕМЯ ПОСАДКИ",
+    tariff: "ТАРИФНЫЙ ПАКЕТ",
+    h: "Ч",
+    next: "ЗАБРОНИРОВАТЬ ЮНИТ",
+    pay: "ПЛАТЁЖНЫЙ ОРДЕР",
+    payInfo: "Переведите сумму на карту клуба (Uzcard / Humo) и прикрепите скриншот чека для мгновенной активации.",
+    card: "КАРТА КЛУБА",
+    copy: "КОПИРОВАТЬ",
+    copied: "СКОПИРОВАНО ✓",
+    attach: "[+] ПРИКРЕПИТЬ СКРИНШОТ ЧЕКА",
+    paid: "ПОДТВЕРДИТЬ ОПЛАТУ",
+    needShot: "Прикрепите скриншот чека об оплате!",
+    conflict: "Конфликт слотов: этот ПК уже занят на выбранное время",
+    closed: "В выбранный слот арена закрыта",
+    pick: "Выберите тарифный пакет",
+    sNew: "ОЖИДАЕТ ПРОВЕРКИ АДМИНОМ",
+    sOk: "ДОПУСК ПОДТВЕРЖДЁН ✓",
+    sNo: "ОТКЛОНЕНО ✕",
+    sExp: "ТАЙМАУТ ОПЛАТЫ (5 МИН)",
+    tNew: "НОВЫЕ",
+    tOk: "АКТИВНЫЕ",
+    tNo: "АРХИВ",
+    yes: "ПОДТВЕРДИТЬ ✓",
+    no: "ОТКЛОНИТЬ ✕",
+    shot: "Чек об оплате прикреплён",
+    manual: "РУЧНАЯ ПОСАДКА (РЕСЕПШЕН)",
+    occ: "ЗАНЯТЬ ЮНИТ",
+    empty: "// НЕТ ЗАПИСЕЙ В СЕКТОРЕ",
+    reg: "ЗАЯВКИ НА ПОДКЛЮЧЕНИЕ К NOVA",
+    act: "АКТИВНЫЕ АРЕНЫ В СЕТИ",
+    appr: "АКТИВИРОВАТЬ КЛУБ",
+    sent: "⚡ ОРДЕР ОТПРАВЛЕН АДМИНИСТРАТОРУ АРЕНЫ!",
+    from: "ОТ",
+    per: "/ ЧАС",
+    sum: "СУМ",
+    manualTag: "СТОЙКА (ADMIN)",
+    busyAt: "ЗАНЯТ В СЛОТЫ",
+    pickSeatPrompt: "НАЖМИТЕ НА СВОБОДНЫЙ ПК В МАТРИЦЕ ВЫШЕ ДЛЯ БРОНИРОВАНИЯ"
   },
   uz: {
-    brand: "NOVA GAMING",
-    user: "O‘yinchi",
-    admin: "Klub admini",
-    sys: "Tizim admini",
-    demo: "DEMO: Yuqorida rollarni almashtirib sinab ko‘ring",
-    clubs: "Kompyuter klublari",
-    mine: "Mening bronlarim",
-    back: "← Orqaga",
-    vip: "VIP Zona (Bootcamp)",
-    main: "Asosiy zal",
-    free: "Bo‘sh",
-    busy: "Band",
-    seat: "Kompyuter",
-    days: ["Bugun", "Ertaga", "Indinga"],
-    start: "Boshlanish vaqti",
-    tariff: "Tarif",
-    h: "soat",
-    next: "Davom etish →",
-    pay: "To‘lov va tasdiqlash",
-    payInfo: "Klub kartasiga to‘lov qiling va chek skrinshotini yuklang.",
-    card: "Klub karta raqami",
-    attach: "📸 Chek skrinshotini biriktirish",
-    paid: "To‘ladim ✓",
-    needShot: "Iltimos, to‘lov chekini biriktiring!",
-    conflict: "Bu kompyuter ushbu vaqtda band",
+    brand: "NOVA // TACTICAL BOOKING",
+    heroTitle: "ARENANI TANLANG",
+    heroSub: "TOSHKENT · KIBER-KLUBLARNI BRON QILISH TIZIMI",
+    user: "01. O‘YINCHI",
+    admin: "02. ADMIN",
+    sys: "03. ROOT",
+    clubs: "KIBERARENALAR DOSYESI",
+    mine: "FAOL BRONLARIM",
+    back: "← KATALOGGA QAYTISH",
+    vip: "ZONE VIP // BOOTCAMP",
+    main: "ZONE A // ASOSIY ZAL",
+    free: "BO‘SH [LIVE]",
+    busy: "BAND",
+    seat: "PC",
+    days: ["BUGUN", "ERTAGA", "INDINGA"],
+    start: "BOSHLANISH VAQTI",
+    tariff: "TARIF PAKETI",
+    h: "SOAT",
+    next: "BRON QILISHGA O‘TISH",
+    pay: "TO‘LOV ORDERI",
+    payInfo: "Klub kartasiga to‘lov qiling va tasdiqlash uchun chek skrinshotini yuklang.",
+    card: "KLUB KARTASI",
+    copy: "NUSXA OLISH",
+    copied: "NUSXALANDI ✓",
+    attach: "[+] TO‘LOV CHEKINI YUKLASH",
+    paid: "TO‘LOVNI TASDIQLASH",
+    needShot: "Iltimos, to‘lov cheki skrinshotini biriktiring!",
+    conflict: "Bu kompyuter tanlangan vaqtda band",
     closed: "Klub bu vaqtda ishlamaydi",
-    pick: "Tarifni tanlang",
-    sNew: "Klub tasdig‘ini kutmoqda",
-    sOk: "Bron tasdiqlandi ✓",
-    sNo: "Rad etildi ✕",
-    sExp: "Vaqt tugadi (5 daqiqa)",
-    tNew: "Yangi so‘rovlar",
-    tOk: "Tasdiqlangan",
-    tNo: "Rad etilgan",
-    yes: "Tasdiqlash ✓",
-    no: "Rad etish ✕",
-    shot: "To‘lov cheki mavjud",
-    manual: "Joyni qo‘lda band qilish (reception)",
-    occ: "Band qilish",
-    empty: "Hozircha bo‘sh",
-    reg: "Klubni ulash so‘rovlari",
-    act: "Ulangan klublar",
-    appr: "Ma’qullash",
-    sent: "🚀 So‘rov klub adminiga yuborildi!",
-    from: "dan",
-    per: "/ soat",
-    sum: "so‘m",
-    takenBy: "Hozir band",
-    manualTag: "Admin tomonidan band qilingan",
-    hours: "Ish vaqti",
-    busyAt: "Band vaqtlar"
+    pick: "Tarif paketini tanlang",
+    sNew: "ADMIN TASDIG‘INI KUTMOQDA",
+    sOk: "BRON TASDIQLANDI ✓",
+    sNo: "RAD ETILDI ✕",
+    sExp: "VAQT TUGADI (5 DAQIQA)",
+    tNew: "YANGI",
+    tOk: "TASDIQLANGAN",
+    tNo: "RAD ETILGAN",
+    yes: "TASDIQLASH ✓",
+    no: "RAD ETISH ✕",
+    shot: "To‘lov cheki biriktirilgan",
+    manual: "QO‘LDA BAND QILISH (RECEPTION)",
+    occ: "PC BAND QILISH",
+    empty: "// MA’LUMOT YO‘Q",
+    reg: "ULANISH SO‘ROVLARI",
+    act: "FAOL KIBERARENALAR",
+    appr: "FAOLASHTIRISH",
+    sent: "⚡ SO‘ROV KLUB ADMINIGA YUBORILDI!",
+    from: "DAN",
+    per: "/ SOAT",
+    sum: "SO‘M",
+    manualTag: "RECEPTION (ADMIN)",
+    busyAt: "BAND VAQTLAR",
+    pickSeatPrompt: "BRON QILISH UCHUN YUQORIDAGI MATRITSADAN KOMPYUTERNI TANLANG"
   }
 };
 
 const clubs = [
-  { id: 1, name: "Nova Cyber Arena", addr: "Ташкент, Чиланзар 9", open: 0, close: 24, card: "8600 1234 5678 9012", ok: true, tar: [[1, 35000], [3, 90000], [5, 130000]], gpu: "RTX 4070 · 280Hz" },
-  { id: 2, name: "Next Level Esports", addr: "Ташкент, Юнусабад 4", open: 10, close: 24, card: "8600 4455 6677 8899", ok: true, tar: [[1, 30000], [2, 55000], [4, 100000]], gpu: "RTX 4060Ti · 240Hz" },
-  { id: 3, name: "Pixel Zone Lounge", addr: "Самарканд, Центр", open: 12, close: 24, card: "8600 1111 2222 3333", ok: false, tar: [[1, 25000], [3, 65000]], gpu: "RTX 3070 · 165Hz" },
-  { id: 4, name: "Level Up Bootcamp", addr: "Бухара, ул. Навои", open: 0, close: 24, card: "8600 9999 8888 7777", ok: false, tar: [[1, 20000], [5, 80000]], gpu: "RTX 4060 · 144Hz" }
+  { id: 1, code: "ARENA 01", name: "NOVA CYBER ARENA", addr: "Ташкент, Чиланзар-9", open: 0, close: 24, card: "8600 1234 5678 9012", ok: true, tar: [[1, 35000], [3, 90000], [5, 130000]], gpu: "RTX 4080 · 280Hz ZOWIE", units: 19 },
+  { id: 2, code: "NEXT LVL", name: "NEXT LEVEL ESPORTS", addr: "Ташкент, Юнусабад-4", open: 10, close: 24, card: "8600 4455 6677 8899", ok: true, tar: [[1, 30000], [2, 55000], [4, 100000]], gpu: "RTX 4070Ti · 240Hz", units: 19 },
+  { id: 3, code: "PIXEL ZN", name: "PIXEL ZONE LOUNGE", addr: "Самарканд, Центр", open: 12, close: 24, card: "8600 1111 2222 3333", ok: false, tar: [[1, 25000], [3, 65000], [5, 95000]], gpu: "RTX 4060Ti · 165Hz", units: 19 },
+  { id: 4, code: "BOOTCAMP", name: "LEVEL UP BOOTCAMP", addr: "Бухара, ул. Навои", open: 0, close: 24, card: "8600 9999 8888 7777", ok: false, tar: [[1, 20000], [3, 50000], [5, 80000]], gpu: "RTX 4060 · 144Hz", units: 19 }
 ];
 
 const MAIN = [...Array(15)].map((_, i) => String(i + 1));
@@ -706,9 +1058,9 @@ const VIP = ["V1", "V2", "V3", "V4"];
 
 let bk = [
   { id: 1, club: 1, seat: "3", day: 0, start: 14, hours: 3, st: "ok", by: "user" },
-  { id: 2, club: 1, seat: "7", day: 0, start: 18, hours: 2, st: "ok", by: "user" },
-  { id: 3, club: 1, seat: "V2", day: 0, start: 20, hours: 5, st: "ok", by: "user" },
-  { id: 4, club: 2, seat: "5", day: 0, start: 16, hours: 2, st: "ok", by: "user" }
+  { id: 2, club: 1, seat: "7", day: 0, start: 18, hours: 3, st: "ok", by: "user" },
+  { id: 3, club: 1, seat: "V2", day: 0, start: 20, hours: 4, st: "ok", by: "user" },
+  { id: 4, club: 2, seat: "5", day: 0, start: 16, hours: 3, st: "ok", by: "user" }
 ];
 
 let nid = 10;
@@ -716,16 +1068,17 @@ let S = {
   role: "user",
   lang: "ru",
   view: "home",
-  club: null,
+  club: 1,
   adminClubId: 1,
-  seat: null,
+  seat: "1",
   day: 0,
   start: null,
-  tar: null,
+  tar: 0,
   tab: "new",
   err: "",
   shot: "",
-  toast: ""
+  toast: "",
+  copied: false
 };
 
 const t = k => L[S.lang][k];
@@ -750,6 +1103,15 @@ function minHour(c) {
   return Math.min(...c.tar.map(x => x[1] / x[0]));
 }
 
+function operatorSvg() {
+  return `<svg class="poster-silhouette" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M60 12C42 12 30 26 30 44C30 58 38 70 46 76L20 96V138H100V96L74 76C82 70 90 58 90 44C90 26 78 12 60 12Z" fill="currentColor"/>
+    <rect x="38" y="36" width="44" height="14" fill="#ff2442"/>
+    <circle cx="49" cy="43" r="4" fill="#f2ede2"/>
+    <circle cx="71" cy="43" r="4" fill="#f2ede2"/>
+  </svg>`;
+}
+
 function tagHtml(b) {
   const cls = b.st === "new" ? "st-new" : b.st === "ok" ? "st-ok" : "st-no";
   const txt = { new: t("sNew"), ok: t("sOk"), no: t("sNo"), exp: t("sExp") }[b.st] || b.st;
@@ -758,7 +1120,7 @@ function tagHtml(b) {
 
 function cdHtml(b) {
   if (b.st !== "new") return "";
-  return ` <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-gold);font-size:12px;" data-exp="${b.created + 3e5}"></span>`;
+  return ` <span style="font-family:var(--font-mono);color:var(--amber);font-size:12px;font-weight:800;" data-exp="${b.created + 3e5}"></span>`;
 }
 
 function head() {
@@ -769,134 +1131,213 @@ function head() {
   `).join("");
 
   return `
+    <div class="hud-top-meta">
+      <div class="hud-coords">
+        <span class="live-dot"></span>
+        <span>${t("brand")}</span>
+      </div>
+      <span>41.2995° N, 69.2401° E // TAS</span>
+    </div>
     <div class="top-bar">
       <div class="role-seg">${r}</div>
-      <button class="lang-btn" onclick="setLang()">${S.lang === "ru" ? "🇺🇿 UZ" : "🇷🇺 RU"}</button>
-    </div>
-    <div class="demo-banner">
-      <div class="demo-dot"></div>
-      <span>${t("demo")}</span>
+      <button class="lang-btn" onclick="setLang()">${S.lang === "ru" ? "UZ" : "RU"}</button>
     </div>
   `;
 }
 
 function home() {
-  const list = clubs.filter(c => c.ok).map(c => `
-    <div class="club-card anim-fade" onclick="openClub(${c.id})">
-      <div class="club-head">
-        <div>
-          <div class="club-name">${c.name}</div>
-          <div class="club-addr">📍 ${c.addr}</div>
+  const list = clubs.filter(c => c.ok).map((c, idx) => {
+    const busyCount = [...MAIN, ...VIP].filter(s => clash(c.id, s, 0, new Date().getHours(), 1)).length;
+    const freeCount = c.units - busyCount;
+    return `
+      <div class="poster-card anim-in" onclick="openClub(${c.id})">
+        <div class="poster-index-col">
+          <div class="poster-idx-num">#00${idx + 1}</div>
+          <div class="poster-idx-meta">
+            UNIT
+            <b>${freeCount}/${c.units}</b>
+            ZONE
+            <b>TAS-${c.id}</b>
+          </div>
+          <div class="poster-idx-status">LIVE</div>
         </div>
-        <span class="badge badge-price">${t("from")} ${fm(Math.round(minHour(c)))} ${t("per")}</span>
+        <div class="poster-main-col">
+          <div class="poster-bg-word">${c.code}</div>
+          ${operatorSvg()}
+          <div class="poster-top-row">
+            <div>
+              <div class="poster-club-title">${c.name}</div>
+              <div class="poster-club-addr">[+] ${c.addr}</div>
+            </div>
+            <div class="poster-price-pill">${t("from")} ${fm(Math.round(minHour(c)))}</div>
+          </div>
+          <div class="poster-bottom-row">
+            <span class="spec-chip highlight">${c.gpu}</span>
+            <span class="spec-chip live">${c.open === 0 && c.close === 24 ? "24/7 ONLINE" : hh(c.open) + "–" + hh(c.close)}</span>
+            <span class="barcode-strip light"></span>
+          </div>
+        </div>
       </div>
-      <div class="club-tags">
-        <span class="badge badge-green">⚡ ${c.open === 0 && c.close === 24 ? "24/7 Круглосуточно" : hh(c.open) + "–" + hh(c.close)}</span>
-        <span class="badge badge-purple">🎮 ${c.gpu}</span>
-      </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
   const my = bk.filter(b => b.by === "user" && b.mine).map(b => `
-    <div class="card-box anim-fade">
+    <div class="card-box anim-in" style="border-left: 4px solid var(--crimson);">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <b>${C(b.club).name} · ПК ${b.seat}</b>
-        <b style="color:var(--neon-cyan);font-family:'JetBrains Mono';">${fm(b.price)}</b>
+        <b style="font-family:var(--font-display);font-size:19px;letter-spacing:0.02em;">${C(b.club).name} // PC-${b.seat}</b>
+        <b style="color:var(--lime);font-family:var(--font-mono);font-size:13px;">${fm(b.price)}</b>
       </div>
-      <p style="color:var(--text-muted);font-size:13px;margin:4px 0;">📅 ${rng(b)}</p>
+      <p style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;margin:6px 0;">TIME: ${rng(b)}</p>
       ${tagHtml(b)}${cdHtml(b)}
     </div>
   `).join("");
 
   return `
-    <div class="brand-header">
-      <div class="brand-title">
-        <div class="brand-logo-icon">🎮</div>
-        <span class="brand-badge">${t("brand")}</span>
+    <div class="poster-masthead anim-in">
+      <div class="masthead-kicker">
+        <span>// OPERATION: CYBER LOUNGE</span>
+        <span>SYS.V4.0</span>
+      </div>
+      <div class="masthead-title">${t("heroTitle")}</div>
+      <div class="masthead-sub">
+        <span>${t("heroSub")}</span>
+        <span class="barcode-strip"></span>
       </div>
     </div>
-    <h2 class="section-title">🏛️ ${t("clubs")}</h2>
+
+    ${my ? `
+      <div class="sec-head">
+        <span class="sec-title">${t("mine")}</span>
+        <span class="sec-tag">// ACTIVE PASS</span>
+      </div>
+      ${my}
+    ` : ""}
+
+    <div class="sec-head">
+      <span class="sec-title">${t("clubs")}</span>
+      <span class="sec-tag">// SELECT SECTOR</span>
+    </div>
     ${list}
-    ${my ? `<h2 class="section-title">🎟️ ${t("mine")}</h2>${my}` : ""}
   `;
 }
 
-function seatBtn(id, isVip) {
-  const c = S.club;
-  const isBusy = clash(c, id, 0, new Date().getHours(), 1);
+function seatBtn(id, isVip, c, checkHour, durHours) {
+  const isBusy = clash(c.id, id, S.day, checkHour, durHours);
+  const isSelected = S.seat === id;
+  const code = isVip ? id : `PC-${String(id).padStart(2, "0")}`;
   return `
-    <button class="seat-btn ${isVip ? 'vip' : ''} ${isBusy ? 'busy' : ''}" onclick="openSeat('${id}')">
-      ${id}
+    <button class="seat-btn ${isVip ? 'vip' : ''} ${isBusy ? 'busy' : ''} ${isSelected ? 'selected' : ''}" onclick="selectSeat('${id}')">
+      <span class="seat-code">${code}</span>
+      <span class="seat-state">${isBusy ? 'BUSY' : (isVip ? 'VIP' : 'FREE')}</span>
     </button>
-  `;
-}
-
-function clubView() {
-  const c = C(S.club);
-  return `
-    <div class="anim-fade">
-      <button class="back-btn" onclick="go('home')">${t("back")}</button>
-      <h1 style="font-size:24px;font-weight:800;margin-bottom:4px;">${c.name}</h1>
-      <p style="color:var(--text-muted);font-size:13px;">🎮 ${c.gpu} · 📍 ${c.addr}</p>
-      
-      <div class="legend-bar">
-        <div class="legend-item"><div class="legend-box" style="border:2px solid var(--neon-green)"></div> ${t("free")}</div>
-        <div class="legend-item"><div class="legend-box" style="border:2px solid var(--neon-red);background:rgba(255,51,102,0.2)"></div> ${t("busy")}</div>
-        <div class="legend-item"><div class="legend-box" style="border:2px solid var(--neon-gold)"></div> ${t("vip")}</div>
-      </div>
-
-      <h2 class="section-title">🪑 ${t("main")}</h2>
-      <div class="grid-main">${MAIN.map(i => seatBtn(i, false)).join("")}</div>
-
-      <h2 class="section-title">👑 ${t("vip")}</h2>
-      <div class="grid-vip">${VIP.map(i => seatBtn(i, true)).join("")}</div>
-    </div>
   `;
 }
 
 function startOpts(cid) {
   const k = C(cid), a = k.open, z = k.close;
   let o = "";
-  for (let h = a; h < z; h++) o += `<option value="${h}" ${S.start === h ? "selected" : ""}>🕒 ${hh(h)}</option>`;
+  for (let h = a; h < z; h++) {
+    o += `<option value="${h}" ${S.start === h ? "selected" : ""}>SLOT // ${hh(h)}</option>`;
+  }
   return o;
 }
 
-function seatView() {
+function clubView() {
   const c = C(S.club);
   if (S.start === null) S.start = Math.max(c.open, Math.min(new Date().getHours() + 1, c.close - 1));
+  if (S.tar === null || !c.tar[S.tar]) S.tar = 0;
 
-  const ex = bk.filter(b => b.club === c.id && b.seat === S.seat && b.st === "ok")
-    .map(b => `<p style="color:var(--neon-red);font-size:12px;margin-top:2px;">⚠️ ${t("busyAt")}: ${rng(b)}</p>`).join("");
+  const activeTariff = c.tar[S.tar];
+  const durHours = activeTariff ? activeTariff[0] : 1;
 
   const days = t("days").map((d, i) => `
-    <button class="chip-btn ${S.day === i ? 'active' : ''}" onclick="S.day=${i};haptic();render()">${d}</button>
+    <button class="day-pill ${S.day === i ? 'active' : ''}" onclick="S.day=${i};S.err='';haptic();render()">${d}</button>
   `).join("");
 
   const tars = c.tar.map((x, i) => `
-    <div class="tariff-card ${S.tar === i ? 'active' : ''}" onclick="S.tar=${i};haptic();render()">
-      <span>⏱️ <b>${x[0]} ${t("h")}</b> игры</span>
-      <b>${fm(x[1])}</b>
+    <div class="tariff-tile ${S.tar === i ? 'active' : ''}" onclick="S.tar=${i};S.err='';haptic();render()">
+      <div class="tariff-hrs">${x[0]} ${t("h")}</div>
+      <div class="tariff-sum">${fm(x[1])}</div>
     </div>
   `).join("");
 
+  const seatBookings = bk.filter(b => b.club === c.id && b.seat === S.seat && (b.st === "ok" || b.st === "new"))
+    .map(b => `<div style="font-family:var(--font-mono);font-size:10px;color:var(--crimson);margin-top:4px;">[!] ${t("busyAt")}: ${rng(b)}</div>`).join("");
+
+  const seatLabel = S.seat && S.seat.startsWith("V") ? S.seat : `PC-${String(S.seat).padStart(2, "0")}`;
+
   return `
-    <div class="anim-fade">
-      <button class="back-btn" onclick="go('club')">${t("back")}</button>
-      <h1 style="font-size:24px;font-weight:800;">${c.name} · Место #${S.seat}</h1>
-      ${ex}
+    <div class="anim-in">
+      <button class="back-btn" onclick="go('home')">${t("back")}</button>
 
-      <h2 class="section-title">📅 Дата бронирования</h2>
-      <div class="chip-group">${days}</div>
+      <div class="club-hero-poster">
+        <div class="club-hero-watermark">${c.code}</div>
+        <div class="club-hero-header">
+          <span>SECTOR // 0${c.id}</span>
+          <span>${c.open === 0 && c.close === 24 ? "24/7 OPERATION" : hh(c.open) + "–" + hh(c.close)}</span>
+        </div>
+        <div class="club-hero-title">${c.name}</div>
+        <div style="position:relative;z-index:1;font-family:var(--font-mono);font-size:11px;margin-top:4px;opacity:0.9;">
+          📍 ${c.addr}
+        </div>
+        <div class="club-hero-loadout">
+          <span>HARDWARE // ${c.gpu}</span>
+          <span class="barcode-strip"></span>
+        </div>
+      </div>
 
-      <h2 class="section-title">⏰ ${t("start")}</h2>
-      <select class="styled-select" onchange="S.start=+this.value;haptic()">${startOpts(c.id)}</select>
+      <div class="tactical-filter-box">
+        <div class="filter-label">
+          <span>01 // ДАТА И ВРЕМЯ ПОСАДКИ</span>
+          <span style="color:var(--cyan);">${t("days")[S.day]} @ ${hh(S.start)}</span>
+        </div>
+        <div class="day-pills">${days}</div>
+        <select class="styled-select" style="margin-bottom:0;" onchange="S.start=+this.value;S.err='';haptic();render()">
+          ${startOpts(c.id)}
+        </select>
+      </div>
 
-      <h2 class="section-title">⚡ ${t("tariff")}</h2>
-      ${tars}
+      <div class="legend-bar">
+        <div class="legend-item"><span class="legend-swatch" style="background:var(--lime)"></span> ${t("free")}</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:var(--crimson)"></span> ${t("busy")}</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:var(--paper)"></span> ВЫБРАН</div>
+      </div>
 
-      ${S.err ? `<div class="error-text">❌ ${S.err}</div>` : ""}
+      <div class="sec-head" style="margin-top:8px;">
+        <span class="sec-title">${t("main")}</span>
+        <span class="sec-tag">// 15 UNITS</span>
+      </div>
+      <div class="grid-main">${MAIN.map(i => seatBtn(i, false, c, S.start, durHours)).join("")}</div>
 
-      <button class="cta-btn" onclick="toPay()">${t("next")}</button>
+      <div class="sec-head">
+        <span class="sec-title">${t("vip")}</span>
+        <span class="sec-tag">// PRO SQUAD</span>
+      </div>
+      <div class="grid-vip">${VIP.map(i => seatBtn(i, true, c, S.start, durHours)).join("")}</div>
+
+      <div class="loadout-panel">
+        <div class="loadout-head">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:10px;font-weight:800;color:var(--crimson);">SELECTED UNIT // TACTICAL LOADOUT</div>
+            <div class="loadout-title">${c.name} · [${seatLabel}]</div>
+          </div>
+          <span class="barcode-strip"></span>
+        </div>
+
+        ${seatBookings}
+
+        <div style="font-family:var(--font-mono);font-size:10px;font-weight:800;margin-top:8px;text-transform:uppercase;">
+          02 // ${t("tariff")}:
+        </div>
+        <div class="tariff-grid">${tars}</div>
+
+        ${S.err ? `<div class="error-text">[ERROR] ${S.err}</div>` : ""}
+
+        <button class="cta-btn" onclick="toPay()">
+          <span>${t("next")} [${seatLabel}]</span>
+          <span>${fm(activeTariff[1])} →</span>
+        </button>
+      </div>
     </div>
   `;
 }
@@ -904,36 +1345,50 @@ function seatView() {
 function payView() {
   const c = C(S.club);
   const x = c.tar[S.tar];
+  const seatLabel = S.seat && S.seat.startsWith("V") ? S.seat : `PC-${String(S.seat).padStart(2, "0")}`;
 
   return `
-    <div class="anim-fade">
-      <button class="back-btn" onclick="go('seat')">${t("back")}</button>
-      <h1 style="font-size:24px;font-weight:800;margin-bottom:14px;">💳 ${t("pay")}</h1>
+    <div class="anim-in">
+      <button class="back-btn" onclick="go('club')">← НАЗАД К МАТРИЦЕ МЕСТ</button>
 
-      <div class="card-box">
-        <div style="font-size:17px;font-weight:800;">${c.name} · ПК ${S.seat}</div>
-        <p style="color:var(--text-muted);font-size:13px;margin:6px 0;">
-          📅 ${t("days")[S.day]}, ${hh(S.start)}–${hh(S.start + x[0])} (${x[0]} ${t("h")})
-        </p>
-        <div style="font-size:22px;font-weight:800;color:var(--neon-green);margin-top:10px;font-family:'JetBrains Mono';">
+      <div class="poster-masthead" style="margin-bottom:14px;">
+        <div class="masthead-kicker">
+          <span>// REQUISITION ORDER</span>
+          <span>UNIT: ${seatLabel}</span>
+        </div>
+        <div class="masthead-title">${t("pay")}</div>
+        <div class="masthead-sub">
+          <span>${c.name} · ${t("days")[S.day]} ${hh(S.start)}–${hh(S.start + x[0])}</span>
+          <span class="barcode-strip"></span>
+        </div>
+      </div>
+
+      <div class="card-box" style="border-left: 5px solid var(--lime);">
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">К ОПЛАТЕ ЗА ${x[0]} ${t("h")}:</div>
+        <div style="font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--lime);line-height:1.1;">
           ${fm(x[1])}
         </div>
       </div>
 
       <div class="card-box">
-        <p style="color:var(--text-muted);font-size:13px;line-height:1.4;">${t("payInfo")}</p>
-        <div class="card-number-display">${c.card}</div>
-        <p style="text-align:center;font-size:11px;color:var(--text-dim);">Нажмите и удерживайте, чтобы скопировать номер карты</p>
+        <p style="color:var(--paper);font-size:12px;line-height:1.45;">${t("payInfo")}</p>
+        <div class="card-number-display" onclick="copyCard('${c.card}')">
+          <span>${c.card}</span>
+          <span class="copy-pill">${S.copied ? t("copied") : t("copy")}</span>
+        </div>
       </div>
 
       <label class="file-upload-zone">
-        <input type="file" accept="image/*" hidden onchange="$('fn').textContent=this.files[0]?('📎 '+this.files[0].name):'';S.shot=this.files[0]?this.files[0].name:'';haptic();">
-        <span id="fn" style="font-weight:600;">${S.shot ? ('📎 ' + S.shot) : t("attach")}</span>
+        <input type="file" accept="image/*" hidden onchange="$('fn').textContent=this.files[0]?('📎 '+this.files[0].name):'';S.shot=this.files[0]?this.files[0].name:'';S.err='';haptic();">
+        <span id="fn" style="font-weight:800;color:var(--paper);">${S.shot ? ('📎 ' + S.shot) : t("attach")}</span>
       </label>
 
-      ${S.err ? `<div class="error-text">❌ ${S.err}</div>` : ""}
+      ${S.err ? `<div class="error-text">[ERROR] ${S.err}</div>` : ""}
 
-      <button class="cta-btn ok" onclick="submitPay()">${t("paid")}</button>
+      <button class="cta-btn ok" onclick="submitPay()">
+        <span>${t("paid")}</span>
+        <span>✓</span>
+      </button>
     </div>
   `;
 }
@@ -941,9 +1396,9 @@ function payView() {
 function adminView() {
   const curClub = C(S.adminClubId) || C(1);
   const activeClubs = clubs.filter(c => c.ok);
-  
+
   const clubSelectOptions = activeClubs.map(c => `
-    <option value="${c.id}" ${c.id === curClub.id ? 'selected' : ''}>🏢 ${c.name}</option>
+    <option value="${c.id}" ${c.id === curClub.id ? 'selected' : ''}>SECTOR // ${c.name}</option>
   `).join("");
 
   const tabs = [["new", "tNew"], ["ok", "tOk"], ["no", "tNo"]];
@@ -954,37 +1409,43 @@ function adminView() {
   `).join("");
 
   const items = bkTab(S.tab, curClub.id).map(b => `
-    <div class="card-box anim-fade">
+    <div class="card-box anim-in" style="border-left:4px solid var(--crimson);">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <b>ПК #${b.seat} · ${rng(b)}</b>
-        <b style="color:var(--neon-cyan);">${b.by === "manual" ? t("manualTag") : fm(b.price)}</b>
+        <b style="font-family:var(--font-display);font-size:20px;">UNIT #${b.seat} // ${rng(b)}</b>
+        <b style="color:var(--cyan);font-family:var(--font-mono);font-size:12px;">${b.by === "manual" ? t("manualTag") : fm(b.price)}</b>
       </div>
-      ${b.by === "user" ? `<p style="font-size:12px;color:var(--neon-green);margin:4px 0;">📎 ${t("shot")}</p>` : ""}
+      ${b.by === "user" ? `<p style="font-size:11px;font-family:var(--font-mono);color:var(--lime);margin:6px 0;">📎 ${t("shot")}</p>` : ""}
       ${tagHtml(b)}${cdHtml(b)}
       ${b.st === "new" ? `
         <div class="row-btns">
-          <button class="cta-btn ok" style="padding:10px;" onclick="decide(${b.id},'ok')">${t("yes")}</button>
-          <button class="cta-btn no" style="padding:10px;" onclick="decide(${b.id},'no')">${t("no")}</button>
+          <button class="cta-btn ok" style="padding:10px;font-size:16px;" onclick="decide(${b.id},'ok')"><span>${t("yes")}</span></button>
+          <button class="cta-btn no" style="padding:10px;font-size:16px;" onclick="decide(${b.id},'no')"><span>${t("no")}</span></button>
         </div>
       ` : ""}
     </div>
-  `).join("") || `<p style="color:var(--text-muted);text-align:center;padding:24px 0;">${t("empty")}</p>`;
+  `).join("") || `<p style="color:var(--text-muted);font-family:var(--font-mono);font-size:12px;text-align:center;padding:24px 0;">${t("empty")}</p>`;
 
-  const seats = [...MAIN, ...VIP].map(s => `<option value="${s}">ПК #${s}</option>`).join("");
-  const hrs = [1, 2, 3, 4, 5].map(n => `<option value="${n}">${n} ч.</option>`).join("");
+  const seats = [...MAIN, ...VIP].map(s => `<option value="${s}">UNIT #${s}</option>`).join("");
+  const hrs = [1, 2, 3, 4, 5].map(n => `<option value="${n}">${n} ${t("h")}</option>`).join("");
 
   return `
-    <div class="anim-fade">
-      <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">💻 Панель администратора клуба</h1>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Выберите клуб для управления заявками:</p>
+    <div class="anim-in">
+      <div class="poster-masthead">
+        <div class="masthead-kicker"><span>// OPERATOR CONSOLE</span><span>ADMIN</span></div>
+        <div class="masthead-title">УПРАВЛЕНИЕ АРЕНОЙ</div>
+      </div>
+
       <select class="styled-select" onchange="S.adminClubId=+this.value;haptic();render()">
         ${clubSelectOptions}
       </select>
 
-      <div class="role-seg" style="margin-bottom:16px;">${seg}</div>
+      <div class="role-seg" style="margin-bottom:14px;">${seg}</div>
       ${items}
 
-      <h2 class="section-title">⚡ ${t("manual")}</h2>
+      <div class="sec-head">
+        <span class="sec-title">${t("manual")}</span>
+        <span class="sec-tag">// RECEPTION</span>
+      </div>
       <div class="card-box">
         <div style="display:flex;gap:8px;">
           <select id="ms" class="styled-select">${seats}</select>
@@ -994,8 +1455,8 @@ function adminView() {
           <select id="mh" class="styled-select">${[...Array(24)].map((_, h) => `<option value="${h}">${hh(h)}</option>`).join("")}</select>
           <select id="mn" class="styled-select">${hrs}</select>
         </div>
-        ${S.err ? `<div class="error-text">❌ ${S.err}</div>` : ""}
-        <button class="cta-btn" onclick="manual(${curClub.id})">${t("occ")}</button>
+        ${S.err ? `<div class="error-text">[ERROR] ${S.err}</div>` : ""}
+        <button class="cta-btn" onclick="manual(${curClub.id})"><span>${t("occ")}</span><span>→</span></button>
       </div>
     </div>
   `;
@@ -1007,46 +1468,70 @@ function bkTab(k, clubId) {
 
 function sysView() {
   const pend = clubs.filter(c => !c.ok && !c.gone).map(c => `
-    <div class="card-box anim-fade">
-      <b>${c.name}</b>
-      <p style="color:var(--text-muted);font-size:13px;margin:4px 0;">📍 ${c.addr}</p>
-      <p style="font-size:13px;color:var(--neon-cyan);">💳 ${t("card")}: ${c.card}</p>
+    <div class="card-box anim-in" style="border-left:4px solid var(--amber);">
+      <b style="font-family:var(--font-display);font-size:22px;">${c.name}</b>
+      <p style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;margin:4px 0;">📍 ${c.addr} · ${c.gpu}</p>
+      <p style="font-size:12px;font-family:var(--font-mono);color:var(--cyan);">💳 ${t("card")}: ${c.card}</p>
       <div class="row-btns">
-        <button class="cta-btn ok" style="padding:10px;" onclick="clubAction(${c.id},true)">${t("appr")}</button>
-        <button class="cta-btn no" style="padding:10px;" onclick="clubAction(${c.id},false)">${t("no")}</button>
+        <button class="cta-btn ok" style="padding:10px;font-size:16px;" onclick="clubAction(${c.id},true)"><span>${t("appr")}</span></button>
+        <button class="cta-btn no" style="padding:10px;font-size:16px;" onclick="clubAction(${c.id},false)"><span>${t("no")}</span></button>
       </div>
     </div>
-  `).join("") || `<p style="color:var(--text-muted);text-align:center;padding:16px 0;">${t("empty")}</p>`;
+  `).join("") || `<p style="color:var(--text-muted);font-family:var(--font-mono);font-size:12px;text-align:center;padding:16px 0;">${t("empty")}</p>`;
 
   const act = clubs.filter(c => c.ok).map(c => `
-    <div class="card-box anim-fade" style="margin-bottom:8px;">
-      <b>${c.name}</b>
-      <p style="color:var(--text-muted);font-size:12px;">📍 ${c.addr} · 🟢 Активен в каталоге</p>
+    <div class="card-box anim-in" style="margin-bottom:8px;border-left:4px solid var(--lime);">
+      <b style="font-family:var(--font-display);font-size:19px;">${c.name}</b>
+      <p style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;">📍 ${c.addr} · [ONLINE]</p>
     </div>
   `).join("");
 
   return `
-    <div class="anim-fade">
-      <h1 style="font-size:22px;font-weight:800;margin-bottom:12px;">👑 Главный администратор Nova</h1>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Здесь вы одобряете клубы, которые оплатили доступ к платформе Nova</p>
-      <h2 class="section-title">📥 ${t("reg")}</h2>
+    <div class="anim-in">
+      <div class="poster-masthead">
+        <div class="masthead-kicker"><span>// ROOT CLEARANCE</span><span>SYS.ADMIN</span></div>
+        <div class="masthead-title">СЕТЬ NOVA GAMING</div>
+      </div>
+      <div class="sec-head"><span class="sec-title">${t("reg")}</span><span class="sec-tag">// PENDING</span></div>
       ${pend}
-      <h2 class="section-title">✅ ${t("act")}</h2>
+      <div class="sec-head"><span class="sec-title">${t("act")}</span><span class="sec-tag">// LIVE</span></div>
       ${act}
     </div>
   `;
 }
 
 function render() {
-  let v = S.role === "admin" ? adminView() : S.role === "sys" ? sysView() : ({ home, club: clubView, seat: seatView, pay: payView })[S.view]();
+  let v = S.role === "admin" ? adminView() : S.role === "sys" ? sysView() : ({ home, club: clubView, pay: payView })[S.view]();
   $("app").innerHTML = head() + v + (S.toast ? `<div class="toast-msg">${S.toast}</div>` : "");
 }
 
 function setRole(r) { S.role = r; S.err = ""; haptic(); render(); }
 function setLang() { S.lang = S.lang === "ru" ? "uz" : "ru"; haptic(); render(); }
 function go(v) { S.view = v; S.err = ""; haptic(); render(); }
-function openClub(id) { S.club = id; go("club"); }
-function openSeat(s) { S.seat = s; S.start = null; S.tar = null; S.day = 0; go("seat"); }
+function openClub(id) {
+  S.club = id;
+  const c = C(id);
+  S.start = Math.max(c.open, Math.min(new Date().getHours() + 1, c.close - 1));
+  S.tar = 0;
+  S.seat = "1";
+  go("club");
+}
+function selectSeat(s) {
+  S.seat = s;
+  S.err = "";
+  haptic();
+  render();
+}
+
+function copyCard(num) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(num);
+  }
+  S.copied = true;
+  haptic("success");
+  render();
+  setTimeout(() => { S.copied = false; render(); }, 2000);
+}
 
 function toPay() {
   const c = C(S.club);
@@ -1074,21 +1559,18 @@ function submitPay() {
     mine: true,
     created: Date.now()
   });
-  // Auto switch admin view to this club so testing is immediate!
   S.adminClubId = c.id;
   haptic("success");
   S.toast = t("sent");
   S.view = "home";
   S.err = "";
   render();
-  setTimeout(() => { S.toast = ""; render(); }, 3000);
+  setTimeout(() => { S.toast = ""; render(); }, 3200);
 }
 
 function decide(id, st) {
   const item = bk.find(b => b.id === id);
-  if (item) {
-    item.st = st;
-  }
+  if (item) item.st = st;
   haptic("success");
   render();
 }
