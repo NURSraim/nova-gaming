@@ -46,13 +46,16 @@
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
-  user-select: none;
+}
+
+button, .club-card, .tariff-card, .chip-btn, .seat-btn, .file-upload-zone {
+  touch-action: manipulation;
+  cursor: pointer;
 }
 
 body {
   background: var(--bg);
   background-image: var(--bg-gradient);
-  background-attachment: fixed;
   color: var(--text);
   font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
   min-height: 100vh;
@@ -67,12 +70,12 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .anim-fade {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.18s ease-out;
 }
 
 /* Top Role Switcher Bar */
@@ -86,8 +89,7 @@ body {
 .role-seg {
   display: flex;
   flex: 1;
-  background: rgba(18, 14, 34, 0.85);
-  backdrop-filter: blur(12px);
+  background: rgba(18, 14, 34, 0.95);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 4px;
@@ -103,7 +105,7 @@ body {
   padding: 8px 4px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .role-btn.active {
@@ -114,8 +116,7 @@ body {
 }
 
 .lang-btn {
-  background: rgba(18, 14, 34, 0.85);
-  backdrop-filter: blur(12px);
+  background: rgba(18, 14, 34, 0.95);
   border: 1px solid var(--border);
   color: var(--neon-cyan);
   font-weight: 700;
@@ -174,14 +175,12 @@ h2.section-title {
 
 /* Club Cards */
 .club-card {
-  background: var(--surface-card);
-  backdrop-filter: blur(14px);
+  background: rgba(22, 17, 43, 0.92);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 16px;
   margin-bottom: 12px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
   text-align: left;
@@ -190,8 +189,8 @@ h2.section-title {
 }
 
 .club-card:active {
-  transform: scale(0.98);
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: rgba(139, 92, 246, 0.55);
+  background: rgba(32, 24, 62, 0.96);
 }
 
 .club-head {
@@ -601,15 +600,12 @@ h2.section-title {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 5, 16, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(7, 5, 16, 0.88);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  animation: fadeIn 0.2s ease;
 }
 
 .info-modal {
@@ -929,16 +925,14 @@ h2.section-title {
   transform: translateX(-50%);
   width: calc(100% - 28px);
   max-width: 432px;
-  background: rgba(15, 11, 31, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: rgba(15, 11, 31, 0.97);
+  border: 1px solid rgba(139, 92, 246, 0.45);
   border-radius: 18px;
   padding: 6px;
   display: flex;
   gap: 6px;
   z-index: 900;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7), 0 0 24px rgba(139, 92, 246, 0.22);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75);
 }
 
 .bottom-nav-btn {
@@ -1154,12 +1148,14 @@ function escHtml(str) {
 }
 
 const tg = window.Telegram && window.Telegram.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-  if (tg.setHeaderColor) tg.setHeaderColor("#0b0914");
-  if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0914");
-}
+try {
+  if (tg) {
+    if (tg.ready) tg.ready();
+    if (tg.expand) tg.expand();
+    if (tg.setHeaderColor) tg.setHeaderColor("#0b0914");
+    if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0914");
+  }
+} catch (e) {}
 
 function getTelegramUser() {
   return (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
@@ -1183,11 +1179,13 @@ function getClientUserId() {
 }
 
 function haptic(type = "light") {
-  if (tg && tg.HapticFeedback) {
-    if (type === "success") tg.HapticFeedback.notificationOccurred("success");
-    else if (type === "warning") tg.HapticFeedback.notificationOccurred("warning");
-    else tg.HapticFeedback.impactOccurred(type);
-  }
+  try {
+    if (tg && tg.HapticFeedback) {
+      if (type === "success") tg.HapticFeedback.notificationOccurred("success");
+      else if (type === "warning") tg.HapticFeedback.notificationOccurred("warning");
+      else tg.HapticFeedback.impactOccurred(type);
+    }
+  } catch (e) {}
 }
 
 const L = {
@@ -1629,7 +1627,7 @@ const t = k => L[S.lang][k];
 const $ = id => document.getElementById(id);
 const fm = n => (Number(n) || 0).toLocaleString("ru-RU").replace(/\u00a0/g, " ") + " " + t("sum");
 const hh = h => String(h % 24).padStart(2, "0") + ":00";
-const C = id => clubs.find(c => c.id === id);
+const C = id => clubs.find(c => Number(c.id) === Number(id));
 const clubName = id => (C(id) ? C(id).name : ("Клуб #" + id));
 const rng = b => (t("days")[b.day] || "") + " " + hh(b.start) + "–" + hh(b.start + b.hours);
 const abs = (d, s) => d * 24 + s;
@@ -1662,7 +1660,7 @@ function isBookingActive(b) {
 
 function clash(c, seat, d, s, h) {
   const a = abs(d, s), e = a + h;
-  return bk.some(b => b.club === c && String(b.seat) === String(seat) && isBookingActive(b) && a < abs(b.day, b.start) + b.hours && abs(b.day, b.start) < e);
+  return bk.some(b => Number(b.club) === Number(c) && String(b.seat) === String(seat) && isBookingActive(b) && a < abs(Number(b.day) || 0, Number(b.start) || 0) + (Number(b.hours) || 1) && abs(Number(b.day) || 0, Number(b.start) || 0) < e);
 }
 
 function closedAt(c, d, s, h) {
@@ -1898,7 +1896,7 @@ function home() {
     const totalFree = live.freeStd + live.freeVip;
     const isSusp = !!c.suspended;
     return `
-      <div class="club-card anim-fade ${isSusp ? "suspended-card" : ""}" onclick="openClub(${c.id})">
+      <div class="club-card anim-fade ${isSusp ? "suspended-card" : ""}" role="button" tabindex="0" onclick="openClub(${c.id})">
         <div class="club-head">
           <div style="min-width:0;padding-right:8px;">
             <div class="club-name">${escHtml(c.name)}</div>
@@ -2837,6 +2835,16 @@ function toggleClubAccess(id) {
   render();
 }
 
+let renderQueued = false;
+function scheduleRender() {
+  if (renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => {
+    renderQueued = false;
+    render();
+  });
+}
+
 function initFirebase() {
   if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId || typeof firebase === "undefined") {
     return;
@@ -2846,6 +2854,9 @@ function initFirebase() {
       firebase.initializeApp(FIREBASE_CONFIG);
     }
     db = firebase.firestore();
+    try {
+      db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+    } catch (e) {}
 
     // Динамическая проверка роли пользователя из Firestore (коллекция user_roles)
     const uid = getClientUserId();
@@ -2856,12 +2867,12 @@ function initFirebase() {
           if (rData.role === "sys") {
             S.authRole = "sys";
             S.role = "sys";
-            render();
+            scheduleRender();
           } else if (rData.role === "admin") {
             S.authRole = "admin";
             S.adminClubId = Number(rData.clubId) || 1;
             S.role = "admin";
-            render();
+            scheduleRender();
           }
         }
       }, () => {});
@@ -2878,7 +2889,7 @@ function initFirebase() {
         remote.sort((a, b) => (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id)));
         bk = remote;
       }
-      render();
+      scheduleRender();
     }, err => console.error("Firestore bookings error:", err));
 
     db.collection(COL_CLUBS).onSnapshot(snap => {
@@ -2897,7 +2908,7 @@ function initFirebase() {
           }
         });
       }
-      render();
+      scheduleRender();
     }, err => console.error("Firestore clubs error:", err));
 
     db.collection(COL_RATINGS).onSnapshot(snap => {
@@ -2912,7 +2923,7 @@ function initFirebase() {
       try {
         localStorage.setItem("nova_ratings_v1", JSON.stringify(clubRatings));
       } catch (e) {}
-      render();
+      scheduleRender();
     }, () => {});
   } catch (e) {
     console.error("Firebase init error:", e);
