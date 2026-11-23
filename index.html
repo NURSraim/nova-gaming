@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Nova Gaming — Cyber Lounge & PC Booking</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -53,20 +51,24 @@ button, .club-card, .tariff-card, .chip-btn, .seat-btn, .file-upload-zone {
   cursor: pointer;
 }
 
-body {
+html, body {
   background: var(--bg);
-  background-image: var(--bg-gradient);
   color: var(--text);
   font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  background-image: var(--bg-gradient);
   padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
 #app {
   max-width: 460px;
   margin: 0 auto;
-  padding: 14px 16px 98px;
+  padding: 14px 16px 104px;
+  overflow-x: hidden;
 }
 
 @keyframes fadeIn {
@@ -1125,11 +1127,76 @@ const CLUB_ADMIN_REGISTRY = {
   "2002": 2
 };
 
-let db = null;
+const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
 let fbLive = false;
 let seededBookings = false;
 let seededClubs = false;
 let clubRatings = {};
+let lastCloudSig = "";
+
+function fsFromFields(doc) {
+  const out = {};
+  const fields = (doc && doc.fields) || {};
+  for (const k of Object.keys(fields)) {
+    const v = fields[k];
+    if ("integerValue" in v) out[k] = Number(v.integerValue);
+    else if ("doubleValue" in v) out[k] = Number(v.doubleValue);
+    else if ("booleanValue" in v) out[k] = Boolean(v.booleanValue);
+    else if ("stringValue" in v) out[k] = String(v.stringValue);
+    else if ("nullValue" in v) out[k] = null;
+  }
+  return out;
+}
+
+function fsToFields(data) {
+  const fields = {};
+  for (const k of Object.keys(data)) {
+    const v = data[k];
+    if (v === undefined) continue;
+    if (v === null) fields[k] = { nullValue: null };
+    else if (typeof v === "boolean") fields[k] = { booleanValue: v };
+    else if (typeof v === "number") {
+      if (Number.isInteger(v)) fields[k] = { integerValue: String(v) };
+      else fields[k] = { doubleValue: v };
+    } else {
+      fields[k] = { stringValue: String(v) };
+    }
+  }
+  return { fields };
+}
+
+async function fsList(col) {
+  try {
+    const r = await fetch(`${FIRESTORE_BASE}/${encodeURIComponent(col)}?pageSize=200`, { cache: "no-store" });
+    if (!r.ok) return null;
+    const j = await r.json();
+    const docs = j.documents || [];
+    return docs.map(d => ({ _id: (d.name || "").split("/").pop(), data: fsFromFields(d) }));
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fsGet(col, docId) {
+  try {
+    const r = await fetch(`${FIRESTORE_BASE}/${encodeURIComponent(col)}/${encodeURIComponent(docId)}`, { cache: "no-store" });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return fsFromFields(j);
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fsSet(col, docId, data) {
+  try {
+    await fetch(`${FIRESTORE_BASE}/${encodeURIComponent(col)}/${encodeURIComponent(docId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fsToFields(data))
+    });
+  } catch (e) {}
+}
 
 try {
   const savedRatings = localStorage.getItem("nova_ratings_v1");
@@ -2655,9 +2722,7 @@ function submitClubRating(clubId, stars) {
   try {
     localStorage.setItem("nova_ratings_v1", JSON.stringify(clubRatings));
   } catch (e) {}
-  if (db) {
-    db.collection(COL_RATINGS).doc(key).set(rec).catch(() => {});
-  }
+  fsSet(COL_RATINGS, key, rec);
   haptic("success");
   showToast(t("ratedToast"));
 }
@@ -2712,19 +2777,17 @@ function toPay() {
 }
 
 function saveBookingCloud(item) {
-  if (!db) return;
-  db.collection(COL_BOOKINGS).doc(String(item.id)).set(item).catch(console.error);
+  fsSet(COL_BOOKINGS, String(item.id), item);
 }
 
 function saveClubCloud(c) {
-  if (!db) return;
-  db.collection(COL_CLUBS).doc(String(c.id)).set({
-    id: c.id,
+  fsSet(COL_CLUBS, String(c.id), {
+    id: Number(c.id),
     ok: !!c.ok,
     gone: !!c.gone,
     subPaid: c.subPaid !== false,
     suspended: !!c.suspended
-  }).catch(console.error);
+  });
 }
 
 function submitPay() {
@@ -2835,70 +2898,52 @@ function toggleClubAccess(id) {
   render();
 }
 
-let renderQueued = false;
-function scheduleRender() {
-  if (renderQueued) return;
-  renderQueued = true;
-  requestAnimationFrame(() => {
-    renderQueued = false;
-    render();
-  });
-}
-
-function initFirebase() {
-  if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId || typeof firebase === "undefined") {
-    return;
-  }
+async function syncCloudNow() {
   try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    db = firebase.firestore();
-    try {
-      db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
-    } catch (e) {}
+    let changed = false;
 
-    // Динамическая проверка роли пользователя из Firestore (коллекция user_roles)
     const uid = getClientUserId();
     if (uid && !uid.startsWith("guest_")) {
-      db.collection(COL_ROLES).doc(String(uid)).onSnapshot(doc => {
-        if (doc && doc.exists) {
-          const rData = doc.data() || {};
-          if (rData.role === "sys") {
-            S.authRole = "sys";
-            S.role = "sys";
-            scheduleRender();
-          } else if (rData.role === "admin") {
-            S.authRole = "admin";
-            S.adminClubId = Number(rData.clubId) || 1;
-            S.role = "admin";
-            scheduleRender();
-          }
+      const rData = await fsGet(COL_ROLES, String(uid));
+      if (rData) {
+        if (rData.role === "sys" && S.authRole !== "sys") {
+          S.authRole = "sys";
+          S.role = "sys";
+          changed = true;
+        } else if (rData.role === "admin" && S.authRole !== "admin") {
+          S.authRole = "admin";
+          S.adminClubId = Number(rData.clubId) || 1;
+          S.role = "admin";
+          changed = true;
         }
-      }, () => {});
+      }
     }
 
-    db.collection(COL_BOOKINGS).onSnapshot(snap => {
+    const [bkDocs, clubDocs, ratingDocs] = await Promise.all([
+      fsList(COL_BOOKINGS),
+      fsList(COL_CLUBS),
+      fsList(COL_RATINGS)
+    ]);
+
+    if (Array.isArray(bkDocs)) {
       fbLive = true;
-      if (snap.empty && !seededBookings) {
+      if (bkDocs.length === 0 && !seededBookings) {
         seededBookings = true;
         bk.forEach(item => saveBookingCloud(item));
-      } else {
-        const remote = [];
-        snap.forEach(doc => remote.push(doc.data()));
+      } else if (bkDocs.length > 0) {
+        const remote = bkDocs.map(d => d.data);
         remote.sort((a, b) => (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id)));
         bk = remote;
       }
-      scheduleRender();
-    }, err => console.error("Firestore bookings error:", err));
+    }
 
-    db.collection(COL_CLUBS).onSnapshot(snap => {
-      if (snap.empty && !seededClubs) {
+    if (Array.isArray(clubDocs)) {
+      if (clubDocs.length === 0 && !seededClubs) {
         seededClubs = true;
         clubs.forEach(c => saveClubCloud(c));
       } else {
-        snap.forEach(doc => {
-          const data = doc.data();
+        clubDocs.forEach(d => {
+          const data = d.data;
           const target = C(data.id);
           if (target) {
             target.ok = !!data.ok;
@@ -2908,26 +2953,43 @@ function initFirebase() {
           }
         });
       }
-      scheduleRender();
-    }, err => console.error("Firestore clubs error:", err));
+    }
 
-    db.collection(COL_RATINGS).onSnapshot(snap => {
+    if (Array.isArray(ratingDocs) && ratingDocs.length > 0) {
       const merged = { ...clubRatings };
-      snap.forEach(doc => {
-        const d = doc.data();
-        if (d && d.clubId && d.uid && d.stars) {
-          merged[doc.id] = d;
+      ratingDocs.forEach(d => {
+        const r = d.data;
+        if (r && r.clubId && r.uid && r.stars) {
+          merged[d._id] = r;
         }
       });
       clubRatings = merged;
       try {
         localStorage.setItem("nova_ratings_v1", JSON.stringify(clubRatings));
       } catch (e) {}
-      scheduleRender();
-    }, () => {});
-  } catch (e) {
-    console.error("Firebase init error:", e);
-  }
+    }
+
+    const newSig = JSON.stringify({
+      r: S.authRole,
+      b: bk.map(x => [x.id, x.st, x.seat, x.club, x.day, x.start, x.hours]),
+      c: clubs.map(x => [x.id, x.ok, x.gone, x.subPaid, x.suspended]),
+      rt: Object.keys(clubRatings).length
+    });
+
+    if (newSig !== lastCloudSig || changed) {
+      lastCloudSig = newSig;
+      // Не перерисовываем DOM, если пользователь прямо сейчас выбирает <select> или <input>
+      const activeTag = document.activeElement ? document.activeElement.tagName : "";
+      if (activeTag !== "SELECT" && activeTag !== "INPUT") {
+        render();
+      }
+    }
+  } catch (e) {}
+}
+
+function initFirebase() {
+  syncCloudNow();
+  setInterval(syncCloudNow, 5000);
 }
 
 setInterval(() => {
@@ -2937,9 +2999,8 @@ setInterval(() => {
     if (b.st === "new" && b.created && b.created + 3e5 <= now) {
       b.st = "exp";
       ch = true;
-      // Обновляем в облаке только владелец или админ, чтобы избежать шторма записей
-      if (db && (S.role === "admin" || String(b.ownerId || "") === String(getClientUserId()))) {
-        db.collection(COL_BOOKINGS).doc(String(b.id)).update({ st: "exp" }).catch(() => {});
+      if (S.role === "admin" || String(b.ownerId || "") === String(getClientUserId())) {
+        saveBookingCloud(b);
       }
     }
   });
