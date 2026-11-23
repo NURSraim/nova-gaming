@@ -3,31 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>NOVA // TACTICAL CYBER BOOKING</title>
+<title>Nova Gaming — Cyber Lounge & PC Booking</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Oswald:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg-obsidian: #0b0c10;
-  --bg-carbon: #12141b;
-  --bg-panel: #171a24;
-  --paper: #f2ede2;
-  --paper-dim: #dfd9cc;
-  --crimson: #ff2442;
-  --crimson-dark: #b81229;
-  --cyan: #00f0ff;
-  --lime: #00ff9d;
-  --amber: #ffb800;
-  --text-light: #f5f3ef;
-  --text-muted: #8e93a6;
-  --text-dark: #0b0c10;
-  --border-tech: rgba(242, 237, 226, 0.14);
-  --border-strong: rgba(242, 237, 226, 0.32);
-  --font-display: 'Oswald', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bg: #0b0914;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1f1442 0%, #0b0914 70%);
+  --surface: rgba(26, 21, 48, 0.7);
+  --surface-hover: rgba(38, 30, 71, 0.85);
+  --surface-card: rgba(22, 17, 43, 0.75);
+  --border: rgba(140, 120, 240, 0.15);
+  --border-focus: rgba(0, 240, 255, 0.5);
+  
+  --text: #f5f3ff;
+  --text-muted: #948db8;
+  --text-dim: #625b85;
+  
+  --neon-cyan: #00f0ff;
+  --neon-purple: #8b5cf6;
+  --neon-green: #00ffa3;
+  --neon-red: #ff3366;
+  --neon-gold: #ffb703;
+  
+  --accent-grad: linear-gradient(135deg, #8b5cf6 0%, #00f0ff 100%);
+  --accent-glow: 0 0 25px rgba(139, 92, 246, 0.4);
+  --green-glow: 0 0 15px rgba(0, 255, 163, 0.3);
+  --gold-glow: 0 0 18px rgba(255, 183, 3, 0.4);
+  
+  --radius-xl: 20px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
 }
 
 * {
@@ -39,876 +50,1047 @@
 }
 
 body {
-  background-color: var(--bg-obsidian);
-  background-image:
-    radial-gradient(circle at 50% 0%, rgba(255, 36, 66, 0.12) 0%, transparent 55%),
-    linear-gradient(rgba(242, 237, 226, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(242, 237, 226, 0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 24px 24px, 24px 24px;
+  background: var(--bg);
+  background-image: var(--bg-gradient);
   background-attachment: fixed;
-  color: var(--text-light);
-  font-family: var(--font-sans);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
-  padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 92px);
+  padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
 #app {
-  max-width: 480px;
+  max-width: 460px;
   margin: 0 auto;
-  padding: 12px 14px 28px;
-  position: relative;
+  padding: 14px 16px 98px;
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulseLive {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(0.92); }
+.anim-fade {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.anim-in {
-  animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* TACTICAL HUD TOP BAR */
-.hud-top-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-tech);
-  padding-bottom: 6px;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-}
-
-.hud-coords {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.live-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--lime);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--lime);
-  animation: pulseLive 1.8s infinite;
-}
-
+/* Top Role Switcher Bar */
 .top-bar {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .role-seg {
   display: flex;
   flex: 1;
-  background: var(--bg-carbon);
-  border: 1px solid var(--border-tech);
-  padding: 3px;
-  gap: 3px;
+  background: rgba(18, 14, 34, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 4px;
 }
 
 .role-btn {
   flex: 1;
-  background: transparent;
-  border: none;
+  background: none;
+  border: 0;
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 12px;
+  font-weight: 600;
   padding: 8px 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .role-btn.active {
-  background: var(--crimson);
+  background: var(--accent-grad);
   color: #fff;
-  box-shadow: 0 0 14px rgba(255, 36, 66, 0.4);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+  font-weight: 700;
 }
 
 .lang-btn {
-  background: var(--paper);
-  color: var(--text-dark);
-  border: none;
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: 11px;
-  padding: 0 12px;
+  background: rgba(18, 14, 34, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  color: var(--neon-cyan);
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: var(--radius-md);
+  padding: 9px 13px;
   cursor: pointer;
-  letter-spacing: 0.05em;
-  transition: transform 0.12s ease;
 }
 
-.lang-btn:active {
-  transform: scale(0.95);
-}
-
-/* POSTER HERO HEADER */
-.poster-masthead {
-  position: relative;
-  background: var(--paper);
-  color: var(--text-dark);
-  padding: 14px 16px 12px;
+.brand-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
-  overflow: hidden;
-  border-left: 6px solid var(--crimson);
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
 }
 
-.poster-masthead::after {
-  content: "NOVA // 26";
-  position: absolute;
-  right: -8px;
-  bottom: -18px;
-  font-family: var(--font-display);
-  font-size: 74px;
-  font-weight: 700;
-  line-height: 1;
-  color: rgba(11, 12, 16, 0.06);
-  pointer-events: none;
-  letter-spacing: -0.03em;
-}
-
-.masthead-kicker {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: var(--crimson);
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
-.masthead-title {
-  font-family: var(--font-display);
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 0.94;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-  color: var(--text-dark);
-}
-
-.masthead-sub {
+.brand-title {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(11, 12, 16, 0.15);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: #333640;
-}
-
-.barcode-strip {
-  display: inline-block;
-  width: 68px;
-  height: 14px;
-  background: repeating-linear-gradient(
-    90deg,
-    #0b0c10 0px,
-    #0b0c10 2px,
-    transparent 2px,
-    transparent 4px,
-    #0b0c10 4px,
-    #0b0c10 5px,
-    transparent 5px,
-    transparent 8px,
-    #0b0c10 8px,
-    #0b0c10 11px,
-    transparent 11px,
-    transparent 13px
-  );
-}
-
-.barcode-strip.light {
-  background: repeating-linear-gradient(
-    90deg,
-    #f2ede2 0px,
-    #f2ede2 2px,
-    transparent 2px,
-    transparent 4px,
-    #f2ede2 4px,
-    #f2ede2 5px,
-    transparent 5px,
-    transparent 8px,
-    #f2ede2 8px,
-    #f2ede2 11px,
-    transparent 11px,
-    transparent 13px
-  );
-  opacity: 0.75;
-}
-
-/* SECTION HEADERS */
-.sec-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin: 18px 0 10px;
-  border-bottom: 1px solid var(--border-tech);
-  padding-bottom: 5px;
-}
-
-.sec-title {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sec-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--crimson);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-/* ARKNIGHTS / R6 DOSSIER CLUB POSTER CARD */
-.poster-card {
-  display: grid;
-  grid-template-columns: 58px 1fr;
-  gap: 6px;
-  margin-bottom: 14px;
-  cursor: pointer;
-  transition: transform 0.16s ease;
-}
-
-.poster-card:active {
-  transform: scale(0.985);
-}
-
-.poster-index-col {
-  background: var(--bg-carbon);
-  border: 1px solid var(--border-strong);
-  padding: 8px 6px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  position: relative;
-}
-
-.poster-idx-num {
-  font-family: var(--font-display);
+  gap: 9px;
   font-size: 22px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--paper);
-}
-
-.poster-idx-meta {
-  font-size: 9px;
-  line-height: 1.35;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin: 6px 0;
-}
-
-.poster-idx-meta b {
-  display: block;
-  color: var(--paper);
-  font-size: 10px;
-}
-
-.poster-idx-status {
-  background: var(--crimson);
-  color: #fff;
-  font-size: 9px;
   font-weight: 800;
-  text-align: center;
-  padding: 3px 2px;
-  letter-spacing: 0.06em;
+  letter-spacing: -0.5px;
 }
 
-.poster-main-col {
-  position: relative;
-  background: linear-gradient(135deg, #1a1016 0%, #0f1118 65%, #181b26 100%);
-  border: 1px solid var(--border-strong);
-  padding: 12px 14px;
-  overflow: hidden;
+.brand-badge {
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+.brand-logo-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accent-grad);
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 142px;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  box-shadow: var(--accent-glow);
 }
 
-.poster-card:nth-child(even) .poster-main-col {
-  background: linear-gradient(135deg, #0e1924 0%, #0f1118 65%, #161c28 100%);
-}
-
-.poster-card:nth-child(even) .poster-idx-status {
-  background: var(--cyan);
-  color: #0b0c10;
-}
-
-.poster-bg-word {
-  position: absolute;
-  left: 6px;
-  top: -8px;
-  font-family: var(--font-display);
-  font-size: 86px;
+h2.section-title {
+  font-size: 14px;
   font-weight: 700;
-  line-height: 0.85;
   text-transform: uppercase;
-  letter-spacing: -0.04em;
-  color: rgba(255, 36, 66, 0.16);
-  pointer-events: none;
-  z-index: 0;
-  white-space: nowrap;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin: 18px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.poster-card:nth-child(even) .poster-bg-word {
-  color: rgba(0, 240, 255, 0.13);
-}
-
-.poster-silhouette {
-  position: absolute;
-  right: -6px;
-  bottom: -6px;
-  width: 118px;
-  height: 132px;
-  opacity: 0.26;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.poster-top-row {
+/* Club Cards */
+.club-card {
+  background: var(--surface-card);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
-  z-index: 1;
+  overflow: hidden;
+  text-align: left;
+  display: block;
+  width: 100%;
+}
+
+.club-card:active {
+  transform: scale(0.98);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.club-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 8px;
+  margin-bottom: 8px;
 }
 
-.poster-club-title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 700;
-  text-transform: uppercase;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  color: var(--paper);
-}
-
-.poster-club-addr {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-.poster-price-pill {
-  background: var(--paper);
-  color: var(--text-dark);
-  font-family: var(--font-mono);
-  font-size: 11px;
+.club-name {
+  font-size: 18px;
   font-weight: 800;
-  padding: 4px 8px;
-  white-space: nowrap;
-  border-left: 3px solid var(--crimson);
-}
-
-.poster-bottom-row {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 8px;
-  border-top: 1px dashed rgba(242, 237, 226, 0.18);
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.spec-chip {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 7px;
-  background: rgba(11, 12, 16, 0.78);
-  border: 1px solid var(--border-tech);
-  color: var(--paper);
-  text-transform: uppercase;
-}
-
-.spec-chip.highlight {
-  border-color: var(--crimson);
-  color: #ff6b81;
-}
-
-.spec-chip.live {
-  border-color: rgba(0, 255, 157, 0.4);
-  color: var(--lime);
-}
-
-/* DOSSIER HERO POSTER INSIDE CLUB VIEW */
-.club-hero-poster {
-  position: relative;
-  background: var(--crimson);
-  color: var(--paper);
-  border: 2px solid var(--paper);
-  padding: 14px 14px 12px;
-  margin-bottom: 14px;
-  overflow: hidden;
-}
-
-.club-hero-watermark {
-  position: absolute;
-  left: -4px;
-  top: 12px;
-  font-family: var(--font-display);
-  font-size: 104px;
-  font-weight: 700;
-  line-height: 0.8;
-  color: rgba(11, 12, 16, 0.18);
-  text-transform: uppercase;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.club-hero-header {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
-  background: var(--bg-obsidian);
-  color: var(--paper);
-  padding: 4px 8px;
-  margin-bottom: 10px;
-}
-
-.club-hero-title {
-  position: relative;
-  z-index: 1;
-  font-family: var(--font-display);
-  font-size: 38px;
-  font-weight: 700;
-  line-height: 0.92;
-  text-transform: uppercase;
   color: #fff;
-  text-shadow: 0 2px 12px rgba(11, 12, 16, 0.35);
+  letter-spacing: -0.3px;
 }
 
-.club-hero-loadout {
-  position: relative;
-  z-index: 1;
-  background: var(--paper);
-  color: var(--text-dark);
-  padding: 8px 10px;
-  margin-top: 12px;
+.club-addr {
+  font-size: 13px;
+  color: var(--text-muted);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+  gap: 4px;
+  margin-bottom: 12px;
 }
 
-/* TACTICAL FILTER / TIME STRIP ON CLUB VIEW */
-.tactical-filter-box {
-  background: var(--bg-carbon);
-  border: 1px solid var(--border-strong);
-  padding: 10px 12px;
-  margin-bottom: 14px;
-}
-
-.filter-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 6px;
+.club-tags {
   display: flex;
-  justify-content: space-between;
-}
-
-.day-pills {
-  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 10px;
 }
 
-.day-pill {
-  flex: 1;
-  background: var(--bg-obsidian);
-  border: 1px solid var(--border-tech);
-  color: var(--text-muted);
-  font-family: var(--font-mono);
+.badge {
   font-size: 11px;
-  font-weight: 700;
-  padding: 7px 4px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-green {
+  background: rgba(0, 255, 163, 0.12);
+  color: var(--neon-green);
+  border: 1px solid rgba(0, 255, 163, 0.25);
+}
+
+.badge-purple {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.badge-price {
+  background: rgba(0, 240, 255, 0.12);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
-  text-transform: uppercase;
+  margin-bottom: 12px;
 }
 
-.day-pill.active {
-  background: var(--paper);
-  color: var(--text-dark);
-  border-color: var(--paper);
-}
-
-/* SEAT MATRIX */
 .legend-bar {
   display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  text-transform: uppercase;
+  gap: 16px;
+  background: rgba(18, 14, 34, 0.6);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  font-size: 12px;
   color: var(--text-muted);
+  margin: 12px 0 16px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
-.legend-swatch {
-  width: 10px;
-  height: 10px;
-  display: inline-block;
+.legend-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
 }
 
 .grid-main {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 7px;
+  gap: 9px;
   margin-bottom: 16px;
 }
 
 .grid-vip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 18px;
 }
 
 .seat-btn {
-  position: relative;
-  background: var(--bg-carbon);
-  border: 1px solid rgba(0, 255, 157, 0.35);
-  color: var(--paper);
-  padding: 8px 4px 6px;
+  aspect-ratio: 1;
+  background: rgba(26, 21, 48, 0.6);
+  border: 2px solid var(--neon-green);
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  transition: all 0.14s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.seat-btn .seat-code {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
+.seat-btn::after {
+  content: 'ПК';
+  font-size: 9px;
+  color: var(--neon-green);
+  font-weight: 500;
+  margin-top: 2px;
 }
 
-.seat-btn .seat-state {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: var(--lime);
-  text-transform: uppercase;
+.seat-btn:active {
+  transform: scale(0.9);
 }
 
 .seat-btn.vip {
-  border-color: rgba(255, 184, 0, 0.55);
-  background: linear-gradient(180deg, rgba(255, 184, 0, 0.12) 0%, var(--bg-carbon) 100%);
+  border-color: var(--neon-gold);
+  background: rgba(255, 183, 3, 0.08);
 }
 
-.seat-btn.vip .seat-state {
-  color: var(--amber);
+.seat-btn.vip::after {
+  content: 'VIP';
+  color: var(--neon-gold);
 }
 
 .seat-btn.busy {
-  border-color: rgba(255, 36, 66, 0.45);
-  background: rgba(255, 36, 66, 0.12);
-  opacity: 0.72;
+  border-color: rgba(255, 51, 102, 0.4);
+  background: rgba(255, 51, 102, 0.08);
+  color: var(--text-dim);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-.seat-btn.busy .seat-state {
-  color: var(--crimson);
+.seat-btn.busy::after {
+  content: 'ЗАНЯТ';
+  color: var(--neon-red);
 }
 
-.seat-btn.selected {
-  background: var(--paper) !important;
-  color: var(--text-dark) !important;
-  border: 2px solid var(--crimson) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 36, 66, 0.35);
-}
-
-.seat-btn.selected .seat-code {
-  color: var(--text-dark);
-}
-
-.seat-btn.selected .seat-state {
-  color: var(--crimson);
-}
-
-/* TACTICAL LOADOUT BOOKING PANEL */
-.loadout-panel {
-  background: var(--paper);
-  color: var(--text-dark);
-  border-left: 6px solid var(--crimson);
-  padding: 14px;
-  margin-top: 10px;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
-}
-
-.loadout-head {
+.chip-group {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--text-dark);
-  padding-bottom: 8px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-.loadout-title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 700;
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.tariff-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 7px;
-  margin: 10px 0 12px;
-}
-
-.tariff-tile {
-  background: #e5dfd2;
-  border: 2px solid transparent;
-  padding: 9px 6px;
-  text-align: center;
+.chip-btn {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  padding: 11px 8px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.14s ease;
+  text-align: center;
 }
 
-.tariff-tile.active {
-  background: var(--bg-obsidian);
-  color: var(--paper);
-  border-color: var(--crimson);
-}
-
-.tariff-hrs {
-  font-family: var(--font-display);
-  font-size: 20px;
+.chip-btn.active {
+  background: var(--accent-grad);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--accent-glow);
   font-weight: 700;
-  line-height: 1;
 }
 
-.tariff-sum {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
-  margin-top: 4px;
-  color: var(--crimson);
-}
-
-.tariff-tile.active .tariff-sum {
-  color: var(--lime);
-}
-
-/* SELECTS & BUTTONS */
 .styled-select {
   width: 100%;
-  background: var(--bg-obsidian);
-  color: var(--paper);
-  border: 1px solid var(--border-strong);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 10px 12px;
-  margin-bottom: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: #fff;
+  padding: 13px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
   outline: none;
+  cursor: pointer;
 }
 
-.back-btn {
-  background: var(--bg-carbon);
-  color: var(--paper);
-  border: 1px solid var(--border-strong);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 7px 12px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  display: inline-flex;
+.styled-select:focus {
+  border-color: var(--neon-cyan);
+}
+
+.tariff-card {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.tariff-card.active {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.08);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+.tariff-card b {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--neon-cyan);
+  font-size: 16px;
 }
 
 .cta-btn {
   width: 100%;
-  background: var(--crimson);
+  background: var(--accent-grad);
+  border: 0;
   color: #fff;
-  border: none;
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 13px 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
-  transition: transform 0.12s ease, filter 0.12s ease;
-}
-
-.cta-btn:active {
-  transform: scale(0.985);
-}
-
-.cta-btn.ok {
-  background: var(--lime);
-  color: var(--text-dark);
-}
-
-.cta-btn.no {
-  background: #282c3a;
-  color: var(--crimson);
-  border: 1px solid var(--crimson);
-}
-
-/* CARDS & PAYMENT DOSSIER */
-.card-box {
-  background: var(--bg-carbon);
-  border: 1px solid var(--border-strong);
-  padding: 14px;
-  margin-bottom: 12px;
-  position: relative;
-}
-
-.card-number-display {
-  background: var(--bg-obsidian);
-  border: 1px dashed var(--crimson);
-  color: var(--paper);
-  font-family: var(--font-mono);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  padding: 12px;
-  margin: 10px 0 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  letter-spacing: -0.2px;
+  padding: 16px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
-}
-
-.copy-pill {
-  background: var(--crimson);
-  color: #fff;
-  font-size: 10px;
-  padding: 4px 8px;
-}
-
-.file-upload-zone {
+  margin-top: 14px;
+  box-shadow: var(--accent-glow);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(242, 237, 226, 0.05);
-  border: 2px dashed var(--border-strong);
-  padding: 18px 14px;
-  margin-bottom: 14px;
-  cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  gap: 8px;
+}
+
+.cta-btn:active {
+  transform: scale(0.97);
+}
+
+.cta-btn.ok {
+  background: linear-gradient(135deg, #00ffa3 0%, #00b4d8 100%);
+  color: #05261e;
+  box-shadow: var(--green-glow);
+}
+
+.cta-btn.no {
+  background: rgba(255, 51, 102, 0.15);
+  border: 1px solid rgba(255, 51, 102, 0.3);
+  color: var(--neon-red);
+}
+
+.card-box {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.card-number-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--neon-cyan);
+  margin: 10px 0;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px dashed rgba(0, 240, 255, 0.3);
   text-align: center;
 }
 
-.status-tag {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  padding: 4px 8px;
-  margin-top: 6px;
-}
-
-.st-new { background: rgba(255, 184, 0, 0.15); color: var(--amber); border: 1px solid var(--amber); }
-.st-ok { background: rgba(0, 255, 157, 0.15); color: var(--lime); border: 1px solid var(--lime); }
-.st-no { background: rgba(255, 36, 66, 0.15); color: var(--crimson); border: 1px solid var(--crimson); }
-
-.error-text {
-  background: rgba(255, 36, 66, 0.16);
-  border-left: 4px solid var(--crimson);
-  color: #ff8fa0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 9px 10px;
-  margin: 10px 0;
-}
-
-.row-btns {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
+.file-upload-zone {
+  display: block;
+  border: 2px dashed var(--border);
+  background: rgba(26, 21, 48, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-top: 14px;
 }
 
 .toast-msg {
   position: fixed;
-  bottom: 20px;
   left: 50%;
+  bottom: 30px;
   transform: translateX(-50%);
-  background: var(--paper);
-  color: var(--text-dark);
-  border-left: 6px solid var(--lime);
-  font-family: var(--font-mono);
-  font-size: 12px;
+  background: linear-gradient(135deg, #00ffa3 0%, #00b4d8 100%);
+  color: #05261e;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 99px;
+  font-size: 14px;
+  box-shadow: 0 8px 24px rgba(0, 255, 163, 0.4);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+.error-text {
+  color: var(--neon-red);
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.status-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 99px;
+  margin-top: 8px;
+}
+.st-new { background: rgba(255, 183, 3, 0.15); color: var(--neon-gold); border: 1px solid rgba(255, 183, 3, 0.3); }
+.st-ok { background: rgba(0, 255, 163, 0.15); color: var(--neon-green); border: 1px solid rgba(0, 255, 163, 0.3); }
+.st-no { background: rgba(255, 51, 102, 0.15); color: var(--neon-red); border: 1px solid rgba(255, 51, 102, 0.3); }
+
+.row-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.row-btns .cta-btn {
+  margin-top: 0;
+}
+
+/* Club Card Info (?) Button & Rating */
+.club-head-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.club-info-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  color: var(--neon-cyan);
   font-weight: 800;
-  padding: 12px 16px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.22);
+  transition: all 0.2s ease;
+}
+
+.club-info-btn:hover {
+  background: rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.club-info-btn:active {
+  transform: scale(0.92);
+}
+
+.badge-gold {
+  background: rgba(255, 183, 3, 0.14);
+  color: var(--neon-gold);
+  border: 1px solid rgba(255, 183, 3, 0.35);
+}
+
+/* Glassmorphic Club Info Modal */
+@keyframes modalPop {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 5, 16, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+.info-modal {
+  width: 100%;
+  max-width: 410px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: linear-gradient(165deg, rgba(24, 19, 46, 0.97) 0%, rgba(12, 9, 25, 0.99) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 26px;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 42px rgba(139, 92, 246, 0.25), 0 0 24px rgba(0, 240, 255, 0.14);
+  animation: modalPop 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.club-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-right: 30px;
+}
+
+.club-avatar-ring {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #00f0ff 0%, #8b5cf6 100%);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.32), 0 0 26px rgba(139, 92, 246, 0.35);
+  flex-shrink: 0;
+}
+
+.club-avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, rgba(0, 240, 255, 0.2), #0e0b1d 72%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: -1px;
+}
+
+.club-avatar-letter {
+  background: linear-gradient(135deg, #00f0ff 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.club-modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+
+.club-modal-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.club-modal-stars {
+  color: var(--neon-gold);
+  font-weight: 800;
+}
+
+.contact-pill {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 5px 11px;
+  border-radius: 99px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.contact-link {
+  color: #a5f3fc;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.contact-link:hover {
+  color: #fff;
+}
+
+.info-row-box {
+  background: rgba(14, 11, 29, 0.82);
+  border: 1px solid rgba(140, 120, 240, 0.22);
+  border-radius: 14px;
+  padding: 11px 13px;
+  margin-bottom: 9px;
+}
+
+.live-seats-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(0, 255, 163, 0.08);
+  border: 1px solid rgba(0, 255, 163, 0.32);
+  border-radius: 14px;
+  padding: 10px 13px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--neon-green);
+}
+
+.live-seats-box.full {
+  background: rgba(255, 51, 102, 0.1);
+  border-color: rgba(255, 51, 102, 0.35);
+  color: #ff8fa3;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neon-green);
+  box-shadow: 0 0 10px var(--neon-green);
+  animation: pulseDot 1.6s infinite;
+  flex-shrink: 0;
+}
+
+.spec-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #e9e4ff;
+  line-height: 1.35;
+}
+
+.spec-line + .spec-line {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(140, 120, 240, 0.12);
+}
+
+.spec-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.4px;
+  flex-shrink: 0;
+}
+
+.spec-tag-std {
+  background: var(--neon-cyan);
+  color: #061822;
+}
+
+.spec-tag-vip {
+  background: var(--neon-gold);
+  color: #261600;
+}
+
+.addr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.map-outline-btn {
+  padding: 6px 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 240, 255, 0.55);
+  background: rgba(0, 240, 255, 0.08);
+  color: var(--neon-cyan);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.map-outline-btn:hover {
+  background: rgba(0, 240, 255, 0.18);
+}
+
+.amenities-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.amenity-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(140, 120, 240, 0.22);
+  border-radius: 99px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2ddf8;
+}
+
+.rate-trigger-btn {
+  width: 100%;
+  background: none;
+  border: 0;
+  color: var(--neon-gold);
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 12px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.rate-drawer {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 183, 3, 0.07);
+  border: 1px solid rgba(255, 183, 3, 0.28);
+  text-align: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.rate-drawer.locked {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(140, 120, 240, 0.25);
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.star-picker {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.star-pick-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 183, 3, 0.3);
+  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #514a70;
+  transition: all 0.15s ease;
+}
+
+.star-pick-btn.lit {
+  color: var(--neon-gold);
+  background: rgba(255, 183, 3, 0.16);
+  border-color: var(--neon-gold);
+  box-shadow: 0 0 12px rgba(255, 183, 3, 0.28);
+}
+
+.star-pick-btn:active {
+  transform: scale(0.9);
+}
+
+/* Completed Status & Bottom Navigation Dock for Receipts & History */
+.st-done {
+  background: rgba(0, 240, 255, 0.14);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+}
+
+.bottom-nav-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
   width: calc(100% - 28px);
-  max-width: 440px;
+  max-width: 432px;
+  background: rgba(15, 11, 31, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 18px;
+  padding: 6px;
+  display: flex;
+  gap: 6px;
+  z-index: 900;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7), 0 0 24px rgba(139, 92, 246, 0.22);
+}
+
+.bottom-nav-btn {
+  flex: 1;
+  background: none;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 8px;
+  border-radius: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.bottom-nav-btn.active {
+  background: var(--accent-grad);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.38);
+}
+
+.nav-count-pill {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.history-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stat-card {
+  background: rgba(22, 17, 43, 0.8);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.receipt-mini-btn {
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.38);
+  color: var(--neon-cyan);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.receipt-mini-btn:hover {
+  background: rgba(0, 240, 255, 0.2);
+}
+
+.receipt-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(140, 120, 240, 0.2);
+  font-size: 13px;
+}
+
+.receipt-line:last-child {
+  border-bottom: 0;
+}
+
+/* Root Bottom Dock, Club Suspension Lockouts & Revenue Analytics */
+.club-card.suspended-card {
+  border-color: rgba(255, 51, 102, 0.38);
+  background: rgba(28, 14, 30, 0.72);
+  opacity: 0.85;
+}
+
+.badge-red {
+  background: rgba(255, 51, 102, 0.16);
+  color: #ff8fa3;
+  border: 1px solid rgba(255, 51, 102, 0.42);
+}
+
+.suspended-lock-box {
+  background: linear-gradient(155deg, rgba(42, 12, 28, 0.92) 0%, rgba(18, 9, 24, 0.96) 100%);
+  border: 1px solid rgba(255, 51, 102, 0.5);
+  border-radius: 22px;
+  padding: 24px 18px;
+  text-align: center;
+  margin-top: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 28px rgba(255, 51, 102, 0.18);
+}
+
+.analytics-bar-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 10px 0 12px;
+}
+
+.analytics-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ffa3 0%, #00f0ff 55%, #8b5cf6 100%);
+  border-radius: 99px;
+  transition: width 0.35s ease;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.analytics-cell {
+  background: rgba(12, 9, 25, 0.65);
+  border: 1px solid rgba(140, 120, 240, 0.16);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.analytics-cell b {
+  display: block;
+  color: #fff;
+  font-size: 13px;
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
 }
 </style>
 </head>
@@ -917,12 +1099,87 @@ body {
 <div id="app"></div>
 
 <script>
+// ==========================================
+// 🔥 FIREBASE CONFIGURATION
+// ==========================================
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBkn_TEQUxLFv2U_b8lxCFqi4N3yc1wqoA",
+  authDomain: "nova-gaming-6c610.firebaseapp.com",
+  projectId: "nova-gaming-6c610",
+  storageBucket: "nova-gaming-6c610.firebasestorage.app",
+  messagingSenderId: "646651808040",
+  appId: "1:646651808040:web:072367ba7c3ec542abe81d",
+  measurementId: "G-W1J5P9FSWB"
+};
+
+// Продакшен-коллекции Cloud Firestore
+const COL_BOOKINGS = "bookings";
+const COL_CLUBS = "clubs_status";
+const COL_RATINGS = "club_ratings";
+const COL_ROLES = "user_roles";
+
+// ==========================================
+// 🛡️ РЕЕСТР ДОСТУПА (RBAC ТОЛЬКО ПО НЕИЗМЕНЯЕМОМУ TELEGRAM ID)
+// Юзернеймы (@username) НЕ используются, так как их можно освободить и перехватить!
+// ==========================================
+const SUPER_ADMIN_IDS = new Set([
+  5619771997   // Нурик (Root / Владелец платформы Nova Gaming)
+]);
+
+const CLUB_ADMIN_REGISTRY = {
+  "2001": 1,
+  "2002": 2
+};
+
+let db = null;
+let fbLive = false;
+let seededBookings = false;
+let seededClubs = false;
+let clubRatings = {};
+
+try {
+  const savedRatings = localStorage.getItem("nova_ratings_v1");
+  if (savedRatings) clubRatings = JSON.parse(savedRatings) || {};
+} catch (e) {
+  clubRatings = {};
+}
+
+function escHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
-  if (tg.setHeaderColor) tg.setHeaderColor("#0b0c10");
-  if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0c10");
+  if (tg.setHeaderColor) tg.setHeaderColor("#0b0914");
+  if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0914");
+}
+
+function getTelegramUser() {
+  return (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+}
+
+function getClientUserId() {
+  const tgUser = getTelegramUser();
+  if (tgUser && tgUser.id) {
+    return String(tgUser.id);
+  }
+  try {
+    let uid = localStorage.getItem("nova_uid");
+    if (!uid) {
+      uid = "guest_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+      localStorage.setItem("nova_uid", uid);
+    }
+    return uid;
+  } catch (e) {
+    return "guest_local";
+  }
 }
 
 function haptic(type = "light") {
@@ -935,167 +1192,482 @@ function haptic(type = "light") {
 
 const L = {
   ru: {
-    brand: "NOVA // TACTICAL BOOKING",
-    heroTitle: "ВЫБЕРИ СВОЮ АРЕНУ",
-    heroSub: "ТАШКЕНТ · СИСТЕМА БРОНИРОВАНИЯ КИБЕР-КЛУБОВ",
-    user: "01. ИГРОК",
-    admin: "02. АДМИН",
-    sys: "03. ROOT",
-    clubs: "ДОСЬЕ КИБЕРАРЕН",
-    mine: "АКТИВНЫЕ СЕССИИ",
-    back: "← НАЗАД В КАТАЛОГ",
-    vip: "ZONE VIP // BOOTCAMP",
-    main: "ZONE A // ОСНОВНОЙ ЗАЛ",
-    free: "FREE [LIVE]",
-    busy: "RESERVED",
-    seat: "ЮНИТ",
-    days: ["СЕГОДНЯ", "ЗАВТРА", "ПОСЛЕЗАВТРА"],
-    start: "ВРЕМЯ ПОСАДКИ",
-    tariff: "ТАРИФНЫЙ ПАКЕТ",
-    h: "Ч",
-    next: "ЗАБРОНИРОВАТЬ ЮНИТ",
-    pay: "ПЛАТЁЖНЫЙ ОРДЕР",
-    payInfo: "Переведите сумму на карту клуба (Uzcard / Humo) и прикрепите скриншот чека для мгновенной активации.",
-    card: "КАРТА КЛУБА",
-    copy: "КОПИРОВАТЬ",
-    copied: "СКОПИРОВАНО ✓",
-    attach: "[+] ПРИКРЕПИТЬ СКРИНШОТ ЧЕКА",
-    paid: "ПОДТВЕРДИТЬ ОПЛАТУ",
-    needShot: "Прикрепите скриншот чека об оплате!",
-    conflict: "Конфликт слотов: этот ПК уже занят на выбранное время",
-    closed: "В выбранный слот арена закрыта",
-    pick: "Выберите тарифный пакет",
-    sNew: "ОЖИДАЕТ ПРОВЕРКИ АДМИНОМ",
-    sOk: "ДОПУСК ПОДТВЕРЖДЁН ✓",
-    sNo: "ОТКЛОНЕНО ✕",
-    sExp: "ТАЙМАУТ ОПЛАТЫ (5 МИН)",
-    tNew: "НОВЫЕ",
-    tOk: "АКТИВНЫЕ",
-    tNo: "АРХИВ",
-    yes: "ПОДТВЕРДИТЬ ✓",
-    no: "ОТКЛОНИТЬ ✕",
-    shot: "Чек об оплате прикреплён",
-    manual: "РУЧНАЯ ПОСАДКА (РЕСЕПШЕН)",
-    occ: "ЗАНЯТЬ ЮНИТ",
-    empty: "// НЕТ ЗАПИСЕЙ В СЕКТОРЕ",
-    reg: "ЗАЯВКИ НА ПОДКЛЮЧЕНИЕ К NOVA",
-    act: "АКТИВНЫЕ АРЕНЫ В СЕТИ",
-    appr: "АКТИВИРОВАТЬ КЛУБ",
-    sent: "⚡ ОРДЕР ОТПРАВЛЕН АДМИНИСТРАТОРУ АРЕНЫ!",
-    from: "ОТ",
-    per: "/ ЧАС",
-    sum: "СУМ",
-    manualTag: "СТОЙКА (ADMIN)",
-    busyAt: "ЗАНЯТ В СЛОТЫ",
-    pickSeatPrompt: "НАЖМИТЕ НА СВОБОДНЫЙ ПК В МАТРИЦЕ ВЫШЕ ДЛЯ БРОНИРОВАНИЯ"
+    brand: "NOVA GAMING",
+    user: "Игрок",
+    admin: "Админ клуба",
+    sys: "Сис админ",
+    demo: "ДЕМО-РЕЖИМ: переключайте роли вверху для теста",
+    clubs: "Компьютерные клубы",
+    mine: "Мои активные брони",
+    back: "← Назад",
+    vip: "VIP Зона (Bootcamp)",
+    main: "Основной зал",
+    free: "Свободен",
+    busy: "Занят",
+    seat: "ПК",
+    days: ["Сегодня", "Завтра", "Послезавтра"],
+    start: "Время посадки",
+    tariff: "Тарифный план",
+    h: "ч",
+    next: "Перейти к бронированию →",
+    pay: "Оплата и подтверждение",
+    payInfo: "Переведите сумму на карту клуба (Kaspi / Uzcard / Humo) и прикрепите чек.",
+    card: "Номер карты клуба",
+    attach: "📸 Прикрепить скриншот чека",
+    paid: "Подтвердить бронь ✓",
+    needShot: "Пожалуйста, прикрепите скриншот чека!",
+    conflict: "Этот ПК уже забронирован на данное время",
+    closed: "В выбранное время клуб не работает",
+    pick: "Выберите тарифный план",
+    sNew: "Ожидает подтверждения админом",
+    sOk: "Бронь подтверждена ✓",
+    sNo: "Отклонено ✕",
+    sExp: "Время оплаты истекло (5 мин)",
+    tNew: "Новые заявки",
+    tOk: "Одобренные",
+    tNo: "Отклонённые",
+    yes: "Подтвердить ✓",
+    no: "Отклонить ✕",
+    shot: "Чек об оплате прикреплен",
+    manual: "Посадить клиента вручную (стойка)",
+    occ: "Занять ПК",
+    empty: "Заявок в этой категории нет",
+    reg: "Заявки на подключение клубов к Nova",
+    act: "Подключённые киберарены",
+    appr: "Одобрить подключение",
+    sent: "🚀 Бронь отправлена администратору клуба!",
+    from: "от",
+    per: "/ час",
+    sum: "сум",
+    takenBy: "Занят сейчас",
+    manualTag: "Посадка от стойки (Админ)",
+    hours: "График",
+    busyAt: "Занят в слоты",
+    pastTime: "Нельзя забронировать уже прошедшее время",
+    open247: "24/7 Круглосуточно",
+    playTime: "игры",
+    seatPlace: "Место #",
+    bookDate: "Дата бронирования",
+    copyHint: "Нажмите на номер карты, чтобы скопировать",
+    copiedToast: "✅ Номер карты скопирован!",
+    adminTitle: "Панель администратора клуба",
+    adminHint: "Выберите клуб для управления заявками:",
+    sysTitle: "Главный администратор Nova",
+    sysHint: "Здесь вы одобряете клубы, которые оплатили доступ к платформе Nova",
+    activeInCat: "Активен в каталоге",
+    pendingTag: "ожидает подтверждения",
+    pastTag: "прошло",
+    assignedClub: "Закреплённый за вами клуб:",
+    aboutClub: "О клубе",
+    onMap: "На карте",
+    contactBtn: "Связь",
+    nightPack: "Ночной пакет",
+    chooseSeat: "Выбрать место →",
+    rateClub: "Оценить клуб",
+    rateLocked: "Оценить клуб можно после первой подтверждённой брони в этом клубе",
+    ratePrompt: "Поставьте оценку от 1 до 5 звёзд:",
+    yourRating: "Ваша оценка",
+    canChangeRating: "можно изменить",
+    ratedToast: "⭐ Спасибо! Ваша оценка сохранена",
+    freeNow: "Сейчас свободно",
+    noFreeNow: "Сейчас все места заняты",
+    phoneCopied: "📞 Номер телефона скопирован!",
+    stdLabel: "STANDART",
+    vipLabel: "VIP",
+    noReviews: "Пока нет оценок",
+    navClubs: "Клубы и бронь",
+    navHistory: "Чеки и история",
+    historyTitle: "Чеки и история покупок",
+    historyEmpty: "В этом разделе пока нет чеков или прошлых броней",
+    histAll: "Все",
+    histPaid: "Оплаченные",
+    histCanceled: "Отменённые",
+    sDone: "Сеанс завершён · Оплачено ✓",
+    statVisits: "Оплачено сеансов",
+    statSpent: "Сумма чеков",
+    receiptBtn: "Чек",
+    receiptTitle: "Электронный чек",
+    receiptId: "Номер чека",
+    receiptDate: "Сеанс",
+    receiptStatus: "Статус",
+    receiptFile: "Прикреплённый чек",
+    goHistoryHint: "Завершённые сеансы и чеки перенесены в «Чеки и история» ↓",
+    sysNavReq: "Запросы",
+    sysNavSubs: "Подписки",
+    sysNavStat: "Аналитика",
+    subPaidYes: "Подписка оплачена ✓",
+    subPaidNo: "Подписка не оплачена ✕",
+    subMarkPaid: "Отметить: Оплачено",
+    subMarkUnpaid: "Отметить: Не оплачено",
+    netOnline: "В сети Nova (Активен)",
+    netSuspended: "Отключён от сети бота",
+    btnSuspend: "🔌 Отключить доступ к сети",
+    btnRestore: "⚡ Включить доступ к сети",
+    clubOfflineBadge: "⚠️ Клуб временно вне доступа бота",
+    clubOfflineDesc: "Доступ этого клуба к сети Nova Gaming временно приостановлен. Бронирование мест сейчас недоступно — пожалуйста, выберите другую киберарену.",
+    adminLockTitle: "ДОСТУП К СЕТИ NOVA ОГРАНИЧЕН",
+    adminLockDesc: "Доступ вашего клуба к платформе временно отключён главным администратором (проверьте статус оплаты подписки). Управление бронями и посадка недоступны.",
+    subsTitle: "Подписки и доступ к сети",
+    subsHint: "Управляйте статусом оплаты подписки клубов и мгновенно отключайте неплательщиков от сети бота",
+    statTitle: "Аналитика прибыли клубов",
+    statHint: "Сколько выручки платформа Nova Gaming принесла владельцам каждого компьютерного клуба",
+    totalNetRev: "Общая выручка клубов",
+    totalNetSessions: "Подтверждено сеансов",
+    ownerProfit: "Прибыль владельца клуба",
+    onlineBkCount: "Онлайн-брони",
+    manualBkCount: "От стойки",
+    hoursSold: "Часов продано",
+    avgCheck: "Средний чек",
+    subFeeLabel: "Тариф подписки",
+    perMonth: "/ мес"
   },
   uz: {
-    brand: "NOVA // TACTICAL BOOKING",
-    heroTitle: "ARENANI TANLANG",
-    heroSub: "TOSHKENT · KIBER-KLUBLARNI BRON QILISH TIZIMI",
-    user: "01. O‘YINCHI",
-    admin: "02. ADMIN",
-    sys: "03. ROOT",
-    clubs: "KIBERARENALAR DOSYESI",
-    mine: "FAOL BRONLARIM",
-    back: "← KATALOGGA QAYTISH",
-    vip: "ZONE VIP // BOOTCAMP",
-    main: "ZONE A // ASOSIY ZAL",
-    free: "BO‘SH [LIVE]",
-    busy: "BAND",
-    seat: "PC",
-    days: ["BUGUN", "ERTAGA", "INDINGA"],
-    start: "BOSHLANISH VAQTI",
-    tariff: "TARIF PAKETI",
-    h: "SOAT",
-    next: "BRON QILISHGA O‘TISH",
-    pay: "TO‘LOV ORDERI",
-    payInfo: "Klub kartasiga to‘lov qiling va tasdiqlash uchun chek skrinshotini yuklang.",
-    card: "KLUB KARTASI",
-    copy: "NUSXA OLISH",
-    copied: "NUSXALANDI ✓",
-    attach: "[+] TO‘LOV CHEKINI YUKLASH",
-    paid: "TO‘LOVNI TASDIQLASH",
-    needShot: "Iltimos, to‘lov cheki skrinshotini biriktiring!",
-    conflict: "Bu kompyuter tanlangan vaqtda band",
+    brand: "NOVA GAMING",
+    user: "O‘yinchi",
+    admin: "Klub admini",
+    sys: "Tizim admini",
+    demo: "DEMO: Yuqorida rollarni almashtirib sinab ko‘ring",
+    clubs: "Kompyuter klublari",
+    mine: "Mening bronlarim",
+    back: "← Orqaga",
+    vip: "VIP Zona (Bootcamp)",
+    main: "Asosiy zal",
+    free: "Bo‘sh",
+    busy: "Band",
+    seat: "Kompyuter",
+    days: ["Bugun", "Ertaga", "Indinga"],
+    start: "Boshlanish vaqti",
+    tariff: "Tarif",
+    h: "soat",
+    next: "Davom etish →",
+    pay: "To‘lov va tasdiqlash",
+    payInfo: "Klub kartasiga to‘lov qiling va chek skrinshotini yuklang.",
+    card: "Klub karta raqami",
+    attach: "📸 Chek skrinshotini biriktirish",
+    paid: "To‘ladim ✓",
+    needShot: "Iltimos, to‘lov chekini biriktiring!",
+    conflict: "Bu kompyuter ushbu vaqtda band",
     closed: "Klub bu vaqtda ishlamaydi",
-    pick: "Tarif paketini tanlang",
-    sNew: "ADMIN TASDIG‘INI KUTMOQDA",
-    sOk: "BRON TASDIQLANDI ✓",
-    sNo: "RAD ETILDI ✕",
-    sExp: "VAQT TUGADI (5 DAQIQA)",
-    tNew: "YANGI",
-    tOk: "TASDIQLANGAN",
-    tNo: "RAD ETILGAN",
-    yes: "TASDIQLASH ✓",
-    no: "RAD ETISH ✕",
-    shot: "To‘lov cheki biriktirilgan",
-    manual: "QO‘LDA BAND QILISH (RECEPTION)",
-    occ: "PC BAND QILISH",
-    empty: "// MA’LUMOT YO‘Q",
-    reg: "ULANISH SO‘ROVLARI",
-    act: "FAOL KIBERARENALAR",
-    appr: "FAOLASHTIRISH",
-    sent: "⚡ SO‘ROV KLUB ADMINIGA YUBORILDI!",
-    from: "DAN",
-    per: "/ SOAT",
-    sum: "SO‘M",
-    manualTag: "RECEPTION (ADMIN)",
-    busyAt: "BAND VAQTLAR",
-    pickSeatPrompt: "BRON QILISH UCHUN YUQORIDAGI MATRITSADAN KOMPYUTERNI TANLANG"
+    pick: "Tarifni tanlang",
+    sNew: "Klub tasdig‘ini kutmoqda",
+    sOk: "Bron tasdiqlandi ✓",
+    sNo: "Rad etildi ✕",
+    sExp: "Vaqt tugadi (5 daqiqa)",
+    tNew: "Yangi so‘rovlar",
+    tOk: "Tasdiqlangan",
+    tNo: "Rad etilgan",
+    yes: "Tasdiqlash ✓",
+    no: "Rad etish ✕",
+    shot: "To‘lov cheki mavjud",
+    manual: "Joyni qo‘lda band qilish (reception)",
+    occ: "Band qilish",
+    empty: "Hozircha bo‘sh",
+    reg: "Klubni ulash so‘rovlari",
+    act: "Ulangan klublar",
+    appr: "Ma’qullash",
+    sent: "🚀 So‘rov klub adminiga yuborildi!",
+    from: "dan",
+    per: "/ soat",
+    sum: "so‘m",
+    takenBy: "Hozir band",
+    manualTag: "Admin tomonidan band qilingan",
+    hours: "Ish vaqti",
+    busyAt: "Band vaqtlar",
+    pastTime: "O‘tib ketgan vaqtni bron qilib bo‘lmaydi",
+    open247: "24/7 Kunu-tun",
+    playTime: "o‘yin",
+    seatPlace: "Joy #",
+    bookDate: "Bron sanasi",
+    copyHint: "Nusxa olish uchun karta raqamiga bosing",
+    copiedToast: "✅ Karta raqami nusxalandi!",
+    adminTitle: "Klub admini paneli",
+    adminHint: "So‘rovlarni boshqarish uchun klubni tanlang:",
+    sysTitle: "Nova bosh administratori",
+    sysHint: "Bu yerda platformaga ulanish uchun klublarni tasdiqlaysiz",
+    activeInCat: "Katalogda faol",
+    pendingTag: "tasdiqlanishini kutmoqda",
+    pastTag: "o‘tgan",
+    assignedClub: "Sizga biriktirilgan klub:",
+    aboutClub: "Klub haqida",
+    onMap: "Xaritada",
+    contactBtn: "Aloqa",
+    nightPack: "Tungi paket",
+    chooseSeat: "Joy tanlash →",
+    rateClub: "Klubni baholash",
+    rateLocked: "Klubni faqat tasdiqlangan brondan so‘ng baholash mumkin",
+    ratePrompt: "1 dan 5 yulduzgacha baho bering:",
+    yourRating: "Sizning bahoingiz",
+    canChangeRating: "o‘zgartirish mumkin",
+    ratedToast: "⭐ Rahmat! Bahoingiz saqlandi",
+    freeNow: "Hozir bo‘sh",
+    noFreeNow: "Hozir barcha joylar band",
+    phoneCopied: "📞 Telefon raqami nusxalandi!",
+    stdLabel: "STANDART",
+    vipLabel: "VIP",
+    noReviews: "Hozircha baholar yo‘q",
+    navClubs: "Klublar va bron",
+    navHistory: "Cheklar va tarix",
+    historyTitle: "Cheklar va xaridlar tarixi",
+    historyEmpty: "Bu bo‘limda hozircha cheklar yoki o‘tgan bronlar yo‘q",
+    histAll: "Barchasi",
+    histPaid: "To‘langan",
+    histCanceled: "Bekor qilingan",
+    sDone: "Seans yakunlandi · To‘langan ✓",
+    statVisits: "To‘langan seanslar",
+    statSpent: "Cheklar summasi",
+    receiptBtn: "Chek",
+    receiptTitle: "Elektron chek",
+    receiptId: "Chek raqami",
+    receiptDate: "Seans",
+    receiptStatus: "Holati",
+    receiptFile: "Biriktirilgan chek",
+    goHistoryHint: "Yakunlangan seanslar va cheklar «Cheklar va tarix» bo‘limida ↓",
+    sysNavReq: "So‘rovlar",
+    sysNavSubs: "Obunalar",
+    sysNavStat: "Analitika",
+    subPaidYes: "Obuna to‘langan ✓",
+    subPaidNo: "Obuna to‘lanmagan ✕",
+    subMarkPaid: "Belgilash: To‘landi",
+    subMarkUnpaid: "Belgilash: To‘lanmadi",
+    netOnline: "Nova tarmog‘ida (Faol)",
+    netSuspended: "Bot tarmog‘idan uzilgan",
+    btnSuspend: "🔌 Tarmoqdan uzish",
+    btnRestore: "⚡ Tarmoqqa ulash",
+    clubOfflineBadge: "⚠️ Klub vaqtincha bot tarmog‘idan tashqarida",
+    clubOfflineDesc: "Ushbu klubning Nova Gaming tarmog‘iga ulanishi vaqtincha to‘xtatilgan. Iltimos, boshqa klubni tanlang.",
+    adminLockTitle: "NOVA TARMOG‘IGA KIRISH CHEKLANGAN",
+    adminLockDesc: "Klubingizning platformaga kirishi bosh administrator tomonidan vaqtincha to‘xtatilgan (obuna to‘lovini tekshiring).",
+    subsTitle: "Obunalar va tarmoqqa kirish",
+    subsHint: "Klublar obuna to‘lovini boshqaring va to‘lamaganlarni bot tarmog‘idan uzing",
+    statTitle: "Klublar daromadi analitikasi",
+    statHint: "Nova Gaming platformasi har bir klub egasiga qancha daromad keltirgani",
+    totalNetRev: "Klublarning umumiy daromadi",
+    totalNetSessions: "Tasdiqlangan seanslar",
+    ownerProfit: "Klub egasining daromadi",
+    onlineBkCount: "Onlayn bronlar",
+    manualBkCount: "Stoykadan",
+    hoursSold: "Sotilgan soatlar",
+    avgCheck: "O‘rtacha chek",
+    subFeeLabel: "Obuna tarifi",
+    perMonth: "/ oy"
   }
 };
 
+// Справочник тегов удобств
+const AMENITIES = {
+  ac: { ru: "❄️ Кондиционер", uz: "❄️ Konditsioner" },
+  bar: { ru: "🍔 Бар 24/7", uz: "🍔 Bar 24/7" },
+  ps5: { ru: "🎮 PS5", uz: "🎮 PS5" },
+  parking: { ru: "🅿️ Парковка", uz: "🅿️ Parkovka" },
+  bootcamp: { ru: "🚪 Bootcamp", uz: "🚪 Bootcamp" },
+  nosmoke: { ru: "🚭 Без дыма", uz: "🚭 Tutunsiz" },
+  gigabit: { ru: "⚡ Гигабит", uz: "⚡ Gigabit" }
+};
+
 const clubs = [
-  { id: 1, code: "ARENA 01", name: "NOVA CYBER ARENA", addr: "Ташкент, Чиланзар-9", open: 0, close: 24, card: "8600 1234 5678 9012", ok: true, tar: [[1, 35000], [3, 90000], [5, 130000]], gpu: "RTX 4080 · 280Hz ZOWIE", units: 19 },
-  { id: 2, code: "NEXT LVL", name: "NEXT LEVEL ESPORTS", addr: "Ташкент, Юнусабад-4", open: 10, close: 24, card: "8600 4455 6677 8899", ok: true, tar: [[1, 30000], [2, 55000], [4, 100000]], gpu: "RTX 4070Ti · 240Hz", units: 19 },
-  { id: 3, code: "PIXEL ZN", name: "PIXEL ZONE LOUNGE", addr: "Самарканд, Центр", open: 12, close: 24, card: "8600 1111 2222 3333", ok: false, tar: [[1, 25000], [3, 65000], [5, 95000]], gpu: "RTX 4060Ti · 165Hz", units: 19 },
-  { id: 4, code: "BOOTCAMP", name: "LEVEL UP BOOTCAMP", addr: "Бухара, ул. Навои", open: 0, close: 24, card: "8600 9999 8888 7777", ok: false, tar: [[1, 20000], [3, 50000], [5, 80000]], gpu: "RTX 4060 · 144Hz", units: 19 }
+  {
+    id: 1,
+    logo: "N",
+    name: "Nova Cyber Arena",
+    addr: "Ташкент, Чиланзар 9",
+    landmark: "м. Чиланзар",
+    mapUrl: "https://yandex.uz/maps/?text=%D0%A2%D0%B0%D1%88%D0%BA%D0%B5%D0%BD%D1%82+%D0%A7%D0%B8%D0%BB%D0%B0%D0%BD%D0%B7%D0%B0%D1%80+9",
+    open: 0,
+    close: 24,
+    card: "8600 1234 5678 9012",
+    ok: true,
+    subPaid: true,
+    suspended: false,
+    subFee: 500000,
+    tar: [[1, 35000], [3, 90000], [5, 130000]],
+    nightPack: true,
+    gpu: "RTX 4070 · 280Hz",
+    specs: {
+      std: "RTX 4070 · i5-13400F · 280Hz",
+      vip: "RTX 4080 · i7-14700K · 360Hz · G Pro"
+    },
+    contact: { tg: "@nova_arena", phone: "+998 90 123 45 67", public: true },
+    amenities: ["ac", "bar", "ps5", "parking"],
+    baseRating: { sum: 607.6, count: 124 }
+  },
+  {
+    id: 2,
+    logo: "NL",
+    name: "Next Level Esports",
+    addr: "Ташкент, Юнусабад 4",
+    landmark: "ориентир Mega Planet",
+    mapUrl: "https://yandex.uz/maps/?text=%D0%A2%D0%B0%D1%88%D0%BA%D0%B5%D0%BD%D1%82+%D0%AE%D0%BD%D1%83%D1%81%D0%B0%D0%B1%D0%B0%D0%B4+4",
+    open: 10,
+    close: 24,
+    card: "8600 4455 6677 8899",
+    ok: true,
+    subPaid: true,
+    suspended: false,
+    subFee: 500000,
+    tar: [[1, 30000], [2, 55000], [4, 100000]],
+    nightPack: false,
+    gpu: "RTX 4060Ti · 240Hz",
+    specs: {
+      std: "RTX 4060Ti · i5-12400F · 240Hz",
+      vip: "RTX 4070Ti · i7-13700K · 280Hz · HyperX"
+    },
+    contact: { tg: "@nextlevel_tash", phone: "+998 93 456 78 90", public: true },
+    amenities: ["ac", "bootcamp", "gigabit", "nosmoke"],
+    baseRating: { sum: 403.2, count: 84 }
+  },
+  {
+    id: 3,
+    logo: "PZ",
+    name: "Pixel Zone Lounge",
+    addr: "Самарканд, Центр",
+    landmark: "ул. Университетский б-р",
+    mapUrl: "https://yandex.uz/maps/?text=%D0%A1%D0%B0%D0%BC%D0%B0%D1%80%D0%BA%D0%B0%D0%BD%D0%B4+%D0%A6%D0%B5%D0%BD%D1%82%D1%80",
+    open: 12,
+    close: 24,
+    card: "8600 1111 2222 3333",
+    ok: false,
+    subPaid: false,
+    suspended: false,
+    subFee: 400000,
+    tar: [[1, 25000], [3, 65000]],
+    nightPack: false,
+    gpu: "RTX 3070 · 165Hz",
+    specs: {
+      std: "RTX 3070 · Ryzen 5 5600X · 165Hz",
+      vip: "RTX 4070 · Ryzen 7 7700X · 240Hz"
+    },
+    contact: { tg: "", phone: "", public: false },
+    amenities: ["ac", "ps5"],
+    baseRating: { sum: 94.0, count: 20 }
+  },
+  {
+    id: 4,
+    logo: "LU",
+    name: "Level Up Bootcamp",
+    addr: "Бухара, ул. Навои",
+    landmark: "ориентир Парк Саманидов",
+    mapUrl: "https://yandex.uz/maps/?text=%D0%91%D1%83%D1%85%D0%B0%D1%80%D0%B0+%D1%83%D0%BB+%D0%9D%D0%B0%D0%B2%D0%BE%D0%B8",
+    open: 0,
+    close: 24,
+    card: "8600 9999 8888 7777",
+    ok: false,
+    subPaid: false,
+    suspended: false,
+    subFee: 350000,
+    tar: [[1, 20000], [5, 80000]],
+    nightPack: true,
+    gpu: "RTX 4060 · 144Hz",
+    specs: {
+      std: "RTX 4060 · i5-12400F · 144Hz",
+      vip: "RTX 4060Ti · i5-13400F · 240Hz"
+    },
+    contact: { tg: "@levelup_bux", phone: "", public: true },
+    amenities: ["ac", "bar", "bootcamp"],
+    baseRating: { sum: 46.0, count: 10 }
+  }
 ];
 
 const MAIN = [...Array(15)].map((_, i) => String(i + 1));
 const VIP = ["V1", "V2", "V3", "V4"];
 
 let bk = [
-  { id: 1, club: 1, seat: "3", day: 0, start: 14, hours: 3, st: "ok", by: "user" },
-  { id: 2, club: 1, seat: "7", day: 0, start: 18, hours: 3, st: "ok", by: "user" },
-  { id: 3, club: 1, seat: "V2", day: 0, start: 20, hours: 4, st: "ok", by: "user" },
-  { id: 4, club: 2, seat: "5", day: 0, start: 16, hours: 3, st: "ok", by: "user" }
+  { id: 1, club: 1, seat: "3", day: 0, start: 14, hours: 3, price: 90000, st: "ok", by: "user", ownerId: "demo_guest" },
+  { id: 2, club: 1, seat: "7", day: 0, start: 18, hours: 2, price: 70000, st: "ok", by: "user", ownerId: "demo_guest" },
+  { id: 3, club: 1, seat: "V2", day: 0, start: 20, hours: 5, price: 130000, st: "ok", by: "user", ownerId: "demo_guest" },
+  { id: 4, club: 2, seat: "5", day: 0, start: 16, hours: 2, price: 55000, st: "ok", by: "user", ownerId: "demo_guest" }
 ];
 
-let nid = 10;
 let S = {
+  authRole: "user",
   role: "user",
   lang: "ru",
   view: "home",
-  club: 1,
+  histTab: "all",
+  sysTab: "requests",
+  receiptId: null,
+  club: null,
+  infoClubId: null,
+  ratingOpen: false,
   adminClubId: 1,
-  seat: "1",
+  seat: null,
   day: 0,
   start: null,
-  tar: 0,
+  tar: null,
   tab: "new",
   err: "",
   shot: "",
   toast: "",
-  copied: false
+  ms: "1",
+  md: 0,
+  mh: new Date().getHours(),
+  mn: 1
 };
+
+function detectAuthRole() {
+  const tgUser = getTelegramUser();
+  if (tgUser && tgUser.id) {
+    const numId = Number(tgUser.id);
+    const strId = String(tgUser.id);
+
+    if (SUPER_ADMIN_IDS.has(numId)) {
+      S.authRole = "sys";
+      S.role = "sys";
+      return;
+    }
+    if (CLUB_ADMIN_REGISTRY[strId]) {
+      S.authRole = "admin";
+      S.adminClubId = Number(CLUB_ADMIN_REGISTRY[strId]) || 1;
+      S.role = "admin";
+      return;
+    }
+  }
+}
+
+detectAuthRole();
 
 const t = k => L[S.lang][k];
 const $ = id => document.getElementById(id);
-const fm = n => n.toLocaleString("ru-RU").replace(/\u00a0/g, " ") + " " + t("sum");
+const fm = n => (Number(n) || 0).toLocaleString("ru-RU").replace(/\u00a0/g, " ") + " " + t("sum");
 const hh = h => String(h % 24).padStart(2, "0") + ":00";
 const C = id => clubs.find(c => c.id === id);
-const rng = b => t("days")[b.day] + " " + hh(b.start) + "–" + hh(b.start + b.hours);
+const clubName = id => (C(id) ? C(id).name : ("Клуб #" + id));
+const rng = b => (t("days")[b.day] || "") + " " + hh(b.start) + "–" + hh(b.start + b.hours);
 const abs = (d, s) => d * 24 + s;
+
+function isPastSlot(d, s) {
+  return d === 0 && s < new Date().getHours();
+}
+
+function isBookingSessionEnded(b) {
+  const startH = Number(b.start) || 0;
+  const hrs = Number(b.hours) || 1;
+  const dayOffset = Number(b.day) || 0;
+  const nowH = new Date().getHours();
+  if (dayOffset === 0 && (startH + hrs) <= nowH) return true;
+  if (b.created && Number(b.created) > 1e12) {
+    const d = new Date(Number(b.created));
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + dayOffset);
+    const endTs = d.getTime() + (startH + hrs) * 3600 * 1000;
+    if (Date.now() >= endTs) return true;
+  }
+  return false;
+}
+
+function isBookingActive(b) {
+  if (!b || (b.st !== "ok" && b.st !== "new")) return false;
+  if (isBookingSessionEnded(b)) return false;
+  return true;
+}
 
 function clash(c, seat, d, s, h) {
   const a = abs(d, s), e = a + h;
-  return bk.some(b => b.club === c && b.seat === seat && (b.st === "ok" || b.st === "new") && a < abs(b.day, b.start) + b.hours && abs(b.day, b.start) < e);
+  return bk.some(b => b.club === c && String(b.seat) === String(seat) && isBookingActive(b) && a < abs(b.day, b.start) + b.hours && abs(b.day, b.start) < e);
 }
 
 function closedAt(c, d, s, h) {
   const k = C(c);
+  if (!k) return true;
   return !(k.open === 0 && k.close === 24) && (s < k.open || s + h > k.close);
 }
 
@@ -1103,303 +1675,617 @@ function minHour(c) {
   return Math.min(...c.tar.map(x => x[1] / x[0]));
 }
 
-function operatorSvg() {
-  return `<svg class="poster-silhouette" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M60 12C42 12 30 26 30 44C30 58 38 70 46 76L20 96V138H100V96L74 76C82 70 90 58 90 44C90 26 78 12 60 12Z" fill="currentColor"/>
-    <rect x="38" y="36" width="44" height="14" fill="#ff2442"/>
-    <circle cx="49" cy="43" r="4" fill="#f2ede2"/>
-    <circle cx="71" cy="43" r="4" fill="#f2ede2"/>
-  </svg>`;
-}
-
 function tagHtml(b) {
+  if (b.st === "ok" && isBookingSessionEnded(b)) {
+    return `<span class="status-tag st-done">🏁 ${t("sDone")}</span>`;
+  }
   const cls = b.st === "new" ? "st-new" : b.st === "ok" ? "st-ok" : "st-no";
-  const txt = { new: t("sNew"), ok: t("sOk"), no: t("sNo"), exp: t("sExp") }[b.st] || b.st;
+  const txt = { new: t("sNew"), ok: t("sOk"), no: t("sNo"), exp: t("sExp") }[b.st] || escHtml(b.st);
   return `<span class="status-tag ${cls}">${txt}</span>`;
 }
 
 function cdHtml(b) {
-  if (b.st !== "new") return "";
-  return ` <span style="font-family:var(--font-mono);color:var(--amber);font-size:12px;font-weight:800;" data-exp="${b.created + 3e5}"></span>`;
+  if (b.st !== "new" || !b.created) return "";
+  return ` <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-gold);font-size:12px;" data-exp="${b.created + 3e5}"></span>`;
 }
 
 function head() {
-  const r = ["user", "admin", "sys"].map(x => `
-    <button class="role-btn ${S.role === x ? 'active' : ''}" onclick="setRole('${x}')">
-      ${t(x)}
-    </button>
-  `).join("");
+  // В продакшене обычный игрок (authRole === 'user') ВООБЩЕ не видит плашку переключения ролей!
+  const allowedRoles = S.authRole === "sys"
+    ? ["user", "sys"]
+    : S.authRole === "admin"
+    ? ["user", "admin"]
+    : [];
+
+  if (!allowedRoles.length) {
+    return `
+      <div class="top-bar" style="justify-content:flex-end;margin-bottom:8px;">
+        <button class="lang-btn" onclick="setLang()">${S.lang === "ru" ? "🇺🇿 UZ" : "🇷🇺 RU"}</button>
+      </div>
+    `;
+  }
 
   return `
-    <div class="hud-top-meta">
-      <div class="hud-coords">
-        <span class="live-dot"></span>
-        <span>${t("brand")}</span>
-      </div>
-      <span>41.2995° N, 69.2401° E // TAS</span>
-    </div>
     <div class="top-bar">
-      <div class="role-seg">${r}</div>
-      <button class="lang-btn" onclick="setLang()">${S.lang === "ru" ? "UZ" : "RU"}</button>
+      <div class="role-seg">
+        ${allowedRoles.map(x => `
+          <button class="role-btn ${S.role === x ? 'active' : ''}" onclick="setRole('${x}')">
+            ${t(x)}
+          </button>
+        `).join("")}
+      </div>
+      <button class="lang-btn" onclick="setLang()">${S.lang === "ru" ? "🇺🇿 UZ" : "🇷🇺 RU"}</button>
+    </div>
+  `;
+}
+
+function getLiveFreeSeats(clubId) {
+  const nowH = new Date().getHours();
+  const freeStd = MAIN.filter(s => !clash(clubId, s, 0, nowH, 1)).length;
+  const freeVip = VIP.filter(s => !clash(clubId, s, 0, nowH, 1)).length;
+  return { freeStd, totalStd: MAIN.length, freeVip, totalVip: VIP.length };
+}
+
+function getClubRating(c) {
+  const baseSum = (c.baseRating && Number(c.baseRating.sum)) || 0;
+  const baseCount = (c.baseRating && Number(c.baseRating.count)) || 0;
+  const votes = Object.values(clubRatings).filter(
+    v => v && Number(v.clubId) === Number(c.id) && Number(v.stars) >= 1 && Number(v.stars) <= 5
+  );
+  const totalCount = baseCount + votes.length;
+  if (!totalCount) return { avg: null, count: 0 };
+  const totalSum = baseSum + votes.reduce((acc, v) => acc + Number(v.stars), 0);
+  return { avg: (totalSum / totalCount).toFixed(1), count: totalCount };
+}
+
+function reviewsLabel(n) {
+  if (S.lang === "uz") return `${n} ta baho`;
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return `${n} отзыв`;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return `${n} отзыва`;
+  return `${n} отзывов`;
+}
+
+function hasConfirmedVisit(clubId, uid) {
+  return bk.some(
+    b => Number(b.club) === Number(clubId) && b.st === "ok" && String(b.ownerId || "") === String(uid)
+  );
+}
+
+function getUserClubVote(clubId, uid) {
+  const rec = clubRatings[`${clubId}_${uid}`];
+  return rec && Number(rec.stars) >= 1 && Number(rec.stars) <= 5 ? Number(rec.stars) : 0;
+}
+
+function clubInfoModal() {
+  if (S.infoClubId === null) return "";
+  const c = C(S.infoClubId);
+  if (!c) return "";
+
+  const uid = getClientUserId();
+  const rating = getClubRating(c);
+  const live = getLiveFreeSeats(c.id);
+  const totalFree = live.freeStd + live.freeVip;
+  const canRate = hasConfirmedVisit(c.id, uid);
+  const myVote = getUserClubVote(c.id, uid);
+
+  const hasTg = c.contact && c.contact.public && c.contact.tg;
+  const hasPhone = c.contact && c.contact.public && c.contact.phone;
+  const tgClean = hasTg ? c.contact.tg.replace(/^@/, "") : "";
+
+  const contactHtml = (hasTg || hasPhone) ? `
+    <div class="contact-pill">
+      ${hasTg ? `<a class="contact-link" href="https://t.me/${encodeURIComponent(tgClean)}" target="_blank" rel="noopener">✈️ ${escHtml(c.contact.tg)}</a>` : ""}
+      ${hasTg && hasPhone ? `<span style="color:rgba(0,240,255,0.4);">·</span>` : ""}
+      ${hasPhone ? `<span class="contact-link" onclick="copyPhone('${escHtml(c.contact.phone)}')">📞 ${t("contactBtn")}</span>` : ""}
+    </div>
+  ` : "";
+
+  const amenitiesList = Array.isArray(c.amenities) ? c.amenities.filter(k => AMENITIES[k]) : [];
+  const amenitiesHtml = amenitiesList.length ? `
+    <div class="info-row-box">
+      <div class="amenities-wrap">
+        ${amenitiesList.map(k => `<span class="amenity-pill">${AMENITIES[k][S.lang]}</span>`).join("")}
+      </div>
+    </div>
+  ` : "";
+
+  const safeMapUrl = (c.mapUrl && /^https:\/\//i.test(c.mapUrl)) ? c.mapUrl : "";
+
+  const rateDrawerHtml = S.ratingOpen ? (
+    canRate ? `
+      <div class="rate-drawer">
+        <div style="font-size:12px;color:var(--text-muted);font-weight:600;">
+          ${myVote ? `${t("yourRating")}: <b style="color:var(--neon-gold);">${myVote} ★</b> (${t("canChangeRating")})` : t("ratePrompt")}
+        </div>
+        <div class="star-picker">
+          ${[1, 2, 3, 4, 5].map(n => `
+            <button class="star-pick-btn ${n <= myVote ? "lit" : ""}" onclick="submitClubRating(${c.id}, ${n})" aria-label="${n}">★</button>
+          `).join("")}
+        </div>
+      </div>
+    ` : `
+      <div class="rate-drawer locked">
+        🔒 ${t("rateLocked")}
+      </div>
+    `
+  ) : "";
+
+  return `
+    <div class="modal-overlay" onclick="closeClubInfo()">
+      <div class="info-modal" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeClubInfo()" aria-label="Close">✕</button>
+
+        <div class="club-modal-header">
+          <div class="club-avatar-ring">
+            <div class="club-avatar-inner">
+              <span class="club-avatar-letter">${escHtml(c.logo || c.name.slice(0, 1).toUpperCase())}</span>
+            </div>
+          </div>
+          <div style="min-width:0;">
+            <div class="club-modal-title">${escHtml(c.name)}</div>
+            <div class="club-modal-rating">
+              ${rating.avg
+                ? `<span class="club-modal-stars">★ ${rating.avg}</span> <span style="color:var(--text-muted);">(${reviewsLabel(rating.count)})</span>`
+                : `<span style="color:var(--text-muted);">${t("noReviews")}</span>`}
+            </div>
+            ${contactHtml}
+          </div>
+        </div>
+
+        <div class="live-seats-box ${totalFree === 0 ? "full" : ""}">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="pulse-dot" style="${totalFree === 0 ? "background:var(--neon-red);box-shadow:0 0 10px var(--neon-red);" : ""}"></span>
+            <span>${totalFree > 0 ? `${t("freeNow")}: ${live.freeStd} Standart · ${live.freeVip} VIP` : t("noFreeNow")}</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;opacity:0.85;">${totalFree}/${live.totalStd + live.totalVip}</span>
+        </div>
+
+        <div class="info-row-box">
+          <div class="spec-line">
+            <span class="spec-tag spec-tag-std">${t("stdLabel")}</span>
+            <span>${escHtml((c.specs && c.specs.std) || c.gpu)}</span>
+          </div>
+          ${c.specs && c.specs.vip ? `
+            <div class="spec-line">
+              <span class="spec-tag spec-tag-vip">${t("vipLabel")}</span>
+              <span>${escHtml(c.specs.vip)}</span>
+            </div>
+          ` : ""}
+        </div>
+
+        <div class="info-row-box">
+          <div class="addr-row">
+            <div style="font-size:13px;color:#e9e4ff;line-height:1.35;">
+              📍 ${escHtml(c.addr)}${c.landmark ? `<span style="color:var(--text-muted);"> · ${escHtml(c.landmark)}</span>` : ""}
+            </div>
+            ${safeMapUrl ? `<a class="map-outline-btn" href="${escHtml(safeMapUrl)}" target="_blank" rel="noopener">${t("onMap")}</a>` : ""}
+          </div>
+        </div>
+
+        <div class="info-row-box" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;">
+          <span style="color:var(--neon-green);font-weight:700;">⚡ ${c.open === 0 && c.close === 24 ? t("open247") : hh(c.open) + "–" + hh(c.close)}</span>
+          <span style="color:var(--text-dim);">·</span>
+          <span style="color:#e9e4ff;font-family:'JetBrains Mono',monospace;">💳 ${t("from")} ${fm(Math.round(minHour(c)))} ${t("per")}</span>
+          ${c.nightPack ? `<span style="color:var(--neon-cyan);font-weight:700;">· ${t("nightPack")}</span>` : ""}
+        </div>
+
+        ${amenitiesHtml}
+
+        ${c.suspended ? `
+          <div class="info-row-box" style="border-color:rgba(255,51,102,0.5);background:rgba(255,51,102,0.12);color:#ff8fa3;font-size:12px;font-weight:700;text-align:center;margin-top:10px;">
+            ${t("clubOfflineBadge")}
+          </div>
+        ` : `
+          <button class="cta-btn" style="margin-top:12px;" onclick="chooseSeatFromModal(${c.id})">${t("chooseSeat")}</button>
+        `}
+
+        <button class="rate-trigger-btn" onclick="toggleRateDrawer()">
+          ⭐ ${myVote ? `${t("yourRating")}: ${myVote}★` : t("rateClub")}
+        </button>
+
+        ${rateDrawerHtml}
+      </div>
     </div>
   `;
 }
 
 function home() {
-  const list = clubs.filter(c => c.ok).map((c, idx) => {
-    const busyCount = [...MAIN, ...VIP].filter(s => clash(c.id, s, 0, new Date().getHours(), 1)).length;
-    const freeCount = c.units - busyCount;
+  const uid = getClientUserId();
+  const list = clubs.filter(c => c.ok).map(c => {
+    const rating = getClubRating(c);
+    const live = getLiveFreeSeats(c.id);
+    const totalFree = live.freeStd + live.freeVip;
+    const isSusp = !!c.suspended;
     return `
-      <div class="poster-card anim-in" onclick="openClub(${c.id})">
-        <div class="poster-index-col">
-          <div class="poster-idx-num">#00${idx + 1}</div>
-          <div class="poster-idx-meta">
-            UNIT
-            <b>${freeCount}/${c.units}</b>
-            ZONE
-            <b>TAS-${c.id}</b>
+      <div class="club-card anim-fade ${isSusp ? "suspended-card" : ""}" onclick="openClub(${c.id})">
+        <div class="club-head">
+          <div style="min-width:0;padding-right:8px;">
+            <div class="club-name">${escHtml(c.name)}</div>
+            <div class="club-addr">📍 ${escHtml(c.addr)}</div>
           </div>
-          <div class="poster-idx-status">LIVE</div>
+          <div class="club-head-right">
+            <span class="badge badge-price">${t("from")} ${fm(Math.round(minHour(c)))} ${t("per")}</span>
+            <button class="club-info-btn" title="${t("aboutClub")}" onclick="openClubInfo(${c.id}, event)">?</button>
+          </div>
         </div>
-        <div class="poster-main-col">
-          <div class="poster-bg-word">${c.code}</div>
-          ${operatorSvg()}
-          <div class="poster-top-row">
-            <div>
-              <div class="poster-club-title">${c.name}</div>
-              <div class="poster-club-addr">[+] ${c.addr}</div>
-            </div>
-            <div class="poster-price-pill">${t("from")} ${fm(Math.round(minHour(c)))}</div>
-          </div>
-          <div class="poster-bottom-row">
-            <span class="spec-chip highlight">${c.gpu}</span>
-            <span class="spec-chip live">${c.open === 0 && c.close === 24 ? "24/7 ONLINE" : hh(c.open) + "–" + hh(c.close)}</span>
-            <span class="barcode-strip light"></span>
-          </div>
+        <div class="club-tags">
+          ${isSusp
+            ? `<span class="badge badge-red">${t("clubOfflineBadge")}</span>`
+            : `<span class="badge badge-green">🟢 ${totalFree}/${live.totalStd + live.totalVip}</span>`}
+          ${rating.avg ? `<span class="badge badge-gold">★ ${rating.avg}</span>` : ""}
+          <span class="badge badge-green">⚡ ${c.open === 0 && c.close === 24 ? "24/7" : hh(c.open) + "–" + hh(c.close)}</span>
+          <span class="badge badge-purple">🎮 ${escHtml(c.gpu)}</span>
         </div>
       </div>
     `;
   }).join("");
 
-  const my = bk.filter(b => b.by === "user" && b.mine).map(b => `
-    <div class="card-box anim-in" style="border-left: 4px solid var(--crimson);">
+  const allMy = bk.filter(b => b.by === "user" && String(b.ownerId || "") === String(uid));
+  const activeMy = allMy.filter(b => isBookingActive(b));
+  const archiveCount = allMy.length - activeMy.length;
+
+  const my = activeMy.map(b => `
+    <div class="card-box anim-fade">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <b style="font-family:var(--font-display);font-size:19px;letter-spacing:0.02em;">${C(b.club).name} // PC-${b.seat}</b>
-        <b style="color:var(--lime);font-family:var(--font-mono);font-size:13px;">${fm(b.price)}</b>
+        <b>${escHtml(clubName(b.club))} · ${t("seat")} ${escHtml(b.seat)}</b>
+        <b style="color:var(--neon-cyan);font-family:'JetBrains Mono';">${fm(b.price)}</b>
       </div>
-      <p style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;margin:6px 0;">TIME: ${rng(b)}</p>
-      ${tagHtml(b)}${cdHtml(b)}
+      <p style="color:var(--text-muted);font-size:13px;margin:4px 0;">📅 ${rng(b)}</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+        <div>${tagHtml(b)}${cdHtml(b)}</div>
+        <button class="receipt-mini-btn" onclick="openReceipt('${escHtml(b.id)}')">🧾 ${t("receiptBtn")}</button>
+      </div>
     </div>
   `).join("");
 
+  const archiveHint = archiveCount > 0 ? `
+    <div class="card-box anim-fade" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;border-color:rgba(139,92,246,0.38);background:rgba(139,92,246,0.08);padding:12px 14px;margin-top:12px;" onclick="go('history')">
+      <span style="font-size:12px;color:#d8b4fe;font-weight:600;">🧾 ${t("goHistoryHint")}</span>
+      <span class="badge badge-purple">${archiveCount}</span>
+    </div>
+  ` : "";
+
   return `
-    <div class="poster-masthead anim-in">
-      <div class="masthead-kicker">
-        <span>// OPERATION: CYBER LOUNGE</span>
-        <span>SYS.V4.0</span>
-      </div>
-      <div class="masthead-title">${t("heroTitle")}</div>
-      <div class="masthead-sub">
-        <span>${t("heroSub")}</span>
-        <span class="barcode-strip"></span>
+    <div class="brand-header">
+      <div class="brand-title" onclick="showMyTgId()" style="cursor:pointer;" title="Показать мой Telegram ID">
+        <div class="brand-logo-icon">🎮</div>
+        <span class="brand-badge">${t("brand")}</span>
       </div>
     </div>
-
-    ${my ? `
-      <div class="sec-head">
-        <span class="sec-title">${t("mine")}</span>
-        <span class="sec-tag">// ACTIVE PASS</span>
-      </div>
-      ${my}
-    ` : ""}
-
-    <div class="sec-head">
-      <span class="sec-title">${t("clubs")}</span>
-      <span class="sec-tag">// SELECT SECTOR</span>
-    </div>
+    <h2 class="section-title">🏛️ ${t("clubs")}</h2>
     ${list}
+    ${my ? `<h2 class="section-title">🎟️ ${t("mine")}</h2>${my}` : ""}
+    ${archiveHint}
   `;
 }
 
-function seatBtn(id, isVip, c, checkHour, durHours) {
-  const isBusy = clash(c.id, id, S.day, checkHour, durHours);
-  const isSelected = S.seat === id;
-  const code = isVip ? id : `PC-${String(id).padStart(2, "0")}`;
-  return `
-    <button class="seat-btn ${isVip ? 'vip' : ''} ${isBusy ? 'busy' : ''} ${isSelected ? 'selected' : ''}" onclick="selectSeat('${id}')">
-      <span class="seat-code">${code}</span>
-      <span class="seat-state">${isBusy ? 'BUSY' : (isVip ? 'VIP' : 'FREE')}</span>
+function historyView() {
+  const uid = getClientUserId();
+  const allMy = bk
+    .filter(b => b.by === "user" && String(b.ownerId || "") === String(uid))
+    .slice()
+    .sort((a, b) => (b.created || 0) - (a.created || 0) || String(b.id).localeCompare(String(a.id)));
+
+  const paidList = allMy.filter(b => b.st === "ok");
+  const totalSpent = paidList.reduce((acc, b) => acc + (Number(b.price) || 0), 0);
+
+  const filtered = allMy.filter(b => {
+    if (S.histTab === "paid") return b.st === "ok";
+    if (S.histTab === "canceled") return b.st === "no" || b.st === "exp";
+    return true;
+  });
+
+  const tabs = [
+    ["all", "histAll", allMy.length],
+    ["paid", "histPaid", paidList.length],
+    ["canceled", "histCanceled", allMy.filter(b => b.st === "no" || b.st === "exp").length]
+  ].map(([k, labelKey, cnt]) => `
+    <button class="role-btn ${S.histTab === k ? "active" : ""}" onclick="setHistTab('${k}')">
+      ${t(labelKey)} (${cnt})
     </button>
+  `).join("");
+
+  const cards = filtered.map(b => `
+    <div class="card-box anim-fade">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <b>${escHtml(clubName(b.club))} · ${t("seat")} ${escHtml(b.seat)}</b>
+        <b style="color:var(--neon-cyan);font-family:'JetBrains Mono';">${fm(b.price)}</b>
+      </div>
+      <p style="color:var(--text-muted);font-size:13px;margin:4px 0;">
+        📅 ${rng(b)} (${b.hours} ${t("h")})
+      </p>
+      ${b.shot ? `<p style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">📎 ${escHtml(b.shot)}</p>` : ""}
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;">
+        <div>${tagHtml(b)}${cdHtml(b)}</div>
+        <div style="display:flex;gap:6px;">
+          ${b.st === "ok" ? `<button class="receipt-mini-btn" style="border-color:rgba(255,183,3,0.45);color:var(--neon-gold);background:rgba(255,183,3,0.1);" onclick="rateClubFromHistory(${b.club}, event)">⭐ ${t("rateClub")}</button>` : ""}
+          <button class="receipt-mini-btn" onclick="openReceipt('${escHtml(b.id)}')">🧾 ${t("receiptBtn")}</button>
+        </div>
+      </div>
+    </div>
+  `).join("") || `<p style="color:var(--text-muted);text-align:center;padding:30px 0;">${t("historyEmpty")}</p>`;
+
+  return `
+    <div class="anim-fade">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:14px;">🧾 ${t("historyTitle")}</h1>
+
+      <div class="history-stats">
+        <div class="stat-card">
+          <div class="stat-label">✅ ${t("statVisits")}</div>
+          <div class="stat-value" style="color:var(--neon-green);">${paidList.length}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">💳 ${t("statSpent")}</div>
+          <div class="stat-value" style="color:var(--neon-cyan);">${fm(totalSpent)}</div>
+        </div>
+      </div>
+
+      <div class="role-seg" style="margin-bottom:14px;">${tabs}</div>
+      ${cards}
+    </div>
+  `;
+}
+
+function receiptModal() {
+  if (!S.receiptId) return "";
+  const b = bk.find(x => String(x.id) === String(S.receiptId));
+  if (!b) return "";
+  const c = C(b.club);
+  const createdStr = b.created ? new Date(Number(b.created)).toLocaleString(S.lang === "uz" ? "uz-UZ" : "ru-RU") : "—";
+
+  return `
+    <div class="modal-overlay" onclick="closeReceipt()">
+      <div class="info-modal" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeReceipt()" aria-label="Close">✕</button>
+        <div style="text-align:center;margin-bottom:14px;">
+          <div style="font-size:32px;margin-bottom:4px;">🧾</div>
+          <div style="font-size:18px;font-weight:800;color:#fff;">${t("receiptTitle")}</div>
+          <div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">#${escHtml(b.id)}</div>
+        </div>
+
+        <div class="info-row-box">
+          <div class="receipt-line">
+            <span style="color:var(--text-muted);">${t("clubs")}</span>
+            <b>${escHtml(clubName(b.club))}</b>
+          </div>
+          <div class="receipt-line">
+            <span style="color:var(--text-muted);">${t("seat")}</span>
+            <b>#${escHtml(b.seat)}</b>
+          </div>
+          <div class="receipt-line">
+            <span style="color:var(--text-muted);">${t("receiptDate")}</span>
+            <b>${rng(b)} (${b.hours} ${t("h")})</b>
+          </div>
+          <div class="receipt-line">
+            <span style="color:var(--text-muted);">${t("bookDate")}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;">${escHtml(createdStr)}</span>
+          </div>
+          ${c ? `
+          <div class="receipt-line">
+            <span style="color:var(--text-muted);">${t("card")}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--neon-cyan);">${escHtml(c.card)}</span>
+          </div>` : ""}
+          ${b.shot ? `
+          <div class="receipt-line">
+            <span style="color:var(--text-muted);">${t("receiptFile")}</span>
+            <span style="color:var(--neon-green);font-size:12px;">📎 ${escHtml(b.shot)}</span>
+          </div>` : ""}
+        </div>
+
+        <div class="info-row-box" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>${tagHtml(b)}</div>
+          <div style="font-size:20px;font-weight:800;color:var(--neon-cyan);font-family:'JetBrains Mono',monospace;">
+            ${fm(b.price)}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function playerBottomNav() {
+  if (S.role !== "user") return "";
+  const uid = getClientUserId();
+  const totalMy = bk.filter(b => b.by === "user" && String(b.ownerId || "") === String(uid)).length;
+  const isHist = S.view === "history";
+  return `
+    <div class="bottom-nav-dock">
+      <button class="bottom-nav-btn ${!isHist ? "active" : ""}" onclick="go('home')">
+        <span>🏛️ ${t("navClubs")}</span>
+      </button>
+      <button class="bottom-nav-btn ${isHist ? "active" : ""}" onclick="go('history')">
+        <span>🧾 ${t("navHistory")}</span>
+        ${totalMy ? `<span class="nav-count-pill">${totalMy}</span>` : ""}
+      </button>
+    </div>
+  `;
+}
+
+function seatBtn(id, isVip) {
+  const c = S.club;
+  const isBusy = clash(c, id, 0, new Date().getHours(), 1);
+  return `
+    <button class="seat-btn ${isVip ? 'vip' : ''} ${isBusy ? 'busy' : ''}" onclick="openSeat('${id}')">
+      ${id}
+    </button>
+  `;
+}
+
+function clubView() {
+  const c = C(S.club);
+  if (!c) { S.view = "home"; return home(); }
+  if (c.suspended) {
+    return `
+      <div class="anim-fade">
+        <button class="back-btn" onclick="go('home')">${t("back")}</button>
+        <div class="suspended-lock-box">
+          <div style="font-size:38px;margin-bottom:8px;">⚠️</div>
+          <h2 style="font-size:18px;font-weight:800;color:#ff8fa3;margin-bottom:8px;">${escHtml(c.name)}</h2>
+          <div class="badge badge-red" style="margin-bottom:12px;">${t("clubOfflineBadge")}</div>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.45;">${t("clubOfflineDesc")}</p>
+          <button class="cta-btn" style="margin-top:16px;" onclick="go('home')">${t("back")}</button>
+        </div>
+      </div>
+    `;
+  }
+  const live = getLiveFreeSeats(c.id);
+  return `
+    <div class="anim-fade">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <button class="back-btn" style="margin-bottom:0;" onclick="go('home')">${t("back")}</button>
+        <button class="back-btn" style="margin-bottom:0;border-color:rgba(0,240,255,0.45);color:var(--neon-cyan);" onclick="openClubInfo(${c.id}, event)">? ${t("aboutClub")}</button>
+      </div>
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:4px;">${escHtml(c.name)}</h1>
+      <p style="color:var(--text-muted);font-size:13px;">🎮 ${escHtml(c.gpu)} · 📍 ${escHtml(c.addr)}</p>
+      <p style="color:var(--neon-green);font-size:12px;font-weight:700;margin-top:4px;">🟢 ${t("freeNow")}: ${live.freeStd} Standart · ${live.freeVip} VIP</p>
+      
+      <div class="legend-bar">
+        <div class="legend-item"><div class="legend-box" style="border:2px solid var(--neon-green)"></div> ${t("free")}</div>
+        <div class="legend-item"><div class="legend-box" style="border:2px solid var(--neon-red);background:rgba(255,51,102,0.2)"></div> ${t("busy")}</div>
+        <div class="legend-item"><div class="legend-box" style="border:2px solid var(--neon-gold)"></div> ${t("vip")}</div>
+      </div>
+
+      <h2 class="section-title">🪑 ${t("main")}</h2>
+      <div class="grid-main">${MAIN.map(i => seatBtn(i, false)).join("")}</div>
+
+      <h2 class="section-title">👑 ${t("vip")}</h2>
+      <div class="grid-vip">${VIP.map(i => seatBtn(i, true)).join("")}</div>
+    </div>
   `;
 }
 
 function startOpts(cid) {
   const k = C(cid), a = k.open, z = k.close;
+  const nowH = new Date().getHours();
   let o = "";
   for (let h = a; h < z; h++) {
-    o += `<option value="${h}" ${S.start === h ? "selected" : ""}>SLOT // ${hh(h)}</option>`;
+    const past = S.day === 0 && h < nowH;
+    o += `<option value="${h}" ${S.start === h ? "selected" : ""} ${past ? "disabled" : ""}>🕒 ${hh(h)}${past ? (" (" + t("pastTag") + ")") : ""}</option>`;
   }
   return o;
 }
 
-function clubView() {
+function seatView() {
   const c = C(S.club);
-  if (S.start === null) S.start = Math.max(c.open, Math.min(new Date().getHours() + 1, c.close - 1));
-  if (S.tar === null || !c.tar[S.tar]) S.tar = 0;
+  if (!c) { S.view = "home"; return home(); }
+  const nowH = new Date().getHours();
+  const minValidH = S.day === 0 ? Math.max(c.open, nowH) : c.open;
+  if (S.start === null || (S.day === 0 && S.start < minValidH)) {
+    S.start = Math.min(minValidH, c.close - 1);
+  }
 
-  const activeTariff = c.tar[S.tar];
-  const durHours = activeTariff ? activeTariff[0] : 1;
+  const ex = bk.filter(b => b.club === c.id && String(b.seat) === String(S.seat) && isBookingActive(b))
+    .map(b => `<p style="color:${b.st === "new" ? "var(--neon-gold)" : "var(--neon-red)"};font-size:12px;margin-top:2px;">${b.st === "new" ? "⏳" : "⚠️"} ${t("busyAt")}: ${rng(b)}${b.st === "new" ? " (" + t("pendingTag") + ")" : ""}</p>`).join("");
 
   const days = t("days").map((d, i) => `
-    <button class="day-pill ${S.day === i ? 'active' : ''}" onclick="S.day=${i};S.err='';haptic();render()">${d}</button>
+    <button class="chip-btn ${S.day === i ? 'active' : ''}" onclick="S.day=${i};S.err='';haptic();render()">${d}</button>
   `).join("");
 
   const tars = c.tar.map((x, i) => `
-    <div class="tariff-tile ${S.tar === i ? 'active' : ''}" onclick="S.tar=${i};S.err='';haptic();render()">
-      <div class="tariff-hrs">${x[0]} ${t("h")}</div>
-      <div class="tariff-sum">${fm(x[1])}</div>
+    <div class="tariff-card ${S.tar === i ? 'active' : ''}" onclick="S.tar=${i};S.err='';haptic();render()">
+      <span>⏱️ <b>${x[0]} ${t("h")}</b> ${t("playTime")}</span>
+      <b>${fm(x[1])}</b>
     </div>
   `).join("");
 
-  const seatBookings = bk.filter(b => b.club === c.id && b.seat === S.seat && (b.st === "ok" || b.st === "new"))
-    .map(b => `<div style="font-family:var(--font-mono);font-size:10px;color:var(--crimson);margin-top:4px;">[!] ${t("busyAt")}: ${rng(b)}</div>`).join("");
-
-  const seatLabel = S.seat && S.seat.startsWith("V") ? S.seat : `PC-${String(S.seat).padStart(2, "0")}`;
-
   return `
-    <div class="anim-in">
-      <button class="back-btn" onclick="go('home')">${t("back")}</button>
+    <div class="anim-fade">
+      <button class="back-btn" onclick="go('club')">${t("back")}</button>
+      <h1 style="font-size:24px;font-weight:800;">${escHtml(c.name)} · ${t("seatPlace")}${escHtml(S.seat)}</h1>
+      ${ex}
 
-      <div class="club-hero-poster">
-        <div class="club-hero-watermark">${c.code}</div>
-        <div class="club-hero-header">
-          <span>SECTOR // 0${c.id}</span>
-          <span>${c.open === 0 && c.close === 24 ? "24/7 OPERATION" : hh(c.open) + "–" + hh(c.close)}</span>
-        </div>
-        <div class="club-hero-title">${c.name}</div>
-        <div style="position:relative;z-index:1;font-family:var(--font-mono);font-size:11px;margin-top:4px;opacity:0.9;">
-          📍 ${c.addr}
-        </div>
-        <div class="club-hero-loadout">
-          <span>HARDWARE // ${c.gpu}</span>
-          <span class="barcode-strip"></span>
-        </div>
-      </div>
+      <h2 class="section-title">📅 ${t("bookDate")}</h2>
+      <div class="chip-group">${days}</div>
 
-      <div class="tactical-filter-box">
-        <div class="filter-label">
-          <span>01 // ДАТА И ВРЕМЯ ПОСАДКИ</span>
-          <span style="color:var(--cyan);">${t("days")[S.day]} @ ${hh(S.start)}</span>
-        </div>
-        <div class="day-pills">${days}</div>
-        <select class="styled-select" style="margin-bottom:0;" onchange="S.start=+this.value;S.err='';haptic();render()">
-          ${startOpts(c.id)}
-        </select>
-      </div>
+      <h2 class="section-title">⏰ ${t("start")}</h2>
+      <select class="styled-select" onchange="S.start=+this.value;S.err='';haptic()">${startOpts(c.id)}</select>
 
-      <div class="legend-bar">
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--lime)"></span> ${t("free")}</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--crimson)"></span> ${t("busy")}</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--paper)"></span> ВЫБРАН</div>
-      </div>
+      <h2 class="section-title">⚡ ${t("tariff")}</h2>
+      ${tars}
 
-      <div class="sec-head" style="margin-top:8px;">
-        <span class="sec-title">${t("main")}</span>
-        <span class="sec-tag">// 15 UNITS</span>
-      </div>
-      <div class="grid-main">${MAIN.map(i => seatBtn(i, false, c, S.start, durHours)).join("")}</div>
+      ${S.err ? `<div class="error-text">❌ ${escHtml(S.err)}</div>` : ""}
 
-      <div class="sec-head">
-        <span class="sec-title">${t("vip")}</span>
-        <span class="sec-tag">// PRO SQUAD</span>
-      </div>
-      <div class="grid-vip">${VIP.map(i => seatBtn(i, true, c, S.start, durHours)).join("")}</div>
-
-      <div class="loadout-panel">
-        <div class="loadout-head">
-          <div>
-            <div style="font-family:var(--font-mono);font-size:10px;font-weight:800;color:var(--crimson);">SELECTED UNIT // TACTICAL LOADOUT</div>
-            <div class="loadout-title">${c.name} · [${seatLabel}]</div>
-          </div>
-          <span class="barcode-strip"></span>
-        </div>
-
-        ${seatBookings}
-
-        <div style="font-family:var(--font-mono);font-size:10px;font-weight:800;margin-top:8px;text-transform:uppercase;">
-          02 // ${t("tariff")}:
-        </div>
-        <div class="tariff-grid">${tars}</div>
-
-        ${S.err ? `<div class="error-text">[ERROR] ${S.err}</div>` : ""}
-
-        <button class="cta-btn" onclick="toPay()">
-          <span>${t("next")} [${seatLabel}]</span>
-          <span>${fm(activeTariff[1])} →</span>
-        </button>
-      </div>
+      <button class="cta-btn" onclick="toPay()">${t("next")}</button>
     </div>
   `;
 }
 
 function payView() {
   const c = C(S.club);
+  if (!c || S.tar === null || !c.tar[S.tar]) { S.view = "home"; return home(); }
   const x = c.tar[S.tar];
-  const seatLabel = S.seat && S.seat.startsWith("V") ? S.seat : `PC-${String(S.seat).padStart(2, "0")}`;
 
   return `
-    <div class="anim-in">
-      <button class="back-btn" onclick="go('club')">← НАЗАД К МАТРИЦЕ МЕСТ</button>
+    <div class="anim-fade">
+      <button class="back-btn" onclick="go('seat')">${t("back")}</button>
+      <h1 style="font-size:24px;font-weight:800;margin-bottom:14px;">💳 ${t("pay")}</h1>
 
-      <div class="poster-masthead" style="margin-bottom:14px;">
-        <div class="masthead-kicker">
-          <span>// REQUISITION ORDER</span>
-          <span>UNIT: ${seatLabel}</span>
-        </div>
-        <div class="masthead-title">${t("pay")}</div>
-        <div class="masthead-sub">
-          <span>${c.name} · ${t("days")[S.day]} ${hh(S.start)}–${hh(S.start + x[0])}</span>
-          <span class="barcode-strip"></span>
-        </div>
-      </div>
-
-      <div class="card-box" style="border-left: 5px solid var(--lime);">
-        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">К ОПЛАТЕ ЗА ${x[0]} ${t("h")}:</div>
-        <div style="font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--lime);line-height:1.1;">
+      <div class="card-box">
+        <div style="font-size:17px;font-weight:800;">${escHtml(c.name)} · ${t("seat")} ${escHtml(S.seat)}</div>
+        <p style="color:var(--text-muted);font-size:13px;margin:6px 0;">
+          📅 ${t("days")[S.day]}, ${hh(S.start)}–${hh(S.start + x[0])} (${x[0]} ${t("h")})
+        </p>
+        <div style="font-size:22px;font-weight:800;color:var(--neon-green);margin-top:10px;font-family:'JetBrains Mono';">
           ${fm(x[1])}
         </div>
       </div>
 
       <div class="card-box">
-        <p style="color:var(--paper);font-size:12px;line-height:1.45;">${t("payInfo")}</p>
-        <div class="card-number-display" onclick="copyCard('${c.card}')">
-          <span>${c.card}</span>
-          <span class="copy-pill">${S.copied ? t("copied") : t("copy")}</span>
-        </div>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.4;">${t("payInfo")}</p>
+        <div class="card-number-display" style="cursor:pointer;" onclick="copyCard('${escHtml(c.card)}')">${escHtml(c.card)}</div>
+        <p style="text-align:center;font-size:11px;color:var(--text-dim);">${t("copyHint")}</p>
       </div>
 
       <label class="file-upload-zone">
-        <input type="file" accept="image/*" hidden onchange="$('fn').textContent=this.files[0]?('📎 '+this.files[0].name):'';S.shot=this.files[0]?this.files[0].name:'';S.err='';haptic();">
-        <span id="fn" style="font-weight:800;color:var(--paper);">${S.shot ? ('📎 ' + S.shot) : t("attach")}</span>
+        <input type="file" accept="image/*" hidden onchange="onShotPicked(this)">
+        <span id="fn" style="font-weight:600;">${S.shot ? ('📎 ' + escHtml(S.shot)) : t("attach")}</span>
       </label>
 
-      ${S.err ? `<div class="error-text">[ERROR] ${S.err}</div>` : ""}
+      ${S.err ? `<div class="error-text">❌ ${escHtml(S.err)}</div>` : ""}
 
-      <button class="cta-btn ok" onclick="submitPay()">
-        <span>${t("paid")}</span>
-        <span>✓</span>
-      </button>
+      <button class="cta-btn ok" onclick="submitPay()">${t("paid")}</button>
     </div>
   `;
 }
 
 function adminView() {
+  // Админ клуба жёстко привязан ТОЛЬКО к своему клубу
   const curClub = C(S.adminClubId) || C(1);
-  const activeClubs = clubs.filter(c => c.ok);
+  if (!curClub) {
+    return `<div class="anim-fade"><p style="color:var(--text-muted);text-align:center;padding:30px 0;">${t("empty")}</p></div>`;
+  }
 
-  const clubSelectOptions = activeClubs.map(c => `
-    <option value="${c.id}" ${c.id === curClub.id ? 'selected' : ''}>SECTOR // ${c.name}</option>
-  `).join("");
+  // Если Root отключил клубу доступ к сети (например, за неуплату подписки) — админ клуба теряет доступ вообще!
+  if (curClub.suspended) {
+    return `
+      <div class="anim-fade">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">💻 ${t("adminTitle")}</h1>
+        <div class="suspended-lock-box">
+          <div style="font-size:42px;margin-bottom:10px;">⛔</div>
+          <h2 style="font-size:18px;font-weight:800;color:#ff8fa3;margin-bottom:8px;">${t("adminLockTitle")}</h2>
+          <div style="margin-bottom:12px;">
+            <span class="badge badge-red">${escHtml(curClub.name)} · ${t("netSuspended")}</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:14px;">
+            ${t("adminLockDesc")}
+          </p>
+          <div class="info-row-box" style="margin-bottom:0;text-align:left;font-size:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="color:var(--text-muted);">${t("subFeeLabel")}:</span>
+              <b style="font-family:'JetBrains Mono',monospace;color:var(--neon-cyan);">${fm(curClub.subFee || 500000)} ${t("perMonth")}</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+              <span style="color:var(--text-muted);">${t("receiptStatus")}:</span>
+              <span style="color:${curClub.subPaid ? "var(--neon-green)" : "var(--neon-red)"};font-weight:700;">
+                ${curClub.subPaid ? t("subPaidYes") : t("subPaidNo")}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   const tabs = [["new", "tNew"], ["ok", "tOk"], ["no", "tNo"]];
   const seg = tabs.map(([k, l]) => `
@@ -1409,54 +2295,51 @@ function adminView() {
   `).join("");
 
   const items = bkTab(S.tab, curClub.id).map(b => `
-    <div class="card-box anim-in" style="border-left:4px solid var(--crimson);">
+    <div class="card-box anim-fade">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <b style="font-family:var(--font-display);font-size:20px;">UNIT #${b.seat} // ${rng(b)}</b>
-        <b style="color:var(--cyan);font-family:var(--font-mono);font-size:12px;">${b.by === "manual" ? t("manualTag") : fm(b.price)}</b>
+        <b>${t("seat")} #${escHtml(b.seat)} · ${rng(b)}</b>
+        <b style="color:var(--neon-cyan);">${b.by === "manual" ? t("manualTag") : fm(b.price)}</b>
       </div>
-      ${b.by === "user" ? `<p style="font-size:11px;font-family:var(--font-mono);color:var(--lime);margin:6px 0;">📎 ${t("shot")}</p>` : ""}
+      ${b.by === "user" ? `<p style="font-size:12px;color:var(--neon-green);margin:4px 0;">📎 ${t("shot")}${b.shot ? (": " + escHtml(b.shot)) : ""}</p>` : ""}
       ${tagHtml(b)}${cdHtml(b)}
       ${b.st === "new" ? `
         <div class="row-btns">
-          <button class="cta-btn ok" style="padding:10px;font-size:16px;" onclick="decide(${b.id},'ok')"><span>${t("yes")}</span></button>
-          <button class="cta-btn no" style="padding:10px;font-size:16px;" onclick="decide(${b.id},'no')"><span>${t("no")}</span></button>
+          <button class="cta-btn ok" style="padding:10px;" onclick="decide('${escHtml(b.id)}','ok')">${t("yes")}</button>
+          <button class="cta-btn no" style="padding:10px;" onclick="decide('${escHtml(b.id)}','no')">${t("no")}</button>
         </div>
       ` : ""}
     </div>
-  `).join("") || `<p style="color:var(--text-muted);font-family:var(--font-mono);font-size:12px;text-align:center;padding:24px 0;">${t("empty")}</p>`;
+  `).join("") || `<p style="color:var(--text-muted);text-align:center;padding:24px 0;">${t("empty")}</p>`;
 
-  const seats = [...MAIN, ...VIP].map(s => `<option value="${s}">UNIT #${s}</option>`).join("");
-  const hrs = [1, 2, 3, 4, 5].map(n => `<option value="${n}">${n} ${t("h")}</option>`).join("");
+  const seats = [...MAIN, ...VIP].map(s => `<option value="${s}" ${String(S.ms) === String(s) ? 'selected' : ''}>${t("seat")} #${s}</option>`).join("");
+  const daysOpt = t("days").map((d, i) => `<option value="${i}" ${S.md === i ? 'selected' : ''}>${d}</option>`).join("");
+  const hoursOpt = [...Array(24)].map((_, h) => `<option value="${h}" ${S.mh === h ? 'selected' : ''}>${hh(h)}</option>`).join("");
+  const hrs = [1, 2, 3, 4, 5].map(n => `<option value="${n}" ${S.mn === n ? 'selected' : ''}>${n} ${t("h")}</option>`).join("");
 
   return `
-    <div class="anim-in">
-      <div class="poster-masthead">
-        <div class="masthead-kicker"><span>// OPERATOR CONSOLE</span><span>ADMIN</span></div>
-        <div class="masthead-title">УПРАВЛЕНИЕ АРЕНОЙ</div>
+    <div class="anim-fade">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">💻 ${t("adminTitle")}</h1>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${t("assignedClub")}</p>
+      <div class="card-box" style="padding:12px 14px;margin-bottom:14px;border-color:rgba(0,240,255,0.35);display:flex;justify-content:space-between;align-items:center;">
+        <span>🏢 <b>${escHtml(curClub.name)}</b> <span style="color:var(--text-muted);font-size:12px;">(${escHtml(curClub.addr)})</span></span>
+        <span class="badge badge-green">🔒 Клуб #${curClub.id}</span>
       </div>
 
-      <select class="styled-select" onchange="S.adminClubId=+this.value;haptic();render()">
-        ${clubSelectOptions}
-      </select>
-
-      <div class="role-seg" style="margin-bottom:14px;">${seg}</div>
+      <div class="role-seg" style="margin-bottom:16px;">${seg}</div>
       ${items}
 
-      <div class="sec-head">
-        <span class="sec-title">${t("manual")}</span>
-        <span class="sec-tag">// RECEPTION</span>
-      </div>
+      <h2 class="section-title">⚡ ${t("manual")}</h2>
       <div class="card-box">
         <div style="display:flex;gap:8px;">
-          <select id="ms" class="styled-select">${seats}</select>
-          <select id="md" class="styled-select">${t("days").map((d, i) => `<option value="${i}">${d}</option>`).join("")}</select>
+          <select id="ms" class="styled-select" onchange="S.ms=this.value;S.err=''">${seats}</select>
+          <select id="md" class="styled-select" onchange="S.md=+this.value;S.err=''">${daysOpt}</select>
         </div>
         <div style="display:flex;gap:8px;">
-          <select id="mh" class="styled-select">${[...Array(24)].map((_, h) => `<option value="${h}">${hh(h)}</option>`).join("")}</select>
-          <select id="mn" class="styled-select">${hrs}</select>
+          <select id="mh" class="styled-select" onchange="S.mh=+this.value;S.err=''">${hoursOpt}</select>
+          <select id="mn" class="styled-select" onchange="S.mn=+this.value;S.err=''">${hrs}</select>
         </div>
-        ${S.err ? `<div class="error-text">[ERROR] ${S.err}</div>` : ""}
-        <button class="cta-btn" onclick="manual(${curClub.id})"><span>${t("occ")}</span><span>→</span></button>
+        ${S.err ? `<div class="error-text">❌ ${escHtml(S.err)}</div>` : ""}
+        <button class="cta-btn" onclick="manual(${curClub.id})">${t("occ")}</button>
       </div>
     </div>
   `;
@@ -1466,88 +2349,399 @@ function bkTab(k, clubId) {
   return bk.filter(b => b.club === clubId && (k === "no" ? (b.st === "no" || b.st === "exp") : b.st === k));
 }
 
-function sysView() {
-  const pend = clubs.filter(c => !c.ok && !c.gone).map(c => `
-    <div class="card-box anim-in" style="border-left:4px solid var(--amber);">
-      <b style="font-family:var(--font-display);font-size:22px;">${c.name}</b>
-      <p style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;margin:4px 0;">📍 ${c.addr} · ${c.gpu}</p>
-      <p style="font-size:12px;font-family:var(--font-mono);color:var(--cyan);">💳 ${t("card")}: ${c.card}</p>
-      <div class="row-btns">
-        <button class="cta-btn ok" style="padding:10px;font-size:16px;" onclick="clubAction(${c.id},true)"><span>${t("appr")}</span></button>
-        <button class="cta-btn no" style="padding:10px;font-size:16px;" onclick="clubAction(${c.id},false)"><span>${t("no")}</span></button>
-      </div>
-    </div>
-  `).join("") || `<p style="color:var(--text-muted);font-family:var(--font-mono);font-size:12px;text-align:center;padding:16px 0;">${t("empty")}</p>`;
+function getBookingRevenue(b) {
+  if (!b) return 0;
+  if (Number(b.price) > 0) return Number(b.price);
+  const c = C(b.club);
+  if (!c) return 0;
+  const hrs = Number(b.hours) || 1;
+  const exactTar = Array.isArray(c.tar) ? c.tar.find(x => Number(x[0]) === hrs) : null;
+  if (exactTar) return Number(exactTar[1]) || 0;
+  return Math.round(minHour(c) * hrs);
+}
 
-  const act = clubs.filter(c => c.ok).map(c => `
-    <div class="card-box anim-in" style="margin-bottom:8px;border-left:4px solid var(--lime);">
-      <b style="font-family:var(--font-display);font-size:19px;">${c.name}</b>
-      <p style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;">📍 ${c.addr} · [ONLINE]</p>
-    </div>
-  `).join("");
+function sysView() {
+  // Вкладка 1: Запросы клубов на подключение
+  if (S.sysTab === "requests") {
+    const pend = clubs.filter(c => !c.ok && !c.gone).map(c => `
+      <div class="card-box anim-fade">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <b>${escHtml(c.name)}</b>
+          <span class="badge badge-purple">🎮 ${escHtml(c.gpu)}</span>
+        </div>
+        <p style="color:var(--text-muted);font-size:13px;margin:4px 0;">📍 ${escHtml(c.addr)}</p>
+        <p style="font-size:13px;color:var(--neon-cyan);">💳 ${t("card")}: ${escHtml(c.card)}</p>
+        <div class="row-btns">
+          <button class="cta-btn ok" style="padding:10px;" onclick="clubAction(${c.id},true)">${t("appr")}</button>
+          <button class="cta-btn no" style="padding:10px;" onclick="clubAction(${c.id},false)">${t("no")}</button>
+        </div>
+      </div>
+    `).join("") || `<p style="color:var(--text-muted);text-align:center;padding:16px 0;">${t("empty")}</p>`;
+
+    const act = clubs.filter(c => c.ok).map(c => `
+      <div class="card-box anim-fade" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <b>${escHtml(c.name)}</b>
+          <p style="color:var(--text-muted);font-size:12px;margin-top:2px;">📍 ${escHtml(c.addr)}</p>
+        </div>
+        <span class="badge ${c.suspended ? "badge-red" : "badge-green"}">
+          ${c.suspended ? "⛔ " + t("netSuspended") : "🟢 " + t("activeInCat")}
+        </span>
+      </div>
+    `).join("");
+
+    return `
+      <div class="anim-fade">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">👑 ${t("sysTitle")}</h1>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">${t("sysHint")}</p>
+        <h2 class="section-title">📥 ${t("reg")}</h2>
+        ${pend}
+        <h2 class="section-title">✅ ${t("act")}</h2>
+        ${act}
+      </div>
+    `;
+  }
+
+  // Вкладка 2: Подписки клубов и рубильник отключения от сети бота
+  if (S.sysTab === "subs") {
+    const connected = clubs.filter(c => c.ok);
+    const subCards = connected.map(c => {
+      const isPaid = c.subPaid !== false;
+      const isSusp = !!c.suspended;
+      return `
+        <div class="card-box anim-fade" style="border-color:${isSusp ? "rgba(255,51,102,0.45)" : "var(--border)"};">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div>
+              <div style="font-size:16px;font-weight:800;color:#fff;">${escHtml(c.name)}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">📍 ${escHtml(c.addr)}</div>
+            </div>
+            <span class="badge ${isSusp ? "badge-red" : "badge-green"}">
+              ${isSusp ? "⛔ " + t("netSuspended") : "⚡ " + t("netOnline")}
+            </span>
+          </div>
+
+          <div class="info-row-box" style="margin-top:12px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:8px;">
+              <span style="color:var(--text-muted);">${t("subFeeLabel")}:</span>
+              <b style="font-family:'JetBrains Mono',monospace;color:var(--neon-cyan);">${fm(c.subFee || 500000)} ${t("perMonth")}</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="badge ${isPaid ? "badge-green" : "badge-red"}" style="font-size:12px;">
+                ${isPaid ? "🟢 " + t("subPaidYes") : "🔴 " + t("subPaidNo")}
+              </span>
+              <button class="receipt-mini-btn" onclick="toggleClubSub(${c.id})">
+                ${isPaid ? t("subMarkUnpaid") : t("subMarkPaid")}
+              </button>
+            </div>
+          </div>
+
+          <button class="cta-btn ${isSusp ? "ok" : "no"}" style="margin-top:6px;padding:11px;" onclick="toggleClubAccess(${c.id})">
+            ${isSusp ? t("btnRestore") : t("btnSuspend")}
+          </button>
+        </div>
+      `;
+    }).join("") || `<p style="color:var(--text-muted);text-align:center;padding:24px 0;">${t("empty")}</p>`;
+
+    return `
+      <div class="anim-fade">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">💳 ${t("subsTitle")}</h1>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${t("subsHint")}</p>
+        ${subCards}
+      </div>
+    `;
+  }
+
+  // Вкладка 3: Аналитика прибыли владельцев каждого клуба
+  const connected = clubs.filter(c => c.ok);
+  const statsPerClub = connected.map(c => {
+    const clubBks = bk.filter(b => Number(b.club) === Number(c.id) && b.st === "ok");
+    const onlineBks = clubBks.filter(b => b.by === "user");
+    const manualBks = clubBks.filter(b => b.by === "manual");
+    const revenue = clubBks.reduce((acc, b) => acc + getBookingRevenue(b), 0);
+    const hours = clubBks.reduce((acc, b) => acc + (Number(b.hours) || 1), 0);
+    const avg = clubBks.length ? Math.round(revenue / clubBks.length) : 0;
+    return {
+      club: c,
+      totalCount: clubBks.length,
+      onlineCount: onlineBks.length,
+      manualCount: manualBks.length,
+      revenue,
+      hours,
+      avg
+    };
+  }).sort((a, b) => b.revenue - a.revenue);
+
+  const totalPlatformRev = statsPerClub.reduce((acc, s) => acc + s.revenue, 0);
+  const totalPlatformSessions = statsPerClub.reduce((acc, s) => acc + s.totalCount, 0);
+
+  const statCards = statsPerClub.map(s => {
+    const sharePct = totalPlatformRev > 0 ? Math.round((s.revenue / totalPlatformRev) * 100) : 0;
+    return `
+      <div class="card-box anim-fade">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <div>
+            <b style="font-size:16px;">${escHtml(s.club.name)}</b>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">📍 ${escHtml(s.club.addr)}</p>
+          </div>
+          <span class="badge ${s.club.suspended ? "badge-red" : "badge-green"}">
+            ${s.club.suspended ? "⛔" : "🟢"} ${sharePct}%
+          </span>
+        </div>
+
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:12px;color:var(--text-muted);">${t("ownerProfit")}:</span>
+          <span style="font-size:19px;font-weight:800;color:var(--neon-green);font-family:'JetBrains Mono',monospace;">
+            ${fm(s.revenue)}
+          </span>
+        </div>
+
+        <div class="analytics-bar-track">
+          <div class="analytics-bar-fill" style="width:${Math.max(4, sharePct)}%;"></div>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="analytics-cell">${t("onlineBkCount")}<b>${s.onlineCount}</b></div>
+          <div class="analytics-cell">${t("manualBkCount")}<b>${s.manualCount}</b></div>
+          <div class="analytics-cell">${t("hoursSold")}<b>${s.hours} ${t("h")}</b></div>
+          <div class="analytics-cell">${t("avgCheck")}<b>${fm(s.avg)}</b></div>
+        </div>
+      </div>
+    `;
+  }).join("");
 
   return `
-    <div class="anim-in">
-      <div class="poster-masthead">
-        <div class="masthead-kicker"><span>// ROOT CLEARANCE</span><span>SYS.ADMIN</span></div>
-        <div class="masthead-title">СЕТЬ NOVA GAMING</div>
+    <div class="anim-fade">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">📊 ${t("statTitle")}</h1>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${t("statHint")}</p>
+
+      <div class="history-stats">
+        <div class="stat-card">
+          <div class="stat-label">💰 ${t("totalNetRev")}</div>
+          <div class="stat-value" style="color:var(--neon-green);font-size:15px;">${fm(totalPlatformRev)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">🎟️ ${t("totalNetSessions")}</div>
+          <div class="stat-value" style="color:var(--neon-cyan);">${totalPlatformSessions}</div>
+        </div>
       </div>
-      <div class="sec-head"><span class="sec-title">${t("reg")}</span><span class="sec-tag">// PENDING</span></div>
-      ${pend}
-      <div class="sec-head"><span class="sec-title">${t("act")}</span><span class="sec-tag">// LIVE</span></div>
-      ${act}
+
+      ${statCards}
     </div>
   `;
 }
 
-function render() {
-  let v = S.role === "admin" ? adminView() : S.role === "sys" ? sysView() : ({ home, club: clubView, pay: payView })[S.view]();
-  $("app").innerHTML = head() + v + (S.toast ? `<div class="toast-msg">${S.toast}</div>` : "");
+function sysBottomNav() {
+  if (S.role !== "sys") return "";
+  const pendCount = clubs.filter(c => !c.ok && !c.gone).length;
+  const unpaidCount = clubs.filter(c => c.ok && (c.subPaid === false || c.suspended)).length;
+  return `
+    <div class="bottom-nav-dock">
+      <button class="bottom-nav-btn ${S.sysTab === "requests" ? "active" : ""}" onclick="setSysTab('requests')">
+        <span>📥 ${t("sysNavReq")}</span>
+        ${pendCount ? `<span class="nav-count-pill">${pendCount}</span>` : ""}
+      </button>
+      <button class="bottom-nav-btn ${S.sysTab === "subs" ? "active" : ""}" onclick="setSysTab('subs')">
+        <span>💳 ${t("sysNavSubs")}</span>
+        ${unpaidCount ? `<span class="nav-count-pill" style="background:rgba(255,51,102,0.45);">${unpaidCount}</span>` : ""}
+      </button>
+      <button class="bottom-nav-btn ${S.sysTab === "analytics" ? "active" : ""}" onclick="setSysTab('analytics')">
+        <span>📊 ${t("sysNavStat")}</span>
+      </button>
+    </div>
+  `;
 }
 
-function setRole(r) { S.role = r; S.err = ""; haptic(); render(); }
-function setLang() { S.lang = S.lang === "ru" ? "uz" : "ru"; haptic(); render(); }
-function go(v) { S.view = v; S.err = ""; haptic(); render(); }
-function openClub(id) {
-  S.club = id;
-  const c = C(id);
-  S.start = Math.max(c.open, Math.min(new Date().getHours() + 1, c.close - 1));
-  S.tar = 0;
-  S.seat = "1";
-  go("club");
+let toastTimer = null;
+function showToast(msg) {
+  S.toast = msg;
+  if (toastTimer) clearTimeout(toastTimer);
+  render();
+  toastTimer = setTimeout(() => { S.toast = ""; toastTimer = null; render(); }, 3000);
 }
-function selectSeat(s) {
-  S.seat = s;
+
+function render() {
+  if (S.role !== "user" && S.role !== S.authRole) {
+    S.role = "user";
+  }
+  const views = { home, club: clubView, seat: seatView, pay: payView, history: historyView };
+  const viewFn = views[S.view] || home;
+  const v = S.role === "admin" ? adminView() : S.role === "sys" ? sysView() : viewFn();
+  $("app").innerHTML = head() + v + playerBottomNav() + sysBottomNav() + clubInfoModal() + receiptModal() + (S.toast ? `<div class="toast-msg">${escHtml(S.toast)}</div>` : "");
+}
+
+function setRole(r) {
+  if (r !== "user" && r !== S.authRole) return;
+  S.role = r;
   S.err = "";
   haptic();
   render();
 }
 
-function copyCard(num) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(num);
+function showMyTgId() {
+  const uid = getClientUserId();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(String(uid)).catch(() => {});
   }
-  S.copied = true;
   haptic("success");
+  showToast("🆔 ID: " + uid + " (скопировано)");
+}
+
+function setLang() { S.lang = S.lang === "ru" ? "uz" : "ru"; haptic(); render(); }
+function go(v) { S.view = v; S.err = ""; haptic(); render(); }
+function openClub(id) { S.club = id; go("club"); }
+function openSeat(s) { S.seat = s; S.start = null; S.tar = null; S.day = 0; go("seat"); }
+
+function onShotPicked(input) {
+  const name = input.files && input.files[0] ? input.files[0].name : "";
+  S.shot = name;
+  S.err = "";
+  const fnEl = $("fn");
+  if (fnEl) fnEl.textContent = name ? ("📎 " + name) : t("attach");
+  haptic();
+}
+
+function copyCard(num) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(num).catch(() => {});
+  }
+  haptic("success");
+  showToast(t("copiedToast"));
+}
+
+function copyPhone(phone) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(phone).catch(() => {});
+  }
+  haptic("success");
+  showToast(t("phoneCopied") + " " + phone);
+}
+
+function openClubInfo(id, ev) {
+  if (ev) ev.stopPropagation();
+  S.infoClubId = id;
+  S.ratingOpen = false;
+  haptic();
   render();
-  setTimeout(() => { S.copied = false; render(); }, 2000);
+}
+
+function closeClubInfo() {
+  S.infoClubId = null;
+  S.ratingOpen = false;
+  haptic();
+  render();
+}
+
+function chooseSeatFromModal(id) {
+  S.infoClubId = null;
+  S.ratingOpen = false;
+  openClub(id);
+}
+
+function toggleRateDrawer() {
+  S.ratingOpen = !S.ratingOpen;
+  haptic();
+  render();
+}
+
+function submitClubRating(clubId, stars) {
+  const uid = getClientUserId();
+  if (!hasConfirmedVisit(clubId, uid)) {
+    haptic("warning");
+    showToast("🔒 " + t("rateLocked"));
+    return;
+  }
+  const s = Math.max(1, Math.min(5, Number(stars) || 0));
+  const key = `${clubId}_${uid}`;
+  const rec = { clubId: Number(clubId), uid: String(uid), stars: s, updatedAt: Date.now() };
+  clubRatings[key] = rec;
+  try {
+    localStorage.setItem("nova_ratings_v1", JSON.stringify(clubRatings));
+  } catch (e) {}
+  if (db) {
+    db.collection(COL_RATINGS).doc(key).set(rec).catch(() => {});
+  }
+  haptic("success");
+  showToast(t("ratedToast"));
+}
+
+function setHistTab(k) {
+  S.histTab = k;
+  haptic();
+  render();
+}
+
+function openReceipt(id) {
+  S.receiptId = id;
+  haptic();
+  render();
+}
+
+function closeReceipt() {
+  S.receiptId = null;
+  haptic();
+  render();
+}
+
+function rateClubFromHistory(clubId, ev) {
+  if (ev) ev.stopPropagation();
+  S.infoClubId = clubId;
+  S.ratingOpen = true;
+  haptic();
+  render();
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if (S.receiptId !== null) closeReceipt();
+    else if (S.infoClubId !== null) closeClubInfo();
+  }
+});
+
+function newBookingId() {
+  return "bk_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
 }
 
 function toPay() {
   const c = C(S.club);
-  if (S.tar === null) { S.err = t("pick"); haptic("warning"); return render(); }
+  if (!c) return go("home");
+  if (S.tar === null || !c.tar[S.tar]) { S.err = t("pick"); haptic("warning"); return render(); }
   const h = c.tar[S.tar][0];
+  if (isPastSlot(S.day, S.start)) { S.err = t("pastTime"); haptic("warning"); return render(); }
   if (closedAt(c.id, S.day, S.start, h)) { S.err = t("closed"); haptic("warning"); return render(); }
   if (clash(c.id, S.seat, S.day, S.start, h)) { S.err = t("conflict"); haptic("warning"); return render(); }
   S.shot = "";
   go("pay");
 }
 
+function saveBookingCloud(item) {
+  if (!db) return;
+  db.collection(COL_BOOKINGS).doc(String(item.id)).set(item).catch(console.error);
+}
+
+function saveClubCloud(c) {
+  if (!db) return;
+  db.collection(COL_CLUBS).doc(String(c.id)).set({
+    id: c.id,
+    ok: !!c.ok,
+    gone: !!c.gone,
+    subPaid: c.subPaid !== false,
+    suspended: !!c.suspended
+  }).catch(console.error);
+}
+
 function submitPay() {
   if (!S.shot) { S.err = t("needShot"); haptic("warning"); return render(); }
-  const c = C(S.club), x = c.tar[S.tar];
-  bk.push({
-    id: nid++,
+  const c = C(S.club);
+  if (!c || S.tar === null || !c.tar[S.tar]) return go("home");
+  const x = c.tar[S.tar];
+
+  // Повторная проверка перед записью (защита от двойного бронирования)
+  if (isPastSlot(S.day, S.start)) { S.err = t("pastTime"); haptic("warning"); return render(); }
+  if (closedAt(c.id, S.day, S.start, x[0])) { S.err = t("closed"); haptic("warning"); return render(); }
+  if (clash(c.id, S.seat, S.day, S.start, x[0])) { S.err = t("conflict"); haptic("warning"); return render(); }
+
+  const newItem = {
+    id: newBookingId(),
     club: c.id,
     seat: S.seat,
     day: S.day,
@@ -1556,50 +2750,186 @@ function submitPay() {
     price: x[1],
     st: "new",
     by: "user",
-    mine: true,
+    ownerId: getClientUserId(),
+    shot: S.shot,
     created: Date.now()
-  });
-  S.adminClubId = c.id;
+  };
+  bk.push(newItem);
+  saveBookingCloud(newItem);
   haptic("success");
-  S.toast = t("sent");
   S.view = "home";
   S.err = "";
-  render();
-  setTimeout(() => { S.toast = ""; render(); }, 3200);
+  showToast(t("sent"));
 }
 
 function decide(id, st) {
-  const item = bk.find(b => b.id === id);
-  if (item) item.st = st;
+  const item = bk.find(b => String(b.id) === String(id));
+  if (item) {
+    item.st = st;
+    saveBookingCloud(item);
+  }
   haptic("success");
   render();
 }
 
 function manual(clubId) {
-  const s = $("ms").value, d = +$("md").value, h = +$("mh").value, n = +$("mn").value;
+  const s = S.ms, d = S.md, h = S.mh, n = S.mn;
+  if (isPastSlot(d, h)) { S.err = t("pastTime"); haptic("warning"); return render(); }
   if (closedAt(clubId, d, h, n)) { S.err = t("closed"); haptic("warning"); return render(); }
   if (clash(clubId, s, d, h, n)) { S.err = t("conflict"); haptic("warning"); return render(); }
-  bk.push({ id: nid++, club: clubId, seat: s, day: d, start: h, hours: n, st: "ok", by: "manual" });
+  const newItem = {
+    id: newBookingId(),
+    club: clubId,
+    seat: s,
+    day: d,
+    start: h,
+    hours: n,
+    st: "ok",
+    by: "manual",
+    created: Date.now()
+  };
+  bk.push(newItem);
+  saveBookingCloud(newItem);
   S.err = "";
   S.tab = "ok";
   haptic("success");
   render();
 }
 
+function setSysTab(k) {
+  S.sysTab = k;
+  haptic();
+  render();
+}
+
 function clubAction(id, ok) {
   const c = C(id);
-  if (ok) c.ok = true; else c.gone = true;
+  if (!c) return;
+  if (ok) {
+    c.ok = true;
+    c.gone = false;
+    c.subPaid = true;
+    c.suspended = false;
+  } else {
+    c.ok = false;
+    c.gone = true;
+  }
+  saveClubCloud(c);
   haptic("success");
   render();
+}
+
+function toggleClubSub(id) {
+  const c = C(id);
+  if (!c) return;
+  c.subPaid = !(c.subPaid !== false);
+  saveClubCloud(c);
+  haptic("success");
+  render();
+}
+
+function toggleClubAccess(id) {
+  const c = C(id);
+  if (!c) return;
+  c.suspended = !c.suspended;
+  saveClubCloud(c);
+  haptic(c.suspended ? "warning" : "success");
+  render();
+}
+
+function initFirebase() {
+  if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId || typeof firebase === "undefined") {
+    return;
+  }
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+    }
+    db = firebase.firestore();
+
+    // Динамическая проверка роли пользователя из Firestore (коллекция user_roles)
+    const uid = getClientUserId();
+    if (uid && !uid.startsWith("guest_")) {
+      db.collection(COL_ROLES).doc(String(uid)).onSnapshot(doc => {
+        if (doc && doc.exists) {
+          const rData = doc.data() || {};
+          if (rData.role === "sys") {
+            S.authRole = "sys";
+            S.role = "sys";
+            render();
+          } else if (rData.role === "admin") {
+            S.authRole = "admin";
+            S.adminClubId = Number(rData.clubId) || 1;
+            S.role = "admin";
+            render();
+          }
+        }
+      }, () => {});
+    }
+
+    db.collection(COL_BOOKINGS).onSnapshot(snap => {
+      fbLive = true;
+      if (snap.empty && !seededBookings) {
+        seededBookings = true;
+        bk.forEach(item => saveBookingCloud(item));
+      } else {
+        const remote = [];
+        snap.forEach(doc => remote.push(doc.data()));
+        remote.sort((a, b) => (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id)));
+        bk = remote;
+      }
+      render();
+    }, err => console.error("Firestore bookings error:", err));
+
+    db.collection(COL_CLUBS).onSnapshot(snap => {
+      if (snap.empty && !seededClubs) {
+        seededClubs = true;
+        clubs.forEach(c => saveClubCloud(c));
+      } else {
+        snap.forEach(doc => {
+          const data = doc.data();
+          const target = C(data.id);
+          if (target) {
+            target.ok = !!data.ok;
+            target.gone = !!data.gone;
+            if (typeof data.subPaid === "boolean") target.subPaid = data.subPaid;
+            if (typeof data.suspended === "boolean") target.suspended = data.suspended;
+          }
+        });
+      }
+      render();
+    }, err => console.error("Firestore clubs error:", err));
+
+    db.collection(COL_RATINGS).onSnapshot(snap => {
+      const merged = { ...clubRatings };
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d && d.clubId && d.uid && d.stars) {
+          merged[doc.id] = d;
+        }
+      });
+      clubRatings = merged;
+      try {
+        localStorage.setItem("nova_ratings_v1", JSON.stringify(clubRatings));
+      } catch (e) {}
+      render();
+    }, () => {});
+  } catch (e) {
+    console.error("Firebase init error:", e);
+  }
 }
 
 setInterval(() => {
   const now = Date.now();
   let ch = false;
   bk.forEach(b => {
-    if (b.st === "new" && b.created + 3e5 <= now) {
+    if (b.st === "new" && b.created && b.created + 3e5 <= now) {
       b.st = "exp";
       ch = true;
+      // Обновляем в облаке только владелец или админ, чтобы избежать шторма записей
+      if (db && (S.role === "admin" || String(b.ownerId || "") === String(getClientUserId()))) {
+        db.collection(COL_BOOKINGS).doc(String(b.id)).update({ st: "exp" }).catch(() => {});
+      }
     }
   });
   if (ch && (S.role !== "user" || S.view === "home")) return render();
@@ -1610,6 +2940,7 @@ setInterval(() => {
 }, 1000);
 
 render();
+initFirebase();
 </script>
 </body>
 </html>
