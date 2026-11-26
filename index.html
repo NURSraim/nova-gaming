@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Nova Gaming — Cyber Lounge & PC Booking</title>
+<title>Nova Gaming</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -1731,34 +1733,40 @@ h2.section-title {
   --neon-gold: #fbbf24;
 }
 
-/* 1. GREEN (White + Deep Forest + Electric Lime) */
+/* 1. GREEN (Vivid NOVA DESIGN TEST: White + Deep Forest + Electric Lime) */
 [data-theme="light"][data-palette="green"] {
-  --bg: #f2f7f3;
-  --bg-gradient: radial-gradient(circle at 12% 0%, rgba(136, 235, 33, 0.24) 0%, transparent 48%),
-                 radial-gradient(circle at 92% 18%, rgba(11, 46, 30, 0.08) 0%, transparent 45%);
-  --neon-cyan: #15803d;
+  --bg: #f3f8f4;
+  --bg-gradient: radial-gradient(circle at 12% 0%, rgba(136, 235, 33, 0.28) 0%, transparent 50%),
+                 radial-gradient(circle at 92% 18%, rgba(11, 46, 30, 0.1) 0%, transparent 46%);
+  --surface-hover: #eaf4ec;
+  --neon-cyan: #246b00;
   --neon-purple: #0b2e1e;
-  --neon-green: #15803d;
-  --accent-grad: linear-gradient(135deg, #0b2e1e 0%, #175c3c 100%);
-  --accent-cta-bg: linear-gradient(135deg, #82e61e 0%, #65cc10 100%);
+  --neon-green: #246b00;
+  --accent-grad: linear-gradient(135deg, #0b2e1e 0%, #144d33 100%);
+  --accent-cta-bg: linear-gradient(135deg, #88eb21 0%, #6fe012 100%);
   --accent-cta-text: #072014;
-  --accent-glow: 0 6px 18px rgba(130, 230, 30, 0.34);
-  --theme-glow: rgba(130, 230, 30, 0.36);
-  --border-focus: rgba(21, 128, 61, 0.55);
+  --dock-active-text: #9aff2e;
+  --accent-glow: 0 6px 18px rgba(136, 235, 33, 0.42);
+  --theme-glow: rgba(136, 235, 33, 0.45);
+  --border-focus: rgba(93, 186, 8, 0.62);
 }
 [data-theme="dark"][data-palette="green"] {
-  --bg: #0a0d0c;
-  --bg-gradient: radial-gradient(circle at 14% 0%, rgba(136, 235, 33, 0.14) 0%, transparent 48%),
-                 radial-gradient(circle at 90% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 44%);
+  --bg: #0a0c0e;
+  --bg-gradient: radial-gradient(circle at 14% 0%, rgba(154, 255, 46, 0.16) 0%, transparent 48%),
+                 radial-gradient(circle at 90% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 44%);
+  --surface: rgba(19, 22, 26, 0.95);
+  --surface-card: #13161a;
+  --surface-hover: #1c2127;
   --neon-cyan: #9aff2e;
   --neon-purple: #22c55e;
   --neon-green: #9aff2e;
-  --accent-grad: linear-gradient(135deg, #88eb21 0%, #5fd114 100%);
-  --accent-cta-bg: linear-gradient(135deg, #88eb21 0%, #65d616 100%);
-  --accent-cta-text: #07190e;
-  --accent-glow: 0 6px 20px rgba(136, 235, 33, 0.32);
-  --theme-glow: rgba(136, 235, 33, 0.34);
-  --border-focus: rgba(154, 255, 46, 0.52);
+  --accent-grad: linear-gradient(135deg, #9aff2e 0%, #76e016 100%);
+  --accent-cta-bg: linear-gradient(135deg, #9aff2e 0%, #7be619 100%);
+  --accent-cta-text: #06180d;
+  --dock-active-text: #06180d;
+  --accent-glow: 0 6px 22px rgba(154, 255, 46, 0.38);
+  --theme-glow: rgba(154, 255, 46, 0.42);
+  --border-focus: rgba(154, 255, 46, 0.6);
 }
 
 /* 2. MONO (Black & White Editorial) */
@@ -1997,36 +2005,101 @@ h2.section-title {
 }
 [data-theme="light"] .blueprint-box {
   background:
-    linear-gradient(rgba(11, 46, 30, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(11, 46, 30, 0.05) 1px, transparent 1px),
-    #ebf3ed;
-  border-color: var(--border-focus);
-  box-shadow: inset 0 0 18px rgba(11, 46, 30, 0.04);
+    linear-gradient(rgba(15, 23, 20, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 20, 0.045) 1px, transparent 1px),
+    var(--surface-hover);
+  background-size: 18px 18px, 18px 18px, 100% 100%;
+  border-color: var(--border);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+[data-theme="dark"] .blueprint-box {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    var(--surface-card);
+  background-size: 18px 18px, 18px 18px, 100% 100%;
+  border-color: var(--border);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
+}
+.blueprint-box {
+  max-height: 520px;
+  scrollbar-width: none;
+}
+.blueprint-box::-webkit-scrollbar {
+  display: none;
+}
+.bp-cell.bp-focused {
+  outline: 2px solid var(--neon-cyan) !important;
+  outline-offset: 1px;
+  box-shadow: 0 0 14px var(--theme-glow) !important;
 }
 [data-theme="light"] .blueprint-header-bar {
   color: var(--neon-cyan);
   border-bottom-color: var(--border);
 }
+[data-theme="dark"] .blueprint-header-bar {
+  color: var(--neon-cyan);
+  border-bottom-color: var(--border);
+}
+[data-theme="light"] .bp-cell.bp-empty-player {
+  border-color: rgba(15, 23, 20, 0.06);
+}
+[data-theme="light"] .bp-cell.bp-empty-editor {
+  border-color: rgba(15, 23, 20, 0.16);
+  background: rgba(255, 255, 255, 0.35);
+  color: var(--text-dim);
+}
+[data-theme="light"] .bp-cell.bp-wall {
+  border: 1px solid var(--border);
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(15, 23, 42, 0.05),
+    rgba(15, 23, 42, 0.05) 4px,
+    rgba(15, 23, 42, 0.11) 4px,
+    rgba(15, 23, 42, 0.11) 8px
+  );
+  color: var(--text-muted);
+}
 [data-theme="light"] .bp-cell.bp-pc {
   background: #ffffff;
-  border-color: rgba(21, 128, 61, 0.45);
-  color: #0b2e1e;
-  box-shadow: 0 2px 6px rgba(11, 46, 30, 0.06);
+  border-color: var(--border-focus);
+  color: var(--text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+[data-theme="dark"] .bp-cell.bp-pc {
+  background: var(--surface-hover);
+  border-color: var(--border-focus);
+  color: var(--text);
+  box-shadow: none;
 }
 [data-theme="light"] .bp-cell.bp-vip {
   background: #fffbeb;
-  border-color: rgba(217, 119, 6, 0.55);
+  border-color: rgba(217, 119, 6, 0.45);
   color: #92400e;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.08);
 }
 [data-theme="light"] .bp-cell.bp-ps5 {
   background: #eff6ff;
-  border-color: rgba(37, 99, 235, 0.5);
+  border-color: rgba(37, 99, 235, 0.45);
   color: #1d4ed8;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
 }
 [data-theme="light"] .bp-cell.bp-vr {
   background: #fdf4ff;
-  border-color: rgba(192, 38, 211, 0.5);
+  border-color: rgba(192, 38, 211, 0.45);
   color: #86198f;
+  box-shadow: 0 2px 6px rgba(192, 38, 211, 0.08);
+}
+[data-theme="light"] .bp-cell.bp-maint {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(15, 23, 42, 0.04),
+    rgba(15, 23, 42, 0.04) 5px,
+    rgba(15, 23, 42, 0.1) 5px,
+    rgba(15, 23, 42, 0.1) 10px
+  ) !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: var(--text-muted) !important;
 }
 [data-theme="light"] .bp-cell.bp-squad-picked {
   background: var(--accent-cta-bg, var(--accent-grad)) !important;
@@ -2304,6 +2377,249 @@ h2.section-title {
   font-size: 9.5px;
   padding: 1.5px 6px;
 }
+[data-theme="light"][data-palette="green"] .bottom-nav-btn.active {
+  color: #9aff2e !important;
+}
+[data-theme="light"][data-palette="green"] .badge-green {
+  background: rgba(136, 235, 33, 0.24);
+  color: #1f5400;
+  border-color: rgba(93, 186, 8, 0.52);
+}
+[data-theme="light"][data-palette="blue"] .badge-green,
+[data-theme="light"][data-palette="blue"] .badge-blue {
+  background: rgba(14, 165, 233, 0.16);
+  color: #0369a1;
+  border-color: rgba(14, 165, 233, 0.42);
+}
+[data-theme="light"][data-palette="purple"] .badge-purple {
+  background: rgba(124, 58, 237, 0.16);
+  color: #5b21b6;
+  border-color: rgba(124, 58, 237, 0.4);
+}
+[data-theme="light"][data-palette="red"] .badge-red {
+  background: rgba(225, 29, 72, 0.16);
+  color: #be123c;
+  border-color: rgba(225, 29, 72, 0.42);
+}
+
+/* =========================================================
+   D&D UNIFORM ARCHITECTURAL GRID & EDGE-WALL BARS (ПАЛКИ)
+   ========================================================= */
+.dnd-grid {
+  display: grid;
+  gap: 0;
+  margin: 0 auto;
+  border: 1.5px solid var(--border-focus);
+  border-radius: 10px;
+  overflow: visible;
+  background: transparent;
+}
+
+.dnd-slot {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-right: 1px solid rgba(15, 23, 20, 0.08);
+  border-bottom: 1px solid rgba(15, 23, 20, 0.08);
+  padding: 3px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="dark"] .dnd-slot {
+  border-right-color: rgba(255, 255, 255, 0.07);
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+
+.dnd-slot .bp-cell {
+  width: 100%;
+  height: 100%;
+  border-radius: 7px;
+}
+
+.dnd-slot .bp-cell.bp-empty-player {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.dnd-slot .bp-cell.bp-empty-editor {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* Crisp D&D Wall Bars (Стены-палки по рёбрам сетки) */
+.dnd-wall {
+  position: absolute;
+  background: #0b2e1e;
+  border-radius: 99px;
+  z-index: 6;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="light"][data-palette="mono"] .dnd-wall { background: #111215; }
+[data-theme="light"][data-palette="blue"] .dnd-wall { background: #0b2540; }
+[data-theme="light"][data-palette="purple"] .dnd-wall { background: #1d1438; }
+[data-theme="light"][data-palette="red"] .dnd-wall { background: #3b0d14; }
+[data-theme="dark"] .dnd-wall {
+  background: #e2e8f0;
+  box-shadow: 0 0 8px var(--theme-glow);
+}
+
+.dnd-wall-h-top    { left: -2px; right: -2px; top: -2.5px; height: 4.5px; }
+.dnd-wall-h-bottom { left: -2px; right: -2px; bottom: -2.5px; height: 4.5px; }
+.dnd-wall-v-left   { top: -2px; bottom: -2px; left: -2.5px; width: 4.5px; }
+.dnd-wall-v-right  { top: -2px; bottom: -2px; right: -2.5px; width: 4.5px; }
+
+/* Interactive Edge Hitboxes in Blueprint Editor when Wall Tool is active */
+.dnd-edge-hit {
+  position: absolute;
+  z-index: 9;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.12s ease;
+}
+.dnd-edge-hit:hover {
+  background: var(--theme-glow);
+}
+.dnd-edge-hit.edge-t { left: 4px; right: 4px; top: -5px; height: 10px; }
+.dnd-edge-hit.edge-b { left: 4px; right: 4px; bottom: -5px; height: 10px; }
+.dnd-edge-hit.edge-l { top: 4px; bottom: 4px; left: -5px; width: 10px; }
+.dnd-edge-hit.edge-r { top: 4px; bottom: 4px; right: -5px; width: 10px; }
+
+.dnd-edge-hit::after {
+  content: "";
+  position: absolute;
+  border-radius: 99px;
+  background: var(--border-focus);
+  opacity: 0.45;
+}
+.dnd-edge-hit.edge-t::after,
+.dnd-edge-hit.edge-b::after { left: 2px; right: 2px; top: 4px; height: 2px; }
+.dnd-edge-hit.edge-l::after,
+.dnd-edge-hit.edge-r::after { top: 2px; bottom: 2px; left: 4px; width: 2px; }
+
+/* =========================================================
+   INTERACTIVE TIME COUNTER & TIMELINE SLIDER
+   ========================================================= */
+.time-stepper-box {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 11px 12px;
+  margin-bottom: 12px;
+}
+
+.time-stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.time-step-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  border: 1.5px solid var(--border-focus);
+  background: var(--surface-hover);
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.time-step-btn:active {
+  transform: scale(0.92);
+}
+
+.time-step-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.time-stepper-center {
+  flex: 1;
+  text-align: center;
+}
+
+.time-stepper-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  line-height: 1.05;
+}
+
+.time-stepper-sub {
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 3px;
+  color: var(--neon-green);
+}
+
+.time-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  outline: none;
+  margin: 12px 0 7px;
+  cursor: pointer;
+}
+
+.time-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-cta-bg, var(--accent-grad));
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 10px var(--theme-glow);
+  cursor: pointer;
+}
+
+.time-mini-bar {
+  display: flex;
+  gap: 2px;
+  height: 5px;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.time-mini-seg {
+  flex: 1;
+  border-radius: 2px;
+  background: rgba(34, 197, 94, 0.32);
+}
+
+.time-mini-seg.busy {
+  background: rgba(239, 68, 68, 0.55);
+}
+
+.time-mini-seg.cur {
+  background: var(--neon-cyan);
+}
+
+.time-slider-scale {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+}
 </style>
 </head>
 <body>
@@ -2325,97 +2641,20 @@ const FIREBASE_CONFIG = {
   measurementId: "G-W1J5P9FSWB"
 };
 
-// Продакшен-коллекции Cloud Firestore
+// Продакшн-коллекции Firestore
 const COL_BOOKINGS = "bookings";
 const COL_CLUBS = "clubs_status";
 const COL_RATINGS = "club_ratings";
-const COL_ROLES = "user_roles";
+const SUPER_ADMIN_IDS = new Set(["5619771997"]);
 
-// 🛡️ РЕЕСТР ДОСТУПА (RBAC ТОЛЬКО ПО НЕИЗМЕНЯЕМОМУ TELEGRAM ID)
-const SUPER_ADMIN_IDS = new Set([
-  5619771997   // Нурик (Root / Владелец платформы Nova Gaming)
-]);
-
-const CLUB_ADMIN_REGISTRY = {
-  "2001": 1,
-  "2002": 2
-};
-
-const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
 let db = null;
 let fbLive = false;
-let serverOnline = false;
 let seededBookings = false;
 let seededClubs = false;
 let clubRatings = {};
-let lastCloudSig = "";
-
-function fsFromFields(doc) {
-  const out = {};
-  const fields = (doc && doc.fields) || {};
-  for (const k of Object.keys(fields)) {
-    const v = fields[k];
-    if ("integerValue" in v) out[k] = Number(v.integerValue);
-    else if ("doubleValue" in v) out[k] = Number(v.doubleValue);
-    else if ("booleanValue" in v) out[k] = Boolean(v.booleanValue);
-    else if ("stringValue" in v) out[k] = String(v.stringValue);
-    else if ("nullValue" in v) out[k] = null;
-  }
-  return out;
-}
-
-function fsToFields(data) {
-  const fields = {};
-  for (const k of Object.keys(data)) {
-    const v = data[k];
-    if (v === undefined) continue;
-    if (v === null) fields[k] = { nullValue: null };
-    else if (typeof v === "boolean") fields[k] = { booleanValue: v };
-    else if (typeof v === "number") {
-      if (Number.isInteger(v)) fields[k] = { integerValue: String(v) };
-      else fields[k] = { doubleValue: v };
-    } else {
-      fields[k] = { stringValue: String(v) };
-    }
-  }
-  return { fields };
-}
-
-async function fsList(col) {
-  try {
-    const r = await fetch(`${FIRESTORE_BASE}/${encodeURIComponent(col)}?pageSize=200`, { cache: "no-store" });
-    if (!r.ok) return null;
-    const j = await r.json();
-    const docs = j.documents || [];
-    return docs.map(d => ({ _id: (d.name || "").split("/").pop(), data: fsFromFields(d) }));
-  } catch (e) {
-    return null;
-  }
-}
-
-async function fsGet(col, docId) {
-  try {
-    const r = await fetch(`${FIRESTORE_BASE}/${encodeURIComponent(col)}/${encodeURIComponent(docId)}`, { cache: "no-store" });
-    if (!r.ok) return null;
-    const j = await r.json();
-    return fsFromFields(j);
-  } catch (e) {
-    return null;
-  }
-}
-
-async function fsSet(col, docId, data) {
-  try {
-    await fetch(`${FIRESTORE_BASE}/${encodeURIComponent(col)}/${encodeURIComponent(docId)}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(fsToFields(data))
-    });
-  } catch (e) {}
-}
 
 try {
-  const savedRatings = localStorage.getItem("nova_ratings_v1");
+  const savedRatings = localStorage.getItem("nova_prod_ratings_v1");
   if (savedRatings) clubRatings = JSON.parse(savedRatings) || {};
 } catch (e) {
   clubRatings = {};
@@ -2430,24 +2669,20 @@ function escHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
-function getTelegramUser() {
-  return (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
-}
-
 function getClientUserId() {
-  const tgUser = getTelegramUser();
-  if (tgUser && tgUser.id) {
-    return String(tgUser.id);
-  }
   try {
-    let uid = localStorage.getItem("nova_uid");
-    if (!uid) {
-      uid = "guest_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
-      localStorage.setItem("nova_uid", uid);
+    const tgUser = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user;
+    if (tgUser && tgUser.id) return String(tgUser.id);
+  } catch (e) {}
+  try {
+    let guest = localStorage.getItem("nova_prod_guest_uid");
+    if (!guest) {
+      guest = "web_" + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem("nova_prod_guest_uid", guest);
     }
-    return uid;
+    return guest;
   } catch (e) {
-    return "guest_local";
+    return "web_guest";
   }
 }
 
@@ -2613,7 +2848,7 @@ const L = {
     bpToolVip: "👑 VIP Bootcamp",
     bpToolPs5: "🎮 PlayStation",
     bpToolVr: "🥽 VR Зона",
-    bpToolWall: "🧱 Стена / Бар",
+    bpToolWall: "┃ Стена (Палка)",
     bpToolInspect: "🔧 Детали ПК",
     bpPresetArena: "🏛️ Шаблон: Киберарена с проходами",
     bpPresetBootcamp: "⚔️ Буткемп 5v5 + PS5",
@@ -2718,7 +2953,56 @@ const L = {
     palGreen: "Зелёная",
     palPurple: "Фиолет",
     palRed: "Красная",
-    themeDoneBtn: "Готово"
+    themeDoneBtn: "Готово",
+    addClubBtn: "➕ Добавить новый клуб",
+    createClubTitle: "Новый компьютерный клуб",
+    createClubNameLbl: "Название клуба *",
+    createClubAddrLbl: "Адрес *",
+    createClubLandmarkLbl: "Ориентир (необязательно)",
+    createClubCardLbl: "Карта для оплаты *",
+    createClubGpuLbl: "Железо (GPU / Hz)",
+    createClubHoursLbl: "Режим работы",
+    createClubPresetLbl: "Стартовый чертёж зала",
+    createClubAmenitiesLbl: "Удобства в клубе",
+    createClubContactsLbl: "Контакты (Telegram / Телефон)",
+    createClubSubmitBtn: "🚀 Создать и подключить клуб",
+    createClubErrName: "Введите название клуба",
+    createClubErrAddr: "Введите адрес клуба",
+    createClubErrCard: "Введите номер карты для оплаты",
+    createClubSavedToast: "🏢 Новый клуб создан и подключён к сети!",
+    openClubAdminBtn: "🛡️ Открыть админку клуба",
+    rootPickAdminClub: "Режим Root — выберите клуб для просмотра админки:",
+    clubHoursSecTitle: "График работы клуба",
+    clubHours247: "⚡ 24/7 (Круглосуточно)",
+    clubHoursCustom: "🕒 По часам",
+    clubHoursOpenLbl: "Открытие",
+    clubHoursCloseLbl: "Закрытие",
+    clubHoursOvernightHint: "🌙 Работает через полночь (ночная смена)",
+    unsavedChangeHours: "График работы клуба",
+    mapSheetTitle: "Открыть на карте",
+    mapYandex: "Яндекс Карты",
+    map2gis: "2GIS",
+    mapGoogle: "Google Maps",
+    mapCopyAddr: "Скопировать адрес",
+    mapCopiedToast: "📋 Адрес скопирован!",
+    mapExactPin: "🎯 Точная точка до входа",
+    mapTextSearch: "🔎 Поиск по адресу",
+    mapRouteBtn: "📍 Построить маршрут",
+    clubLocSecTitle: "Локация и карта клуба",
+    clubLocAddrLbl: "Адрес (видят игроки)",
+    clubLocLandmarkLbl: "Ориентир (метро / рядом)",
+    clubLocInputLbl: "Координаты или ссылка с карты",
+    clubLocInputPlaceholder: "41.2858, 69.2036 или ссылка Яндекс / 2GIS / Google",
+    clubLocInputHint: "Зажмите точку на клубе в Яндекс/Google Картах → «Копировать координаты» или нажмите GPS ниже",
+    clubLocGpsBtn: "📍 Я в клубе (GPS)",
+    clubLocTestBtn: "🗺️ Проверить точку",
+    clubLocGpsLoading: "🛰️ Определяем GPS...",
+    clubLocGpsOk: "📍 Точка определена по GPS!",
+    clubLocGpsErr: "⚠️ Нет доступа к геолокации. Вставьте координаты вручную.",
+    clubLocSavedToast: "📍 Локация клуба сохранена!",
+    clubLocParsedOk: "🎯 Точка распознана",
+    clubLocSaveBtn: "💾 Сохранить локацию",
+    unsavedChangeLoc: "Локация и адрес клуба"
   },
   uz: {
     brand: "NOVA GAMING",
@@ -2865,7 +3149,7 @@ const L = {
     bpToolVip: "👑 VIP Bootcamp",
     bpToolPs5: "🎮 PlayStation",
     bpToolVr: "🥽 VR Zona",
-    bpToolWall: "🧱 Devor / Bar",
+    bpToolWall: "┃ Devor (Chiziq)",
     bpToolInspect: "🔧 Joy detallari",
     bpPresetArena: "🏛️ Shablon: Yo‘lakli kiberarena",
     bpPresetBootcamp: "⚔️ Bootcamp 5v5 + PS5",
@@ -2970,7 +3254,56 @@ const L = {
     palGreen: "Yashil",
     palPurple: "Binafsha",
     palRed: "Qizil",
-    themeDoneBtn: "Tayyor"
+    themeDoneBtn: "Tayyor",
+    addClubBtn: "➕ Yangi klub qo‘shish",
+    createClubTitle: "Yangi kompyuter klubi",
+    createClubNameLbl: "Klub nomi *",
+    createClubAddrLbl: "Manzil *",
+    createClubLandmarkLbl: "Mo‘ljal (ixtiyoriy)",
+    createClubCardLbl: "To‘lov kartasi *",
+    createClubGpuLbl: "Texnika (GPU / Hz)",
+    createClubHoursLbl: "Ish vaqti",
+    createClubPresetLbl: "Boshlang‘ich zal chizmasi",
+    createClubAmenitiesLbl: "Klub qulayliklari",
+    createClubContactsLbl: "Aloqa (Telegram / Telefon)",
+    createClubSubmitBtn: "🚀 Klubni yaratish va ulash",
+    createClubErrName: "Klub nomini kiriting",
+    createClubErrAddr: "Klub manzilini kiriting",
+    createClubErrCard: "To‘lov karta raqamini kiriting",
+    createClubSavedToast: "🏢 Yangi klub yaratildi va tarmoqqa ulandi!",
+    openClubAdminBtn: "🛡️ Klub adminkasini ochish",
+    rootPickAdminClub: "Root rejimi — adminkani ko‘rish uchun klubni tanlang:",
+    clubHoursSecTitle: "Klub ish vaqti",
+    clubHours247: "⚡ 24/7 (Kunu-tun)",
+    clubHoursCustom: "🕒 Soat bo‘yicha",
+    clubHoursOpenLbl: "Ochilish",
+    clubHoursCloseLbl: "Yopilish",
+    clubHoursOvernightHint: "🌙 Yarim tundan oshib ishlaydi (tungi smena)",
+    unsavedChangeHours: "Klub ish vaqti",
+    mapSheetTitle: "Xaritada ochish",
+    mapYandex: "Yandex Xaritalar",
+    map2gis: "2GIS",
+    mapGoogle: "Google Maps",
+    mapCopyAddr: "Manzilni nusxalash",
+    mapCopiedToast: "📋 Manzil nusxalandi!",
+    mapExactPin: "🎯 Eshikgacha aniq nuqta",
+    mapTextSearch: "🔎 Manzil bo‘yicha qidiruv",
+    mapRouteBtn: "📍 Yo‘nalish tuzish",
+    clubLocSecTitle: "Klub lokatsiyasi va xarita",
+    clubLocAddrLbl: "Manzil (o‘yinchilar ko‘radi)",
+    clubLocLandmarkLbl: "Mo‘ljal (metro / yonida)",
+    clubLocInputLbl: "Koordinatalar yoki xarita havolasi",
+    clubLocInputPlaceholder: "41.2858, 69.2036 yoki Yandex / 2GIS / Google havolasi",
+    clubLocInputHint: "Yandex/Google Xaritada klub ustiga bosib turing → koordinatani nusxalang yoki GPS bosing",
+    clubLocGpsBtn: "📍 Hozir klubdaman (GPS)",
+    clubLocTestBtn: "🗺️ Nuqtani tekshirish",
+    clubLocGpsLoading: "🛰️ GPS aniqlanmoqda...",
+    clubLocGpsOk: "📍 GPS orqali aniqlandi!",
+    clubLocGpsErr: "⚠️ Geolokatsiyaga ruxsat yo‘q. Koordinatani qo‘lda kiriting.",
+    clubLocSavedToast: "📍 Klub lokatsiyasi saqlandi!",
+    clubLocParsedOk: "🎯 Nuqta aniqlandi",
+    clubLocSaveBtn: "💾 Lokatsiyani saqlash",
+    unsavedChangeLoc: "Klub lokatsiyasi va manzili"
   }
 };
 
@@ -2992,14 +3325,16 @@ const clubs = [
     name: "Nova Cyber Arena",
     addr: "Ташкент, Чиланзар 9",
     landmark: "м. Чиланзар",
-    mapUrl: "https://yandex.uz/maps/?text=%D0%A2%D0%B0%D1%88%D0%BA%D0%B5%D0%BD%D1%82+%D0%A7%D0%B8%D0%BB%D0%B0%D0%BD%D0%B7%D0%B0%D1%80+9",
+    lat: 41.27912,
+    lng: 69.20545,
+    mapUrl: "",
     open: 0,
     close: 24,
     card: "8600 1234 5678 9012",
     ok: true,
     subPaid: true,
     suspended: false,
-    subFee: 500000,
+    subFee: 200000,
     adminIds: ["2001"],
     tar: [[1, 35000], [3, 90000], [5, 130000]],
     nightPack: true,
@@ -3018,14 +3353,16 @@ const clubs = [
     name: "Next Level Esports",
     addr: "Ташкент, Юнусабад 4",
     landmark: "ориентир Mega Planet",
-    mapUrl: "https://yandex.uz/maps/?text=%D0%A2%D0%B0%D1%88%D0%BA%D0%B5%D0%BD%D1%82+%D0%AE%D0%BD%D1%83%D1%81%D0%B0%D0%B1%D0%B0%D0%B4+4",
+    lat: 41.36725,
+    lng: 69.29108,
+    mapUrl: "",
     open: 10,
     close: 24,
     card: "8600 4455 6677 8899",
     ok: true,
     subPaid: true,
     suspended: false,
-    subFee: 500000,
+    subFee: 200000,
     adminIds: ["2002"],
     tar: [[1, 30000], [2, 55000], [4, 100000]],
     nightPack: false,
@@ -3044,14 +3381,16 @@ const clubs = [
     name: "Pixel Zone Lounge",
     addr: "Самарканд, Центр",
     landmark: "ул. Университетский б-р",
-    mapUrl: "https://yandex.uz/maps/?text=%D0%A1%D0%B0%D0%BC%D0%B0%D1%80%D0%BA%D0%B0%D0%BD%D0%B4+%D0%A6%D0%B5%D0%BD%D1%82%D1%80",
+    lat: 39.64945,
+    lng: 66.96098,
+    mapUrl: "",
     open: 12,
     close: 24,
     card: "8600 1111 2222 3333",
     ok: false,
     subPaid: false,
     suspended: false,
-    subFee: 400000,
+    subFee: 200000,
     adminIds: ["2003"],
     tar: [[1, 25000], [3, 65000]],
     nightPack: false,
@@ -3070,14 +3409,16 @@ const clubs = [
     name: "Level Up Bootcamp",
     addr: "Бухара, ул. Навои",
     landmark: "ориентир Парк Саманидов",
-    mapUrl: "https://yandex.uz/maps/?text=%D0%91%D1%83%D1%85%D0%B0%D1%80%D0%B0+%D1%83%D0%BB+%D0%9D%D0%B0%D0%B2%D0%BE%D0%B8",
+    lat: 39.77472,
+    lng: 64.41582,
+    mapUrl: "",
     open: 0,
     close: 24,
     card: "8600 9999 8888 7777",
     ok: false,
     subPaid: false,
     suspended: false,
-    subFee: 350000,
+    subFee: 200000,
     adminIds: ["2004"],
     tar: [[1, 20000], [5, 80000]],
     nightPack: true,
@@ -3122,6 +3463,8 @@ let S = {
   tab: "active",
   err: "",
   shot: "",
+  shotImg: "",
+  previewShotImg: "",
   toast: "",
   hackMsg: "",
   ms: "1",
@@ -3139,10 +3482,13 @@ let S = {
   settingsAdminInput: "",
   settingsAdminErr: "",
   settingsConfirmAction: null,
-  theme: localStorage.getItem("nova_theme_v1") || "light",
-  palette: localStorage.getItem("nova_palette_v1") || "green",
-  appleEmoji: localStorage.getItem("nova_apple_emoji_v1") !== "0",
-  themeOpen: false
+  theme: localStorage.getItem("nova_prod_theme_v1") || "light",
+  palette: localStorage.getItem("nova_prod_palette_v1") || "green",
+  appleEmoji: localStorage.getItem("nova_prod_apple_emoji_v1") !== "0",
+  themeOpen: false,
+  createClubDraft: null,
+  createClubAdminInput: "",
+  createClubErr: ""
 };
 
 const UI_ICO = {
@@ -3169,9 +3515,9 @@ function applyAppTheme() {
   document.documentElement.setAttribute("data-theme", S.theme);
   document.documentElement.setAttribute("data-palette", S.palette);
   try {
-    localStorage.setItem("nova_theme_v1", S.theme);
-    localStorage.setItem("nova_palette_v1", S.palette);
-    localStorage.setItem("nova_apple_emoji_v1", S.appleEmoji ? "1" : "0");
+    localStorage.setItem("nova_prod_theme_v1", S.theme);
+    localStorage.setItem("nova_prod_palette_v1", S.palette);
+    localStorage.setItem("nova_prod_apple_emoji_v1", S.appleEmoji ? "1" : "0");
   } catch (e) {}
   if (tg) {
     const hdr = S.theme === "light" ? "#f2f7f3" : "#0a0d0c";
@@ -3268,7 +3614,7 @@ function findClubByAdminTgId(tgId) {
 
 function getPersonaBadgeTag(tgId) {
   const id = String(tgId ?? "").trim();
-  if (id && id === String(getClientUserId())) return "👤 Вы";
+  if (SUPER_ADMIN_IDS.has(id)) return "👑 Root";
   return "";
 }
 
@@ -3286,7 +3632,7 @@ function defaultSpecForType(c, type) {
 function buildPresetMap(c, preset) {
   if (preset === "clear") {
     const curSize = (c && c.floorMap && c.floorMap.size) || 8;
-    return { size: curSize, cells: {} };
+    return { size: curSize, cells: {}, walls: {} };
   }
   if (preset === "bootcamp") {
     const cells = {};
@@ -3294,45 +3640,61 @@ function buildPresetMap(c, preset) {
       cells[`0_${i}`] = { type: "pc", id: String(i + 1), spec: defaultSpecForType(c, "pc") };
       cells[`2_${i}`] = { type: "pc", id: String(i + 6), spec: defaultSpecForType(c, "pc") };
     }
-    cells["3_0"] = { type: "wall", id: "WALL" };
-    cells["3_1"] = { type: "wall", id: "WALL" };
-    cells["3_3"] = { type: "wall", id: "WALL" };
-    cells["3_4"] = { type: "wall", id: "WALL" };
-    cells["3_5"] = { type: "wall", id: "WALL" };
     for (let i = 0; i < 4; i++) {
       cells[`4_${i}`] = { type: "vip", id: `V${i + 1}`, spec: defaultSpecForType(c, "vip") };
     }
     cells["5_0"] = { type: "ps5", id: "PS1", spec: defaultSpecForType(c, "ps5") };
     cells["5_1"] = { type: "ps5", id: "PS2", spec: defaultSpecForType(c, "ps5") };
     cells["5_4"] = { type: "vr", id: "VR1", spec: defaultSpecForType(c, "vr") };
-    return { size: 6, cells };
+    // D&D edge-walls separating Main Hall from VIP Bootcamp (doorway at col 2)
+    const walls = {
+      "h_3_0": true, "h_3_1": true, "h_3_3": true, "h_3_4": true, "h_3_5": true,
+      "v_4_4": true, "v_5_3": true
+    };
+    return { size: 6, cells, walls };
   }
-  // Default: "arena" (8x8 architectural blueprint with empty aisles/corridors, reception, 15 PCs, VIP room, PS5 & VR)
-  const cells = {
-    "0_0": { type: "wall", id: "BAR" },
-    "0_1": { type: "wall", id: "BAR" }
-  };
+  // Default: "arena" (8x8 D&D architectural grid with crisp edge-walls & doorways)
+  const cells = {};
   for (let i = 0; i < 5; i++) {
     cells[`0_${i + 3}`] = { type: "pc", id: String(i + 1), spec: defaultSpecForType(c, "pc") };
     cells[`1_${i + 3}`] = { type: "pc", id: String(i + 6), spec: defaultSpecForType(c, "pc") };
     cells[`3_${i + 3}`] = { type: "pc", id: String(i + 11), spec: defaultSpecForType(c, "pc") };
   }
-  // Row 2 and Col 2 are empty corridors (проходы на чертеже)
-  cells["3_0"] = { type: "ps5", id: "PS1", spec: defaultSpecForType(c, "ps5") };
-  cells["3_1"] = { type: "ps5", id: "PS2", spec: defaultSpecForType(c, "ps5") };
-  // VIP room walls with doorway at 4_5
-  cells["4_3"] = { type: "wall", id: "WALL" };
-  cells["4_4"] = { type: "wall", id: "WALL" };
-  cells["4_6"] = { type: "wall", id: "WALL" };
-  cells["4_7"] = { type: "wall", id: "WALL" };
-  cells["5_3"] = { type: "wall", id: "WALL" };
-  cells["6_3"] = { type: "wall", id: "WALL" };
+  cells["2_0"] = { type: "ps5", id: "PS1", spec: defaultSpecForType(c, "ps5") };
+  cells["3_0"] = { type: "ps5", id: "PS2", spec: defaultSpecForType(c, "ps5") };
   for (let i = 0; i < 4; i++) {
     cells[`6_${i + 4}`] = { type: "vip", id: `V${i + 1}`, spec: defaultSpecForType(c, "vip") };
   }
   cells["6_0"] = { type: "vr", id: "VR1", spec: defaultSpecForType(c, "vr") };
   cells["6_1"] = { type: "vr", id: "VR2", spec: defaultSpecForType(c, "vr") };
-  return { size: 8, cells };
+  // Crisp D&D edge-walls enclosing VIP room (doorway at h_5_5), PS5 zone & VR zone
+  const walls = {
+    "h_5_4": true, "h_5_6": true, "h_5_7": true,
+    "v_5_4": true, "v_6_4": true, "v_7_4": true,
+    "h_2_0": true, "h_2_1": true, "v_2_2": true, "v_3_2": true,
+    "h_5_0": true, "v_5_2": true, "v_6_2": true, "v_7_2": true
+  };
+  return { size: 8, cells, walls };
+}
+
+function renderDndWallsForSlot(walls, r, col, size, isWallTool) {
+  const w = walls || {};
+  let out = "";
+  const kTop = `h_${r}_${col}`;
+  const kBot = `h_${r + 1}_${col}`;
+  const kLeft = `v_${r}_${col}`;
+  const kRight = `v_${r}_${col + 1}`;
+  if (w[kTop]) out += `<span class="dnd-wall dnd-wall-h-top"></span>`;
+  if (r === size - 1 && w[kBot]) out += `<span class="dnd-wall dnd-wall-h-bottom"></span>`;
+  if (w[kLeft]) out += `<span class="dnd-wall dnd-wall-v-left"></span>`;
+  if (col === size - 1 && w[kRight]) out += `<span class="dnd-wall dnd-wall-v-right"></span>`;
+  if (isWallTool) {
+    out += `<span class="dnd-edge-hit edge-t" onclick="event.stopPropagation();onBpEdgeToggle('${kTop}')"></span>`;
+    out += `<span class="dnd-edge-hit edge-l" onclick="event.stopPropagation();onBpEdgeToggle('${kLeft}')"></span>`;
+    if (r === size - 1) out += `<span class="dnd-edge-hit edge-b" onclick="event.stopPropagation();onBpEdgeToggle('${kBot}')"></span>`;
+    if (col === size - 1) out += `<span class="dnd-edge-hit edge-r" onclick="event.stopPropagation();onBpEdgeToggle('${kRight}')"></span>`;
+  }
+  return out;
 }
 
 function applyClubHourPrice(c, priceVal, vipPriceVal, ps5PriceVal, vrPriceVal) {
@@ -3406,11 +3768,61 @@ function getTariffsForSeat(c, seatId) {
   return [[1, rate], [2, rate * 2], [3, rate * 3], [5, rate * 5]];
 }
 
+function upsertClubFromData(data) {
+  if (!data || !Number(data.id)) return null;
+  const cid = Number(data.id);
+  let target = clubs.find(x => Number(x.id) === cid);
+  if (!target && data.name) {
+    const nm = String(data.name).trim();
+    const words = nm.split(/\s+/).filter(Boolean);
+    const autoLogo = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : nm.slice(0, 2).toUpperCase();
+    const stdBase = Math.max(1000, Number(data.hourPrice) || 15000);
+    target = {
+      id: cid,
+      isCustom: true,
+      logo: String(data.logo || autoLogo || "NC").slice(0, 2).toUpperCase(),
+      name: nm,
+      addr: String(data.addr || "Ташкент"),
+      landmark: String(data.landmark || ""),
+      lat: isValidLatLng(Number(data.lat), Number(data.lng)) ? Number(data.lat) : null,
+      lng: isValidLatLng(Number(data.lat), Number(data.lng)) ? Number(data.lng) : null,
+      mapUrl: String(data.mapUrl || ""),
+      open: Number.isFinite(Number(data.open)) ? Number(data.open) : 0,
+      close: Number.isFinite(Number(data.close)) ? Number(data.close) : 24,
+      card: String(data.card || "8600 0000 0000 0000"),
+      ok: data.ok !== false,
+      gone: !!data.gone,
+      subPaid: data.subPaid !== false,
+      suspended: !!data.suspended,
+      hidden: !!data.hidden,
+      subFee: Number(data.subFee) || 200000,
+      adminIds: normalizeAdminIds(data.adminIds, String(2000 + cid)),
+      tar: [[1, stdBase], [2, stdBase * 2], [3, stdBase * 3], [5, stdBase * 5]],
+      nightPack: Number(data.open) === 0 && Number(data.close) === 24,
+      gpu: String(data.gpu || "RTX 4070 · 240Hz"),
+      specs: data.specs && typeof data.specs === "object" ? data.specs : {
+        std: String(data.gpu || "RTX 4070 · 240Hz"),
+        vip: "RTX 4080 · 360Hz · Pro Peripherals"
+      },
+      contact: data.contact && typeof data.contact === "object" ? data.contact : { tg: "", phone: "", public: false },
+      amenities: Array.isArray(data.amenities) ? data.amenities : ["ac"],
+      baseRating: { sum: 0, count: 0 }
+    };
+    applyClubHourPrice(target, stdBase, data.vipHourPrice, data.ps5HourPrice, data.vrHourPrice);
+    target.floorMap = (data.floorMap && data.floorMap.size && data.floorMap.cells)
+      ? data.floorMap
+      : buildPresetMap(target, data.preset || "arena");
+    clubs.push(target);
+  }
+  return target;
+}
+
 function saveBlueprintsLocal() {
   try {
     const mapData = {};
     const priceData = {};
     const settingsData = {};
+    const customClubs = [];
     clubs.forEach(c => {
       if (c.floorMap) mapData[c.id] = c.floorMap;
       if (c.hourPrice) {
@@ -3425,18 +3837,46 @@ function saveBlueprintsLocal() {
         subPaid: c.subPaid !== false,
         suspended: !!c.suspended,
         hidden: !!c.hidden,
+        open: Number.isFinite(Number(c.open)) ? Number(c.open) : 0,
+        close: Number.isFinite(Number(c.close)) ? Number(c.close) : 24,
+        addr: String(c.addr || ""),
+        landmark: String(c.landmark || ""),
+        lat: isValidLatLng(Number(c.lat), Number(c.lng)) ? Number(c.lat) : null,
+        lng: isValidLatLng(Number(c.lat), Number(c.lng)) ? Number(c.lng) : null,
+        mapUrl: String(c.mapUrl || ""),
         adminIds: normalizeAdminIds(c.adminIds, String(2000 + Number(c.id)))
       };
+      if (c.isCustom) {
+        customClubs.push({
+          id: c.id, logo: c.logo, name: c.name, addr: c.addr, landmark: c.landmark,
+          lat: isValidLatLng(Number(c.lat), Number(c.lng)) ? Number(c.lat) : null,
+          lng: isValidLatLng(Number(c.lat), Number(c.lng)) ? Number(c.lng) : null,
+          mapUrl: c.mapUrl, open: c.open, close: c.close, card: c.card, ok: !!c.ok,
+          gone: !!c.gone, subPaid: c.subPaid !== false, suspended: !!c.suspended,
+          hidden: !!c.hidden, subFee: c.subFee, adminIds: c.adminIds, gpu: c.gpu,
+          specs: c.specs, contact: c.contact, amenities: c.amenities,
+          hourPrice: c.hourPrice, vipHourPrice: c.vipHourPrice,
+          ps5HourPrice: c.ps5HourPrice, vrHourPrice: c.vrHourPrice
+        });
+      }
     });
-    localStorage.setItem("nova_blueprints_v1", JSON.stringify(mapData));
-    localStorage.setItem("nova_hourprices_v3", JSON.stringify(priceData));
-    localStorage.setItem("nova_club_settings_v1", JSON.stringify(settingsData));
+    localStorage.setItem("nova_prod_blueprints_v1", JSON.stringify(mapData));
+    localStorage.setItem("nova_prod_hourprices_v3", JSON.stringify(priceData));
+    localStorage.setItem("nova_prod_club_settings_v1", JSON.stringify(settingsData));
+    localStorage.setItem("nova_prod_custom_clubs_v1", JSON.stringify(customClubs));
   } catch (e) {}
 }
 
 function loadBlueprintsLocal() {
   try {
-    const raw = localStorage.getItem("nova_blueprints_v1");
+    const rawCustom = localStorage.getItem("nova_prod_custom_clubs_v1");
+    if (rawCustom) {
+      const parsedCustom = JSON.parse(rawCustom);
+      if (Array.isArray(parsedCustom)) {
+        parsedCustom.forEach(entry => upsertClubFromData(entry));
+      }
+    }
+    const raw = localStorage.getItem("nova_prod_blueprints_v1");
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object") {
@@ -3447,7 +3887,7 @@ function loadBlueprintsLocal() {
         });
       }
     }
-    const rawPrices = localStorage.getItem("nova_hourprices_v3") || localStorage.getItem("nova_hourprices_v2") || localStorage.getItem("nova_hourprices_v1");
+    const rawPrices = localStorage.getItem("nova_prod_hourprices_v3") || localStorage.getItem("nova_prod_hourprices_v2") || localStorage.getItem("nova_prod_hourprices_v1");
     if (rawPrices) {
       const parsedPrices = JSON.parse(rawPrices);
       if (parsedPrices && typeof parsedPrices === "object") {
@@ -3461,7 +3901,7 @@ function loadBlueprintsLocal() {
         });
       }
     }
-    const rawSettings = localStorage.getItem("nova_club_settings_v1");
+    const rawSettings = localStorage.getItem("nova_prod_club_settings_v1");
     if (rawSettings) {
       const parsedSettings = JSON.parse(rawSettings);
       if (parsedSettings && typeof parsedSettings === "object") {
@@ -3471,6 +3911,15 @@ function loadBlueprintsLocal() {
             if (typeof st.subPaid === "boolean") c.subPaid = st.subPaid;
             if (typeof st.suspended === "boolean") c.suspended = st.suspended;
             if (typeof st.hidden === "boolean") c.hidden = st.hidden;
+            if (Number.isFinite(Number(st.open))) c.open = Number(st.open);
+            if (Number.isFinite(Number(st.close))) c.close = Number(st.close);
+            if (typeof st.addr === "string" && st.addr.trim()) c.addr = st.addr.trim();
+            if (typeof st.landmark === "string") c.landmark = st.landmark;
+            if (st.lat !== undefined || st.lng !== undefined) {
+              c.lat = isValidLatLng(Number(st.lat), Number(st.lng)) ? Number(st.lat) : null;
+              c.lng = isValidLatLng(Number(st.lat), Number(st.lng)) ? Number(st.lng) : null;
+            }
+            if (typeof st.mapUrl === "string") c.mapUrl = st.mapUrl;
             if (Array.isArray(st.adminIds)) {
               c.adminIds = normalizeAdminIds(st.adminIds, String(2000 + Number(c.id)));
             }
@@ -3536,7 +3985,219 @@ function clash(c, seat, d, s, h) {
 function closedAt(c, d, s, h) {
   const k = C(c);
   if (!k) return true;
-  return !(k.open === 0 && k.close === 24) && (s < k.open || s + h > k.close);
+  const op = Number(k.open) || 0;
+  const cl = Number(k.close) || 24;
+  if ((op === 0 && cl === 24) || op === cl) return false;
+  if (op < cl) {
+    return s < op || (s + h) > cl;
+  }
+  // Ночной режим через полночь (например 12:00 – 04:00 -> op=12, cl=4)
+  if (s >= op) {
+    return (s + h) > (24 + cl);
+  }
+  if (s < cl) {
+    return (s + h) > cl;
+  }
+  return true;
+}
+
+function getClubHourBounds(c, day) {
+  const nowH = new Date().getHours();
+  const op = (c && Number.isFinite(Number(c.open))) ? Number(c.open) : 0;
+  const cl = (c && Number.isFinite(Number(c.close))) ? Number(c.close) : 24;
+  if ((op === 0 && cl === 24) || op === cl) {
+    return { minH: day === 0 ? nowH : 0, maxH: 23, overnight: false };
+  }
+  if (op < cl) {
+    const minH = day === 0 ? Math.max(op, nowH) : op;
+    const maxH = Math.max(op, cl - 1);
+    return { minH, maxH, overnight: false };
+  }
+  // Ночной клуб (op > cl): открыт 00:00..(cl-1) и op..23:00
+  return { minH: day === 0 ? nowH : 0, maxH: 23, overnight: true };
+}
+
+function getValidClubHour(c, day, preferred) {
+  const d = Number(day) || 0;
+  const b = getClubHourBounds(c, d);
+  const p = (preferred !== null && preferred !== undefined && Number.isFinite(Number(preferred))) ? Number(preferred) : null;
+  if (p !== null && p >= b.minH && p <= b.maxH && (!c || !closedAt(c.id, d, p, 1))) {
+    return p;
+  }
+  if (c) {
+    for (let h = b.minH; h <= b.maxH; h++) {
+      if (!closedAt(c.id, d, h, 1)) return h;
+    }
+  }
+  return Math.min(Math.max(b.minH, 0), 23);
+}
+
+function formatClubHoursLabel(c, short247 = false) {
+  const op = (c && Number.isFinite(Number(c.open))) ? Number(c.open) : 0;
+  const cl = (c && Number.isFinite(Number(c.close))) ? Number(c.close) : 24;
+  if ((op === 0 && cl === 24) || op === cl) return short247 ? "24/7" : t("open247");
+  return `${hh(op)}–${cl === 24 ? "00:00" : hh(cl)}`;
+}
+
+function sanitizeUrl(u) {
+  const s = String(u || "").trim();
+  if (/^https?:\/\//i.test(s)) return s;
+  return "";
+}
+
+function isValidLatLng(lat, lng) {
+  return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && !(lat === 0 && lng === 0);
+}
+
+function parseClubLocationInput(rawInput) {
+  const raw = String(rawInput || "").trim();
+  if (!raw) return { lat: null, lng: null, mapUrl: "" };
+
+  // 1) Прямые координаты: "41.285821, 69.203645" или "41.285821 69.203645"
+  const plain = raw.match(/^\s*(-?\d{1,2}\.\d+)\s*[,;\s]+\s*(-?\d{1,3}\.\d+)\s*$/);
+  if (plain) {
+    const a = parseFloat(plain[1]), b = parseFloat(plain[2]);
+    if (isValidLatLng(a, b)) return { lat: +a.toFixed(6), lng: +b.toFixed(6), mapUrl: "" };
+  }
+
+  // 2) Яндекс Карты URL: pt=LNG,LAT или ll=LNG,LAT (обратный порядок!)
+  let decoded = raw;
+  try { decoded = decodeURIComponent(raw); } catch (e) {}
+  if (/yandex\./i.test(decoded)) {
+    const ym = decoded.match(/[?&](?:pt|ll|whatshere\[point\])=(-?\d{1,3}\.\d+),(-?\d{1,2}\.\d+)/i);
+    if (ym) {
+      const lng = parseFloat(ym[1]), lat = parseFloat(ym[2]);
+      if (isValidLatLng(lat, lng)) return { lat: +lat.toFixed(6), lng: +lng.toFixed(6), mapUrl: raw };
+    }
+  }
+
+  // 3) 2GIS URL: /geo/LNG,LAT или m=LNG,LAT (обратный порядок!)
+  if (/2gis\./i.test(decoded)) {
+    const dg = decoded.match(/(?:\/geo\/|[?&]m=)(-?\d{1,3}\.\d+)[,%2C]+(-?\d{1,2}\.\d+)/i);
+    if (dg) {
+      const lng = parseFloat(dg[1]), lat = parseFloat(dg[2]);
+      if (isValidLatLng(lat, lng)) return { lat: +lat.toFixed(6), lng: +lng.toFixed(6), mapUrl: raw };
+    }
+  }
+
+  // 4) Google Maps URL: @LAT,LNG или q=LAT,LNG или query=LAT,LNG
+  const gm = decoded.match(/(?:@|[?&](?:q|query|ll)=)(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/i);
+  if (gm) {
+    const lat = parseFloat(gm[1]), lng = parseFloat(gm[2]);
+    if (isValidLatLng(lat, lng)) return { lat: +lat.toFixed(6), lng: +lng.toFixed(6), mapUrl: raw };
+  }
+
+  // 5) Любая безопасная http(s) ссылка (например короткая ссылка Поделиться)
+  const safe = sanitizeUrl(raw);
+  if (safe) return { lat: null, lng: null, mapUrl: safe };
+
+  return { lat: null, lng: null, mapUrl: "" };
+}
+
+function formatClubLocInputValue(c) {
+  if (!c) return "";
+  if (isValidLatLng(Number(c.lat), Number(c.lng))) {
+    return `${Number(c.lat).toFixed(6)}, ${Number(c.lng).toFixed(6)}`;
+  }
+  return String(c.mapUrl || "");
+}
+
+function buildClubMapUrls(c) {
+  if (!c) return { yandex: "", twogis: "", google: "", exact: false, customDirect: "" };
+  const lat = Number(c.lat);
+  const lng = Number(c.lng);
+  if (isValidLatLng(lat, lng)) {
+    return {
+      yandex: `https://yandex.uz/maps/?pt=${lng},${lat}&z=17&l=map`,
+      twogis: `https://2gis.uz/geo/${lng},${lat}`,
+      google: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+      exact: true,
+      customDirect: ""
+    };
+  }
+  const safeDirect = sanitizeUrl(c.mapUrl || "");
+  const q = encodeURIComponent([c.name, c.addr].filter(Boolean).join(", "));
+  return {
+    yandex: /yandex\./i.test(safeDirect) ? safeDirect : `https://yandex.uz/maps/?text=${q}`,
+    twogis: /2gis\./i.test(safeDirect) ? safeDirect : `https://2gis.uz/search/${q}`,
+    google: /(?:google\.|goo\.gl)/i.test(safeDirect) ? safeDirect : `https://www.google.com/maps/search/?api=1&query=${q}`,
+    exact: false,
+    customDirect: safeDirect
+  };
+}
+
+function openExternalMapUrl(url) {
+  const safe = sanitizeUrl(url);
+  if (!safe) return;
+  haptic();
+  try {
+    if (tg && typeof tg.openLink === "function") {
+      tg.openLink(safe);
+      return;
+    }
+  } catch (e) {}
+  window.open(safe, "_blank", "noopener");
+}
+
+function openMapSheet(clubId, ev) {
+  if (ev) ev.stopPropagation();
+  S.mapSheetClubId = Number(clubId);
+  haptic();
+  render();
+}
+
+function closeMapSheet() {
+  S.mapSheetClubId = null;
+  haptic();
+  render();
+}
+
+function copyClubAddr(clubId) {
+  const c = C(clubId);
+  if (!c) return;
+  const full = [c.name, c.addr, c.landmark].filter(Boolean).join(" — ");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(full).catch(() => {});
+  }
+  haptic("success");
+  showToast(t("mapCopiedToast"));
+}
+
+function testLocationInputOnMap(rawVal, fallbackName, fallbackAddr) {
+  const parsed = parseClubLocationInput(rawVal);
+  const fakeClub = {
+    name: fallbackName || "",
+    addr: fallbackAddr || "",
+    lat: parsed.lat,
+    lng: parsed.lng,
+    mapUrl: parsed.mapUrl
+  };
+  const urls = buildClubMapUrls(fakeClub);
+  openExternalMapUrl(urls.customDirect || urls.yandex);
+}
+
+function detectGpsForTarget(onCoords) {
+  if (!navigator.geolocation) {
+    haptic("warning");
+    showToast(t("clubLocGpsErr"));
+    return;
+  }
+  haptic();
+  showToast(t("clubLocGpsLoading"));
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = +pos.coords.latitude.toFixed(6);
+      const lng = +pos.coords.longitude.toFixed(6);
+      onCoords(`${lat}, ${lng}`, lat, lng);
+      haptic("success");
+      showToast(t("clubLocGpsOk"));
+    },
+    () => {
+      haptic("warning");
+      showToast(t("clubLocGpsErr"));
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
 }
 
 function minHour(c) {
@@ -3560,7 +4221,7 @@ function cdHtml(b) {
 
 function head() {
   const allowedRoles = S.authRole === "sys"
-    ? ["user", "sys"]
+    ? ["user", "admin", "sys"]
     : S.authRole === "admin"
     ? ["user", "admin"]
     : [];
@@ -3571,24 +4232,23 @@ function head() {
     </button>
   `;
 
-  if (!allowedRoles.length) {
+  if (allowedRoles.length) {
     return `
-      <div class="top-bar" style="justify-content:flex-end;margin-bottom:8px;">
+      <div class="top-bar">
+        <div class="role-seg">
+          ${allowedRoles.map(x => `
+            <button class="role-btn ${S.role === x ? 'active' : ''}" onclick="setRole('${x}')">
+              ${t(x)}
+            </button>
+          `).join("")}
+        </div>
         ${themeBtnHtml}
         <button class="lang-btn" onclick="setLang()">${S.lang === "ru" ? "🇺🇿 UZ" : "🇷🇺 RU"}</button>
       </div>
     `;
   }
-
   return `
-    <div class="top-bar">
-      <div class="role-seg">
-        ${allowedRoles.map(x => `
-          <button class="role-btn ${S.role === x ? 'active' : ''}" onclick="setRole('${x}')">
-            ${t(x)}
-          </button>
-        `).join("")}
-      </div>
+    <div class="top-bar" style="justify-content:flex-end;margin-bottom:8px;">
       ${themeBtnHtml}
       <button class="lang-btn" onclick="setLang()">${S.lang === "ru" ? "🇺🇿 UZ" : "🇷🇺 RU"}</button>
     </div>
@@ -3824,15 +4484,15 @@ function clubInfoModal() {
 
         <div class="info-row-box">
           <div class="addr-row">
-            <div style="font-size:13px;color:#e9e4ff;line-height:1.35;">
-              📍 ${escHtml(c.addr)}${c.landmark ? `<span style="color:var(--text-muted);"> · ${escHtml(c.landmark)}</span>` : ""}
+            <div style="font-size:13px;color:var(--text);line-height:1.35;cursor:pointer;" onclick="openMapSheet(${c.id}, event)">
+              📍 <span style="text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${escHtml(c.addr)}</span>${c.landmark ? `<span style="color:var(--text-muted);"> · ${escHtml(c.landmark)}</span>` : ""}
             </div>
-            ${safeMapUrl ? `<a class="map-outline-btn" href="${escHtml(safeMapUrl)}" target="_blank" rel="noopener">${t("onMap")}</a>` : ""}
+            <button type="button" class="map-outline-btn" onclick="openMapSheet(${c.id}, event)">${t("onMap")}</button>
           </div>
         </div>
 
         <div class="info-row-box" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;">
-          <span style="color:var(--neon-green);font-weight:700;">⚡ ${c.open === 0 && c.close === 24 ? t("open247") : hh(c.open) + "–" + hh(c.close)}</span>
+          <span style="color:var(--neon-green);font-weight:700;">⚡ ${formatClubHoursLabel(c, false)}</span>
           <span style="color:var(--text-dim);">·</span>
           <span style="color:#e9e4ff;font-family:'JetBrains Mono',monospace;">💳 ${t("from")} ${fm(Math.round(minHour(c)))} ${t("per")}</span>
           ${c.nightPack ? `<span style="color:var(--neon-cyan);font-weight:700;">· ${t("nightPack")}</span>` : ""}
@@ -3860,7 +4520,7 @@ function clubInfoModal() {
 
 function home() {
   const uid = getClientUserId();
-  const isSys = S.role === "sys" || S.persona === "sys";
+  const isSys = S.authRole === "sys";
   const list = clubs.filter(c => c.ok && (isSys || !c.hidden)).map(c => {
     const rating = getClubRating(c);
     const live = getLiveFreeSeats(c.id);
@@ -3887,7 +4547,7 @@ function home() {
             ? `<span class="badge badge-red">${t("clubOfflineBadge")}</span>`
             : `<span class="badge badge-green">🟢 ${totalFree}/${live.totalStd + live.totalVip}</span>`}
           ${rating.avg ? `<span class="badge badge-gold">★ ${rating.avg}</span>` : ""}
-          <span class="badge badge-green">⚡ ${c.open === 0 && c.close === 24 ? "24/7" : hh(c.open) + "–" + hh(c.close)}</span>
+          <span class="badge badge-green">⚡ ${formatClubHoursLabel(c, true)}</span>
           <span class="badge badge-purple">🎮 ${escHtml(c.gpu)}</span>
         </div>
       </div>
@@ -4052,6 +4712,59 @@ function receiptModal() {
             ${fm(getBookingRevenue(b))}
           </div>
         </div>
+
+        ${c ? `
+          <button type="button" class="cta-btn btn-secondary" style="margin-top:10px;padding:11px;font-size:13px;" onclick="openMapSheet(${c.id}, event)">
+            ${t("mapRouteBtn")} · ${escHtml(c.addr)}
+          </button>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function mapSheetModal() {
+  if (!S.mapSheetClubId) return "";
+  const c = C(S.mapSheetClubId);
+  if (!c) return "";
+  const urls = buildClubMapUrls(c);
+  const coordBadge = urls.exact
+    ? `<span class="badge badge-green" style="font-size:10px;">${t("mapExactPin")}</span>`
+    : `<span class="badge badge-yellow" style="font-size:10px;">${t("mapTextSearch")}</span>`;
+
+  return `
+    <div class="modal-overlay" style="z-index:10050;" onclick="closeMapSheet()">
+      <div class="info-modal" style="max-width:380px;" onclick="event.stopPropagation()">
+        <button type="button" class="modal-close-btn" onclick="closeMapSheet()" aria-label="Close">✕</button>
+        <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px;padding-right:34px;">
+          📍 ${escHtml(c.name)}
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.4;margin-bottom:8px;">
+          ${escHtml(c.addr)}${c.landmark ? ` · ${escHtml(c.landmark)}` : ""}
+        </div>
+        <div style="margin-bottom:14px;">${coordBadge}</div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">
+          ${t("mapSheetTitle")}
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button type="button" class="cta-btn btn-secondary" style="padding:12px 14px;font-size:14px;display:flex;align-items:center;justify-content:space-between;" onclick="openExternalMapUrl('${escHtml(urls.yandex)}')">
+            <span>🟡 ${t("mapYandex")}</span>
+            <span style="opacity:0.65;">↗</span>
+          </button>
+          <button type="button" class="cta-btn btn-secondary" style="padding:12px 14px;font-size:14px;display:flex;align-items:center;justify-content:space-between;" onclick="openExternalMapUrl('${escHtml(urls.twogis)}')">
+            <span>🟢 ${t("map2gis")}</span>
+            <span style="opacity:0.65;">↗</span>
+          </button>
+          <button type="button" class="cta-btn btn-secondary" style="padding:12px 14px;font-size:14px;display:flex;align-items:center;justify-content:space-between;" onclick="openExternalMapUrl('${escHtml(urls.google)}')">
+            <span>🔵 ${t("mapGoogle")}</span>
+            <span style="opacity:0.65;">↗</span>
+          </button>
+          <button type="button" class="receipt-mini-btn" style="padding:11px 14px;font-size:13px;width:100%;margin-top:2px;" onclick="copyClubAddr(${c.id})">
+            📋 ${t("mapCopyAddr")}
+          </button>
+        </div>
       </div>
     </div>
   `;
@@ -4083,11 +4796,12 @@ function renderBlueprintGridHtml(c, isEditor) {
   }
   const size = Number(c.floorMap.size) || 8;
   const cells = c.floorMap.cells || {};
+  const walls = c.floorMap.walls || {};
+  const isWallTool = isEditor && S.bpTool === "wall";
   const nowH = new Date().getHours();
-  const basePx = size <= 4 ? 58 : size <= 6 ? 46 : size <= 8 ? 38 : size <= 12 ? 32 : size <= 16 ? 28 : 24;
+  const basePx = size <= 4 ? 60 : size <= 6 ? 48 : size <= 8 ? 40 : size <= 12 ? 34 : size <= 16 ? 28 : 24;
   const zoom = isEditor ? (Number(S.bpZoom) || 1) : 1;
   const cellPx = Math.round(basePx * zoom);
-  const gapPx = size >= 16 ? 3 : 5;
 
   const icoMap = { pc: "🖥️", vip: "👑", ps5: "🎮", vr: "🥽" };
   let itemsHtml = "";
@@ -4097,67 +4811,56 @@ function renderBlueprintGridHtml(c, isEditor) {
       const key = `${r}_${col}`;
       const cell = cells[key];
       const isFocused = isEditor && S.bpFocusKey === key;
+      const wallBars = renderDndWallsForSlot(walls, r, col, size, isWallTool);
+      let innerHtml = "";
 
       if (!cell || !cell.type || cell.type === "empty") {
         if (isEditor) {
-          itemsHtml += `
+          innerHtml = `
             <div class="bp-cell bp-empty-editor ${isFocused ? "bp-focused" : ""}" onclick="onBpCellClick('${key}')" title="${r + 1}:${col + 1}">
-              <span style="font-size:8px;opacity:0.45;">·</span>
+              <span style="font-size:9px;opacity:0.35;">·</span>
             </div>`;
         } else {
-          itemsHtml += `<div class="bp-cell bp-empty-player"></div>`;
+          innerHtml = `<div class="bp-cell bp-empty-player"></div>`;
         }
-        continue;
-      }
-
-      if (cell.type === "wall") {
+      } else if (cell.type === "wall") {
         const lbl = cell.id || "🧱";
+        innerHtml = isEditor
+          ? `<div class="bp-cell bp-wall ${isFocused ? "bp-focused" : ""}" onclick="onBpCellClick('${key}')"><span class="bp-cell-lbl">${escHtml(lbl)}</span></div>`
+          : `<div class="bp-cell bp-wall bp-wall-player"><span class="bp-cell-lbl">${escHtml(lbl)}</span></div>`;
+      } else {
+        const seatId = String(cell.id || `${r + 1}-${col + 1}`);
+        const isMaint = !!cell.maint;
+        const ico = isMaint ? "🛠️" : (icoMap[cell.type] || "🖥️");
+        const specText = cell.spec || defaultSpecForType(c, cell.type);
+        const hasCustomSpec = cell.spec && cell.spec !== defaultSpecForType(c, cell.type);
+
         if (isEditor) {
-          itemsHtml += `
-            <div class="bp-cell bp-wall ${isFocused ? "bp-focused" : ""}" onclick="onBpCellClick('${key}')">
-              <span class="bp-cell-lbl">${escHtml(lbl)}</span>
+          innerHtml = `
+            <div class="bp-cell bp-${escHtml(cell.type)} ${isMaint ? "bp-maint" : ""} ${isFocused ? "bp-focused" : ""}" onclick="onBpCellClick('${key}')" title="${escHtml(seatId)}: ${escHtml(specText)}">
+              ${hasCustomSpec ? `<span class="bp-custom-dot"></span>` : ""}
+              <span class="bp-cell-ico">${ico}</span>
+              <span class="bp-cell-lbl">${escHtml(seatId)}</span>
             </div>`;
         } else {
-          itemsHtml += `
-            <div class="bp-cell bp-wall bp-wall-player">
-              <span class="bp-cell-lbl">${escHtml(lbl)}</span>
+          const checkDay = Number(S.day) || 0;
+          const checkHour = getValidClubHour(c, checkDay, S.start);
+          const isBusy = clash(c.id, seatId, checkDay, checkHour, 1);
+          const isSquadPicked = S.squadMode && Array.isArray(S.squadSeats) && S.squadSeats.includes(seatId);
+          innerHtml = `
+            <div class="bp-cell bp-${escHtml(cell.type)} ${isMaint ? "bp-maint" : (isBusy ? "bp-busy" : "")} ${isSquadPicked ? "bp-squad-picked" : ""}" onclick="onPlayerBpSeatTap('${escHtml(seatId)}')" title="${escHtml(seatId)} · ${escHtml(specText)}">
+              ${hasCustomSpec ? `<span class="bp-custom-dot"></span>` : ""}
+              <span class="bp-cell-ico">${isSquadPicked ? "✓" : ico}</span>
+              <span class="bp-cell-lbl">${escHtml(seatId)}</span>
             </div>`;
         }
-        continue;
       }
-
-      const seatId = String(cell.id || `${r + 1}-${col + 1}`);
-      const isMaint = !!cell.maint;
-      const ico = isMaint ? "🛠️" : (icoMap[cell.type] || "🖥️");
-      const specText = cell.spec || defaultSpecForType(c, cell.type);
-      const hasCustomSpec = cell.spec && cell.spec !== defaultSpecForType(c, cell.type);
-
-      if (isEditor) {
-        itemsHtml += `
-          <div class="bp-cell bp-${escHtml(cell.type)} ${isMaint ? "bp-maint" : ""} ${isFocused ? "bp-focused" : ""}" onclick="onBpCellClick('${key}')" title="${escHtml(seatId)}: ${escHtml(specText)}">
-            ${hasCustomSpec ? `<span class="bp-custom-dot"></span>` : ""}
-            <span class="bp-cell-ico">${ico}</span>
-            <span class="bp-cell-lbl">${escHtml(seatId)}</span>
-          </div>`;
-      } else {
-        const checkDay = Number(S.day) || 0;
-        const minH = checkDay === 0 ? Math.max(c.open || 0, nowH) : (c.open || 0);
-        const checkHour = (S.start !== null && S.start >= minH) ? Number(S.start) : minH;
-        const isBusy = clash(c.id, seatId, checkDay, checkHour, 1);
-        const isSquadPicked = S.squadMode && Array.isArray(S.squadSeats) && S.squadSeats.includes(seatId);
-        itemsHtml += `
-          <div class="bp-cell bp-${escHtml(cell.type)} ${isMaint ? "bp-maint" : (isBusy ? "bp-busy" : "")} ${isSquadPicked ? "bp-squad-picked" : ""}" onclick="onPlayerBpSeatTap('${escHtml(seatId)}')" title="${escHtml(seatId)} · ${escHtml(specText)}">
-            ${hasCustomSpec ? `<span class="bp-custom-dot"></span>` : ""}
-            <span class="bp-cell-ico">${isSquadPicked ? "✓" : ico}</span>
-            <span class="bp-cell-lbl">${escHtml(seatId)}</span>
-          </div>`;
-      }
+      itemsHtml += `<div class="dnd-slot">${wallBars}${innerHtml}</div>`;
     }
   }
 
   const pDay = Number(S.day) || 0;
-  const pMinH = pDay === 0 ? Math.max(c.open || 0, nowH) : (c.open || 0);
-  const pHour = (S.start !== null && S.start >= pMinH) ? Number(S.start) : pMinH;
+  const pHour = getValidClubHour(c, pDay, S.start);
 
   return `
     <div class="blueprint-box">
@@ -4165,7 +4868,7 @@ function renderBlueprintGridHtml(c, isEditor) {
         <span>📐 ${t("bpBlueprintTag")}</span>
         <span>${isEditor ? `GRID ${size}×${size}` : `${t("days")[pDay]} · ${hh(pHour)}`}</span>
       </div>
-      <div class="blueprint-grid" style="grid-template-columns: repeat(${size}, minmax(${cellPx}px, 1fr)); gap: ${gapPx}px; min-width: ${size > 8 ? (size * (cellPx + gapPx)) + "px" : "100%"};">
+      <div class="dnd-grid" style="grid-template-columns: repeat(${size}, minmax(${cellPx}px, 1fr)); min-width: ${size > 8 ? (size * cellPx) + "px" : "100%"};">
         ${itemsHtml}
       </div>
     </div>
@@ -4188,11 +4891,7 @@ function clearSquadSeats() {
 function setPlayerMapTime(dayIdx, hourVal) {
   const c = C(S.club);
   S.day = Number(dayIdx) || 0;
-  const nowH = new Date().getHours();
-  const openH = (c && c.open) || 0;
-  const closeH = (c && c.close) || 24;
-  const minH = S.day === 0 ? Math.max(openH, nowH) : openH;
-  S.start = hourVal !== null && hourVal >= minH ? Number(hourVal) : Math.min(minH, closeH - 1);
+  S.start = getValidClubHour(c, S.day, hourVal);
   if (c && Array.isArray(S.squadSeats) && S.squadSeats.length) {
     S.squadSeats = S.squadSeats.filter(sId => !isSeatOnMaint(c, sId) && !clash(c.id, sId, S.day, S.start, 1));
   }
@@ -4204,10 +4903,8 @@ function setPlayerMapTime(dayIdx, hourVal) {
 function pickAllFreeVipForSquad(clubId) {
   const c = C(clubId);
   if (!c) return;
-  const nowH = new Date().getHours();
   const checkDay = Number(S.day) || 0;
-  const minH = checkDay === 0 ? Math.max(c.open || 0, nowH) : (c.open || 0);
-  const checkHour = (S.start !== null && S.start >= minH) ? Number(S.start) : minH;
+  const checkHour = getValidClubHour(c, checkDay, S.start);
   const freeVips = getClubBookableSeats(c)
     .filter(s => s.type === "vip" && !s.maint && !clash(c.id, s.id, checkDay, checkHour, 1))
     .map(s => String(s.id));
@@ -4230,10 +4927,8 @@ function onPlayerBpSeatTap(seatId) {
     showToast(t("maintToastPlayer"));
     return;
   }
-  const nowH = new Date().getHours();
   const checkDay = Number(S.day) || 0;
-  const minH = checkDay === 0 ? Math.max(c.open || 0, nowH) : (c.open || 0);
-  const checkHour = (S.start !== null && S.start >= minH) ? Number(S.start) : minH;
+  const checkHour = getValidClubHour(c, checkDay, S.start);
 
   if (clash(c.id, seatId, checkDay, checkHour, 1)) {
     haptic("warning");
@@ -4277,16 +4972,19 @@ function clubView() {
       </div>
     `;
   }
-  const nowH = new Date().getHours();
-  const openH = c.open || 0;
-  const closeH = c.close || 24;
-  const minValidH = S.day === 0 ? Math.max(openH, nowH) : openH;
-  if (S.start === null || (S.day === 0 && S.start < minValidH) || S.start < openH || S.start >= closeH) {
-    S.start = Math.min(minValidH, closeH - 1);
+  const bounds = getClubHourBounds(c, S.day);
+  const minValidH = bounds.minH;
+  const maxValidH = bounds.maxH;
+  if (S.start === null || S.start < minValidH || S.start > maxValidH || closedAt(c.id, S.day, S.start, 1)) {
+    let pickH = minValidH;
+    for (let h = minValidH; h <= maxValidH; h++) {
+      if (!closedAt(c.id, S.day, h, 1)) { pickH = h; break; }
+    }
+    S.start = pickH;
   }
 
   const live = getLiveFreeSeats(c.id);
-  const isSys = S.authRole === "sys" || S.persona === "sys";
+  const isSys = S.authRole === "sys";
   const squadCnt = Array.isArray(S.squadSeats) ? S.squadSeats.length : 0;
   const squadRatePerH = squadCnt ? getSeatHourRate(c, S.squadSeats.join(", ")) : 0;
 
@@ -4294,15 +4992,15 @@ function clubView() {
     <button class="bp-size-chip ${S.day === i ? "active" : ""}" style="flex:1;text-align:center;" onclick="setPlayerMapTime(${i}, ${S.start})">${d}</button>
   `).join("");
 
-  let mapHourPills = "";
-  for (let h = minValidH; h < closeH; h++) {
-    const isCur = S.start === h;
-    mapHourPills += `
-      <button onclick="setPlayerMapTime(${S.day}, ${h})" style="background:${isCur ? "rgba(0,240,255,0.22)" : "rgba(255,255,255,0.05)"};border:1.5px solid ${isCur ? "#00f0ff" : "rgba(255,255,255,0.14)"};color:${isCur ? "#fff" : "var(--text-muted)"};border-radius:9px;padding:6px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700;cursor:pointer;flex-shrink:0;">
-        🕒 ${hh(h)}
-      </button>
-    `;
-  }
+  const mapTimeStepperHtml = renderTimeStepperHtml({
+    idPrefix: "map",
+    minH: minValidH,
+    maxH: maxValidH,
+    curH: S.start,
+    clubId: c.id,
+    day: S.day,
+    seatId: null
+  });
 
   return `
     <div class="anim-fade">
@@ -4314,7 +5012,12 @@ function clubView() {
         </div>
       </div>
       <h1 style="font-size:24px;font-weight:800;margin-bottom:4px;">${escHtml(c.name)}</h1>
-      <p style="color:var(--text-muted);font-size:13px;">🎮 ${escHtml(c.gpu)} · 📍 ${escHtml(c.addr)}</p>
+      <p style="color:var(--text-muted);font-size:13px;line-height:1.45;">
+        🎮 ${escHtml(c.gpu)} ·
+        <span onclick="openMapSheet(${c.id}, event)" style="color:var(--neon-cyan);font-weight:700;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">
+          📍 ${escHtml(c.addr)} ↗
+        </span>
+      </p>
       <p style="color:var(--neon-green);font-size:12px;font-weight:700;margin-top:4px;">
         🟢 ${t("freeNow")}: ${live.freeStd} PC · ${live.onlyVipFree} VIP${live.totalPs5 ? ` · ${live.freePs5} PS5` : ""}${live.totalVr ? ` · ${live.freeVr} VR` : ""}
       </p>
@@ -4328,10 +5031,10 @@ function clubView() {
         <div class="legend-item"><div class="legend-box" style="border:1.5px dashed #94a3b8;background:rgba(51,65,85,0.5)"></div> ${t("maintBadge")}</div>
       </div>
 
-      <div class="card-box" style="padding:10px 12px;margin:10px 0 8px;border-color:rgba(0,240,255,0.3);">
-        <div style="font-size:11px;font-weight:700;color:var(--neon-cyan);margin-bottom:6px;">⏰ ${t("whenPlayTitle")}: ${t("days")[S.day]}, ${hh(S.start)}</div>
+      <div class="card-box" style="padding:10px 12px;margin:10px 0 8px;border-color:var(--border-focus);">
+        <div style="font-size:11px;font-weight:700;color:var(--neon-cyan);margin-bottom:6px;">⏰ ${t("whenPlayTitle")}: ${t("days")[S.day]}, <span id="ts_hdr_map">${hh(S.start)}</span></div>
         <div style="display:flex;gap:6px;margin-bottom:8px;">${mapDayChips}</div>
-        <div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;">${mapHourPills}</div>
+        ${mapTimeStepperHtml}
       </div>
 
       <div class="role-seg" style="margin:8px 0;">
@@ -4371,6 +5074,115 @@ function clubView() {
   `;
 }
 
+function renderTimeStepperHtml({ idPrefix, minH, maxH, curH, clubId, day, seatId }) {
+  const safeMin = Number(minH) || 0;
+  const safeMax = Math.max(safeMin, Number(maxH) || 23);
+  const safeCur = Math.min(safeMax, Math.max(safeMin, Number(curH) ?? safeMin));
+  const isSeatMode = seatId !== null && seatId !== undefined;
+  const isCurBusy = isSeatMode ? clash(clubId, seatId, day, safeCur, 1) : false;
+
+  let segs = "";
+  for (let h = safeMin; h <= safeMax; h++) {
+    const b = isSeatMode ? clash(clubId, seatId, day, h, 1) : false;
+    const isC = h === safeCur;
+    segs += `<span class="time-mini-seg ${b ? "busy" : ""} ${isC ? "cur" : ""}"></span>`;
+  }
+  const midH = Math.round((safeMin + safeMax) / 2);
+  const canDec = safeCur > safeMin;
+  const canInc = safeCur < safeMax;
+
+  return `
+    <div class="time-stepper-box" style="${idPrefix === "map" ? "margin-bottom:0;padding:8px 10px;" : ""}">
+      <div class="time-stepper-row">
+        <button type="button" class="time-step-btn" ${canDec ? "" : "disabled"} onclick="stepInteractiveTime('${idPrefix}', -1, ${safeMin}, ${safeMax})">−</button>
+        <div class="time-stepper-center">
+          <div id="ts_clk_${idPrefix}" class="time-stepper-clock">${hh(safeCur)}</div>
+          <div id="ts_sub_${idPrefix}" class="time-stepper-sub" style="color:${isCurBusy ? "var(--neon-red)" : "var(--neon-green)"};">
+            ${isSeatMode ? (isCurBusy ? "🔴 " + t("busy") : "🟢 " + t("free")) : ("⚡ " + t("days")[day])}
+          </div>
+        </div>
+        <button type="button" class="time-step-btn" ${canInc ? "" : "disabled"} onclick="stepInteractiveTime('${idPrefix}', 1, ${safeMin}, ${safeMax})">+</button>
+      </div>
+      ${safeMax > safeMin ? `
+        <input type="range" class="time-slider" min="${safeMin}" max="${safeMax}" step="1" value="${safeCur}"
+          oninput="onInteractiveTimeSlide('${idPrefix}', +this.value)"
+          onchange="onInteractiveTimeCommit('${idPrefix}', +this.value)">
+        <div class="time-mini-bar">${segs}</div>
+        <div class="time-slider-scale">
+          <span>${hh(safeMin)}</span>
+          ${safeMax - safeMin >= 4 ? `<span>${hh(midH)}</span>` : ""}
+          <span>${hh(safeMax)}</span>
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
+
+function stepInteractiveTime(idPrefix, delta, minH, maxH) {
+  if (idPrefix === "admin") {
+    const nextH = Math.min(maxH, Math.max(minH, (Number(S.mh) ?? minH) + delta));
+    S.mh = nextH;
+    S.err = "";
+    haptic();
+    render();
+    return;
+  }
+  const c = C(S.club);
+  let nextH = Math.min(maxH, Math.max(minH, (Number(S.start) ?? minH) + delta));
+  if (idPrefix === "seat" && c && S.seat) {
+    // Умный шаг: перескакиваем занятые или закрытые часы к ближайшему доступному
+    while (nextH >= minH && nextH <= maxH && (closedAt(c.id, S.day, nextH, 1) || clash(c.id, S.seat, S.day, nextH, 1))) {
+      nextH += delta;
+    }
+    if (nextH < minH || nextH > maxH) {
+      haptic("warning");
+      return;
+    }
+    selectSeatBookingHour(nextH);
+    return;
+  }
+  setPlayerMapTime(S.day, nextH);
+}
+
+function onInteractiveTimeSlide(idPrefix, val) {
+  const clk = $(`ts_clk_${idPrefix}`);
+  if (clk) clk.textContent = hh(val);
+  const hdr = $(`ts_hdr_${idPrefix}`);
+  if (hdr) hdr.textContent = hh(val);
+  const sub = $(`ts_sub_${idPrefix}`);
+  if (sub && idPrefix === "seat" && S.club && S.seat) {
+    const busy = clash(S.club, S.seat, S.day, val, 1);
+    sub.style.color = busy ? "var(--neon-red)" : "var(--neon-green)";
+    sub.textContent = busy ? ("🔴 " + t("busy")) : ("🟢 " + t("free"));
+  } else if (sub && idPrefix === "admin" && S.adminClubId && S.ms) {
+    const busy = clash(S.adminClubId, S.ms, S.md, val, 1);
+    sub.style.color = busy ? "var(--neon-red)" : "var(--neon-green)";
+    sub.textContent = busy ? ("🔴 " + t("busy")) : ("🟢 " + t("free"));
+  }
+}
+
+function onInteractiveTimeCommit(idPrefix, val) {
+  if (idPrefix === "admin") {
+    S.mh = val;
+    S.err = "";
+    haptic();
+    render();
+    return;
+  }
+  if (idPrefix === "seat") {
+    const c = C(S.club);
+    if (c && S.seat && clash(c.id, S.seat, S.day, val, 1)) {
+      haptic("warning");
+      showToast(t("seatBusyToast"));
+      render();
+      return;
+    }
+    selectSeatBookingHour(val);
+  } else {
+    setPlayerMapTime(S.day, val);
+  }
+}
+
 function selectSeatBookingDay(dayIdx) {
   S.day = dayIdx;
   S.start = null;
@@ -4390,21 +5202,20 @@ function selectSeatBookingHour(hourVal) {
 function seatView() {
   const c = C(S.club);
   if (!c) { S.view = "home"; return home(); }
-  const nowH = new Date().getHours();
-  const openH = c.open || 0;
-  const closeH = c.close || 24;
-  const minValidH = S.day === 0 ? Math.max(openH, nowH) : openH;
+  const bounds = getClubHourBounds(c, S.day);
+  const minValidH = bounds.minH;
+  const maxValidH = bounds.maxH;
 
-  // Находим все доступные (свободные) часы для выбранного места/сквада
+  // Находим все доступные (свободные и рабочие) часы для выбранного места/сквада
   const freeHours = [];
-  for (let h = minValidH; h < closeH; h++) {
-    if (!clash(c.id, S.seat, S.day, h, 1)) {
+  for (let h = minValidH; h <= maxValidH; h++) {
+    if (!closedAt(c.id, S.day, h, 1) && !clash(c.id, S.seat, S.day, h, 1)) {
       freeHours.push(h);
     }
   }
 
-  // Если текущий S.start не выбран, в прошлом или занят — авто-прыгаем на первый свободный час!
-  if (S.start === null || S.start < minValidH || clash(c.id, S.seat, S.day, S.start, 1)) {
+  // Если текущий S.start не выбран, в прошлом, закрыт или занят — авто-прыгаем на первый свободный час!
+  if (S.start === null || S.start < minValidH || S.start > maxValidH || closedAt(c.id, S.day, S.start, 1) || clash(c.id, S.seat, S.day, S.start, 1)) {
     S.start = freeHours.length ? freeHours[0] : null;
   }
 
@@ -4415,46 +5226,40 @@ function seatView() {
     <button class="chip-btn ${S.day === i ? 'active' : ''}" onclick="selectSeatBookingDay(${i})">${d}</button>
   `).join("");
 
-  // Визуальная неоновая сетка времени (никаких страшных серых <select> с прошедшими часами!)
-  let timeGridHtml = "";
-  for (let h = minValidH; h < closeH; h++) {
-    const isBusyH = clash(c.id, S.seat, S.day, h, 1);
-    const isPicked = S.start === h && !isBusyH;
-    if (isBusyH) {
-      timeGridHtml += `
-        <button disabled style="background:rgba(255,51,102,0.1);border:1px dashed rgba(255,51,102,0.35);color:rgba(255,143,163,0.45);border-radius:11px;padding:10px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:700;cursor:not-allowed;text-decoration:line-through;">
-          🔴 ${hh(h)}
-        </button>
-      `;
-    } else {
-      timeGridHtml += `
-        <button onclick="selectSeatBookingHour(${h})" style="background:${isPicked ? "linear-gradient(135deg, rgba(124,58,237,0.45), rgba(0,240,255,0.28))" : "rgba(18,14,36,0.85)"};border:1.5px solid ${isPicked ? "#00f0ff" : "rgba(0,255,163,0.35)"};color:${isPicked ? "#fff" : "#d1fae5"};box-shadow:${isPicked ? "0 0 14px rgba(0,240,255,0.32)" : "none"};border-radius:11px;padding:10px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:800;cursor:pointer;transition:all 0.15s ease;">
-          ${isPicked ? "⚡" : "🟢"} ${hh(h)}
-        </button>
-      `;
-    }
-  }
+  const seatTimeStepperHtml = S.start !== null
+    ? renderTimeStepperHtml({
+        idPrefix: "seat",
+        minH: minValidH,
+        maxH: maxValidH,
+        curH: S.start,
+        clubId: c.id,
+        day: S.day,
+        seatId: S.seat
+      })
+    : "";
 
   const seatTars = getTariffsForSeat(c, S.seat);
   // Если выбранный тариф перекрывается следующей бронью — сбрасываем или выбираем первый доступный
   if (S.tar !== null && S.start !== null && seatTars[S.tar]) {
     const curHrs = seatTars[S.tar][0];
-    if (clash(c.id, S.seat, S.day, S.start, curHrs) || closedAt(c.id, S.seat, S.day, S.start, curHrs)) {
+    if (clash(c.id, S.seat, S.day, S.start, curHrs) || closedAt(c.id, S.day, S.start, curHrs)) {
       S.tar = null;
     }
   }
   if (S.tar === null && S.start !== null) {
-    const firstValidIdx = seatTars.findIndex(x => !clash(c.id, S.seat, S.day, S.start, x[0]) && !closedAt(c.id, S.seat, S.day, S.start, x[0]));
+    const firstValidIdx = seatTars.findIndex(x => !clash(c.id, S.seat, S.day, S.start, x[0]) && !closedAt(c.id, S.day, S.start, x[0]));
     if (firstValidIdx >= 0) S.tar = firstValidIdx;
   }
 
   const tars = seatTars.map((x, i) => {
     const hrs = x[0];
-    const blocked = S.start === null || clash(c.id, S.seat, S.day, S.start, hrs) || closedAt(c.id, S.seat, S.day, S.start, hrs);
+    const isClashing = S.start !== null && clash(c.id, S.seat, S.day, S.start, hrs);
+    const isClosed = S.start !== null && closedAt(c.id, S.day, S.start, hrs);
+    const blocked = S.start === null || isClashing || isClosed;
     if (blocked) {
       return `
         <div class="tariff-card" style="opacity:0.42;cursor:not-allowed;border-color:rgba(255,51,102,0.3);background:rgba(28,14,30,0.45);">
-          <span>🔒 <b>${hrs} ${t("h")}</b> <span style="font-size:11px;color:#ff8fa3;">(${t("tarBlockedHint")})</span></span>
+          <span>🔒 <b>${hrs} ${t("h")}</b> <span style="font-size:11px;color:#ff8fa3;">(${isClosed && !isClashing ? t("closed") : t("tarBlockedHint")})</span></span>
           <b style="color:var(--text-muted);text-decoration:line-through;">${fm(x[1])}</b>
         </div>
       `;
@@ -4493,11 +5298,7 @@ function seatView() {
       <div class="chip-group">${days}</div>
 
       <h2 class="section-title">⏰ ${t("start")}</h2>
-      ${freeHours.length ? `
-        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:7px;margin-bottom:14px;">
-          ${timeGridHtml}
-        </div>
-      ` : `
+      ${freeHours.length ? seatTimeStepperHtml : `
         <div class="card-box" style="border-color:rgba(255,51,102,0.45);color:#ff8fa3;font-size:12px;text-align:center;padding:14px;">
           ⚠️ ${t("noFreeHoursToday")}
         </div>
@@ -4543,6 +5344,7 @@ function payView() {
       <label class="file-upload-zone">
         <input type="file" accept="image/*" hidden onchange="onShotPicked(this)">
         <span id="fn" style="font-weight:600;">${S.shot ? ('📎 ' + escHtml(S.shot)) : t("attach")}</span>
+        ${S.shotImg ? `<img src="${S.shotImg}" alt="Receipt" style="display:block;max-width:100%;max-height:170px;margin:10px auto 0;border-radius:12px;border:1px solid var(--border-focus);object-fit:contain;">` : ""}
       </label>
 
       ${S.err ? `<div class="error-text">❌ ${escHtml(S.err)}</div>` : ""}
@@ -4576,7 +5378,7 @@ function adminView() {
           <div class="info-row-box" style="margin-bottom:0;text-align:left;font-size:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <span style="color:var(--text-muted);">${t("subFeeLabel")}:</span>
-              <b style="font-family:'JetBrains Mono',monospace;color:var(--neon-cyan);">${fm(curClub.subFee || 500000)} ${t("perMonth")}</b>
+              <b style="font-family:'JetBrains Mono',monospace;color:var(--neon-cyan);">${fm(curClub.subFee || 200000)} ${t("perMonth")}</b>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
               <span style="color:var(--text-muted);">${t("receiptStatus")}:</span>
@@ -4628,6 +5430,12 @@ function adminView() {
             ${b.by === "user"
               ? `<span style="font-size:11px;color:var(--neon-green);">📎 ${t("shot")}${b.shot ? (": " + escHtml(b.shot)) : ""}</span>`
               : `<span style="font-size:11px;color:var(--neon-cyan);">⚡ ${t("manualTag")}</span>`}
+            ${b.shotImg ? `
+              <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
+                <img src="${b.shotImg}" alt="Check" onclick="openShotPreview('${escHtml(b.id)}')" style="width:52px;height:52px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border-focus);cursor:pointer;">
+                <button type="button" class="receipt-mini-btn" style="font-size:11px;padding:5px 9px;" onclick="openShotPreview('${escHtml(b.id)}')">🖼️ Предпросмотр чека</button>
+              </div>
+            ` : ""}
             <div style="margin-top:4px;">${tagHtml(b)}${cdHtml(b)}</div>
           </div>
           ${isAct ? `
@@ -4651,15 +5459,11 @@ function adminView() {
     S.ms = bookableList[0].id;
   }
 
-  const openH = curClub.open || 0;
-  const closeH = curClub.close || 24;
-  const nowH = new Date().getHours();
-  const minValidH = S.md === 0 ? Math.max(openH, nowH) : openH;
-  if (S.md === 0 && S.mh < minValidH) {
-    S.mh = Math.min(minValidH, closeH - 1);
-  }
-  if (S.mh < openH || S.mh >= closeH) {
-    S.mh = Math.min(minValidH, closeH - 1);
+  const bounds = getClubHourBounds(curClub, S.md);
+  const minValidH = bounds.minH;
+  const maxValidH = bounds.maxH;
+  if (S.mh < minValidH || S.mh > maxValidH) {
+    S.mh = minValidH;
   }
 
   const selectedSeatInfo = getSeatDetails(curClub, S.ms);
@@ -4674,23 +5478,15 @@ function adminView() {
     <button class="bp-size-chip ${S.md === i ? "active" : ""}" style="flex:1;text-align:center;" onclick="S.md=${i};S.err='';haptic();render()">${d}</button>
   `).join("");
 
-  let hourPillsHtml = "";
-  for (let h = minValidH; h < closeH; h++) {
-    const busyThisHour = clash(curClub.id, S.ms, S.md, h, 1);
-    const isCurH = S.mh === h;
-    const bg = isCurH
-      ? (busyThisHour ? "rgba(255,51,102,0.42)" : "rgba(0,240,255,0.25)")
-      : (busyThisHour ? "rgba(255,51,102,0.14)" : "rgba(0,255,163,0.08)");
-    const brd = isCurH
-      ? "#00f0ff"
-      : (busyThisHour ? "rgba(255,51,102,0.45)" : "rgba(0,255,163,0.28)");
-    const col = busyThisHour ? "#ff8fa3" : "#d1fae5";
-    hourPillsHtml += `
-      <button onclick="S.mh=${h};S.err='';haptic();render()" style="background:${bg};border:1.5px solid ${brd};color:${col};border-radius:8px;padding:5px 8px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700;cursor:pointer;flex-shrink:0;">
-        ${busyThisHour ? "🔴" : "🟢"} ${hh(h)}
-      </button>
-    `;
-  }
+  const adminTimeStepperHtml = renderTimeStepperHtml({
+    idPrefix: "admin",
+    minH: minValidH,
+    maxH: maxValidH,
+    curH: S.mh,
+    clubId: curClub.id,
+    day: S.md,
+    seatId: S.ms
+  });
 
   const seatSlotsHtml = seatActiveBookings.length
     ? seatActiveBookings.map(b => `
@@ -4717,10 +5513,74 @@ function adminView() {
   return `
     <div class="anim-fade">
       <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">💻 ${t("adminTitle")}</h1>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${t("assignedClub")}</p>
-      <div class="card-box" style="padding:12px 14px;margin-bottom:14px;border-color:rgba(0,240,255,0.35);display:flex;justify-content:space-between;align-items:center;">
-        <span>🏢 <b>${escHtml(curClub.name)}</b> <span style="color:var(--text-muted);font-size:12px;">(${escHtml(curClub.addr)})</span></span>
-        <span class="badge badge-green">🔒 Клуб #${curClub.id}</span>
+      ${S.authRole === "sys" ? `
+        <div class="card-box" style="padding:10px 12px;margin-bottom:12px;border-color:var(--border-focus);">
+          <div style="font-size:11px;font-weight:700;color:var(--neon-cyan);margin-bottom:6px;">👑 ${t("rootPickAdminClub")}</div>
+          <select class="styled-select" style="margin-bottom:0;" onchange="S.adminClubId=+this.value;S.ms='1';haptic();render()">
+            ${clubs.filter(x => x.ok).map(x => `<option value="${x.id}" ${x.id === curClub.id ? "selected" : ""}>🏢 ${escHtml(x.name)} (#${x.id})</option>`).join("")}
+          </select>
+        </div>
+      ` : `
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${t("assignedClub")}</p>
+        <div class="card-box" style="padding:12px 14px;margin-bottom:14px;border-color:rgba(0,240,255,0.35);display:flex;justify-content:space-between;align-items:center;">
+          <span>🏢 <b>${escHtml(curClub.name)}</b> <span style="color:var(--text-muted);font-size:12px;">(${escHtml(curClub.addr)})</span></span>
+          <span class="badge badge-green">🔒 Клуб #${curClub.id}</span>
+        </div>
+      `}
+
+      <div class="card-box" style="padding:10px 12px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:800;color:var(--text);">🕒 ${t("clubHoursSecTitle")}</span>
+          <span class="badge badge-green" style="font-family:'JetBrains Mono',monospace;">⚡ ${formatClubHoursLabel(curClub, true)}</span>
+        </div>
+        <div class="toggle-seg-2" style="margin-bottom:${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "0" : "8px"};">
+          <button type="button" class="toggle-seg-btn ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "active-green" : ""}" onclick="adminUpdateClubHours(${curClub.id}, 0, 24)">${t("clubHours247")}</button>
+          <button type="button" class="toggle-seg-btn ${!(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "active-blue" : ""}" onclick="adminUpdateClubHours(${curClub.id}, ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? 10 : Number(curClub.open)}, ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? 24 : Number(curClub.close)})">${t("clubHoursCustom")}</button>
+        </div>
+        ${!(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubHoursOpenLbl")}</div>
+              <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="adminUpdateClubHours(${curClub.id}, +this.value, ${Number(curClub.close)})">
+                ${[...Array(24)].map((_, hr) => `<option value="${hr}" ${Number(curClub.open) === hr ? "selected" : ""}>${hh(hr)}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubHoursCloseLbl")}</div>
+              <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="adminUpdateClubHours(${curClub.id}, ${Number(curClub.open)}, +this.value)">
+                ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24].map(hr => `<option value="${hr}" ${Number(curClub.close) === hr ? "selected" : ""}>${hr === 24 ? "24:00 (00:00)" : hh(hr)}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          ${Number(curClub.close) < Number(curClub.open) ? `<div style="margin-top:6px;font-size:11px;color:var(--neon-cyan);font-weight:700;">${t("clubHoursOvernightHint")}</div>` : ""}
+        ` : ""}
+      </div>
+
+      <div class="card-box" style="padding:10px 12px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:800;color:var(--text);">📍 ${t("clubLocSecTitle")}</span>
+          <span class="badge ${isValidLatLng(Number(curClub.lat), Number(curClub.lng)) ? "badge-green" : "badge-yellow"}" style="font-size:10px;">
+            ${isValidLatLng(Number(curClub.lat), Number(curClub.lng)) ? t("mapExactPin") : t("mapTextSearch")}
+          </span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+          <div>
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocAddrLbl")}</div>
+            <input id="admin_loc_addr" class="styled-select" style="margin-bottom:0;font-size:12px;padding:8px 10px;" value="${escHtml(curClub.addr || "")}" placeholder="Ташкент, Чиланзар 9">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocLandmarkLbl")}</div>
+            <input id="admin_loc_landmark" class="styled-select" style="margin-bottom:0;font-size:12px;padding:8px 10px;" value="${escHtml(curClub.landmark || "")}" placeholder="м. Чиланзар">
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocInputLbl")}</div>
+        <input id="admin_loc_coords" class="styled-select" style="margin-bottom:4px;font-size:12px;padding:8px 10px;font-family:'JetBrains Mono',monospace;" value="${escHtml(formatClubLocInputValue(curClub))}" placeholder="${escHtml(t("clubLocInputPlaceholder"))}">
+        <div style="font-size:10px;color:var(--text-muted);line-height:1.35;margin-bottom:8px;">${t("clubLocInputHint")}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px 8px;font-size:11px;white-space:nowrap;" onclick="detectGpsForAdminLoc()">${t("clubLocGpsBtn")}</button>
+          <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px 8px;font-size:11px;white-space:nowrap;" onclick="testAdminLocInput(${curClub.id})">${t("clubLocTestBtn")}</button>
+          <button type="button" class="cta-btn ok" style="flex:1.2;padding:8px 10px;font-size:12px;white-space:nowrap;" onclick="adminSaveClubLocation(${curClub.id})">${t("clubLocSaveBtn")}</button>
+        </div>
       </div>
 
       <h2 class="section-title">📐 ${t("adminMapTitle")}</h2>
@@ -4728,11 +5588,11 @@ function adminView() {
 
       <div class="card-box" style="padding:10px 12px;margin-bottom:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:11px;font-weight:700;color:var(--neon-cyan);">🕒 ${t("adminRadarTime")}: ${t("days")[S.md]}, ${hh(S.mh)}</span>
+          <span style="font-size:11px;font-weight:700;color:var(--neon-cyan);">🕒 ${t("adminRadarTime")}: ${t("days")[S.md]}, <span id="ts_hdr_admin">${hh(S.mh)}</span></span>
           <button class="receipt-mini-btn" style="font-size:11px;padding:3px 9px;" onclick="adminSetRadarNow()">${t("adminNowBtn")}</button>
         </div>
         <div style="display:flex;gap:6px;margin-bottom:8px;">${dayChipsHtml}</div>
-        <div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;">${hourPillsHtml}</div>
+        ${adminTimeStepperHtml}
       </div>
 
       ${renderAdminBlueprintHtml(curClub)}
@@ -4797,8 +5657,8 @@ function renderAdminBlueprintHtml(c) {
   }
   const size = Number(c.floorMap.size) || 8;
   const cells = c.floorMap.cells || {};
-  const basePx = size <= 4 ? 58 : size <= 6 ? 46 : size <= 8 ? 38 : size <= 12 ? 32 : size <= 16 ? 28 : 24;
-  const gapPx = size >= 16 ? 3 : 5;
+  const walls = c.floorMap.walls || {};
+  const basePx = size <= 4 ? 60 : size <= 6 ? 48 : size <= 8 ? 40 : size <= 12 ? 34 : size <= 16 ? 28 : 24;
   const icoMap = { pc: "🖥️", vip: "👑", ps5: "🎮", vr: "🥽" };
   let itemsHtml = "";
 
@@ -4806,27 +5666,25 @@ function renderAdminBlueprintHtml(c) {
     for (let col = 0; col < size; col++) {
       const key = `${r}_${col}`;
       const cell = cells[key];
+      const wallBars = renderDndWallsForSlot(walls, r, col, size, false);
+      let innerHtml = "";
       if (!cell || !cell.type || cell.type === "empty") {
-        itemsHtml += `<div class="bp-cell bp-empty-player"></div>`;
-        continue;
-      }
-      if (cell.type === "wall") {
-        itemsHtml += `
-          <div class="bp-cell bp-wall bp-wall-player">
-            <span class="bp-cell-lbl">${escHtml(cell.id || "🧱")}</span>
+        innerHtml = `<div class="bp-cell bp-empty-player"></div>`;
+      } else if (cell.type === "wall") {
+        innerHtml = `<div class="bp-cell bp-wall bp-wall-player"><span class="bp-cell-lbl">${escHtml(cell.id || "🧱")}</span></div>`;
+      } else {
+        const seatId = String(cell.id || `${r + 1}-${col + 1}`);
+        const isMaint = !!cell.maint;
+        const ico = isMaint ? "🛠️" : (icoMap[cell.type] || "🖥️");
+        const isBusy = clash(c.id, seatId, S.md, S.mh, 1);
+        const isSelected = String(S.ms) === String(seatId);
+        innerHtml = `
+          <div class="bp-cell bp-${escHtml(cell.type)} ${isMaint ? "bp-maint" : (isBusy ? "bp-busy" : "")} ${isSelected ? "bp-focused" : ""}" onclick="adminSelectSeat('${escHtml(seatId)}')">
+            <span class="bp-cell-ico">${ico}</span>
+            <span class="bp-cell-lbl">${escHtml(seatId)}</span>
           </div>`;
-        continue;
       }
-      const seatId = String(cell.id || `${r + 1}-${col + 1}`);
-      const isMaint = !!cell.maint;
-      const ico = isMaint ? "🛠️" : (icoMap[cell.type] || "🖥️");
-      const isBusy = clash(c.id, seatId, S.md, S.mh, 1);
-      const isSelected = String(S.ms) === String(seatId);
-      itemsHtml += `
-        <div class="bp-cell bp-${escHtml(cell.type)} ${isMaint ? "bp-maint" : (isBusy ? "bp-busy" : "")} ${isSelected ? "bp-focused" : ""}" onclick="adminSelectSeat('${escHtml(seatId)}')">
-          <span class="bp-cell-ico">${ico}</span>
-          <span class="bp-cell-lbl">${escHtml(seatId)}</span>
-        </div>`;
+      itemsHtml += `<div class="dnd-slot">${wallBars}${innerHtml}</div>`;
     }
   }
 
@@ -4836,7 +5694,7 @@ function renderAdminBlueprintHtml(c) {
         <span>📐 RADAR // ${escHtml(c.name)}</span>
         <span>${t("days")[S.md]} · ${hh(S.mh)}</span>
       </div>
-      <div class="blueprint-grid" style="grid-template-columns: repeat(${size}, minmax(${basePx}px, 1fr)); gap: ${gapPx}px; min-width: ${size > 8 ? (size * (basePx + gapPx)) + "px" : "100%"};">
+      <div class="dnd-grid" style="grid-template-columns: repeat(${size}, minmax(${basePx}px, 1fr)); min-width: ${size > 8 ? (size * basePx) + "px" : "100%"};">
         ${itemsHtml}
       </div>
     </div>
@@ -4962,6 +5820,9 @@ function sysView() {
       <div class="anim-fade">
         <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">👑 ${t("sysTitle")}</h1>
         <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">${t("sysHint")}</p>
+        <button type="button" class="cta-btn" style="padding:12px;margin-bottom:14px;" onclick="openCreateClubModal()">
+          ${t("addClubBtn")}
+        </button>
         <h2 class="section-title">📥 ${t("reg")}</h2>
         ${pend}
         <h2 class="section-title">✅ ${t("act")}</h2>
@@ -5011,7 +5872,7 @@ function sysView() {
 
           <div class="root-compact-footer">
             <span>⚙️ ${t("clubSettingsTapHint")}</span>
-            <span style="font-family:'JetBrains Mono',monospace;color:var(--text-muted);font-size:10px;">${fm(c.subFee || 500000)} ${t("perMonth")}</span>
+            <span style="font-family:'JetBrains Mono',monospace;color:var(--text-muted);font-size:10px;">${fm(c.subFee || 200000)} ${t("perMonth")}</span>
           </div>
         </div>
       `;
@@ -5020,7 +5881,10 @@ function sysView() {
     return `
       <div class="anim-fade">
         <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">💳 ${t("subsTitle")}</h1>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${t("subsHint")}</p>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">${t("subsHint")}</p>
+        <button type="button" class="cta-btn" style="padding:12px;margin-bottom:14px;" onclick="openCreateClubModal()">
+          ${t("addClubBtn")}
+        </button>
         ${subCards}
       </div>
     `;
@@ -5310,10 +6174,27 @@ function nextSeatIdForType(c, type) {
   return `${pref}1`;
 }
 
+async function onBpEdgeToggle(edgeKey) {
+  const c = C(S.bpClubId) || clubs[0];
+  if (!c) return;
+  if (!c.floorMap || !c.floorMap.cells) c.floorMap = buildPresetMap(c, "arena");
+  if (!c.floorMap.walls || typeof c.floorMap.walls !== "object") c.floorMap.walls = {};
+  if (c.floorMap.walls[edgeKey]) {
+    delete c.floorMap.walls[edgeKey];
+  } else {
+    c.floorMap.walls[edgeKey] = true;
+  }
+  saveBlueprintsLocal();
+  await syncClubState(c);
+  haptic();
+  render();
+}
+
 async function onBpCellClick(key) {
   const c = C(S.bpClubId) || clubs[0];
   if (!c) return;
   if (!c.floorMap || !c.floorMap.cells) c.floorMap = buildPresetMap(c, "arena");
+  if (S.bpTool === "wall") return;
 
   if (S.bpTool === "inspect") {
     if (c.floorMap.cells[key]) {
@@ -5407,6 +6288,10 @@ function isClubSettingsDirty() {
   if (d.subPaid !== (c.subPaid !== false)) return true;
   if (d.suspended !== !!c.suspended) return true;
   if (d.hidden !== !!c.hidden) return true;
+  if (Number(d.open) !== (Number(c.open) || 0) || Number(d.close) !== (Number(c.close) || 24)) return true;
+  if (String(d.addr || "").trim() !== String(c.addr || "").trim()) return true;
+  if (String(d.landmark || "").trim() !== String(c.landmark || "").trim()) return true;
+  if (String(d.locInput || "").trim() !== formatClubLocInputValue(c).trim()) return true;
   if (dStd !== curStd || dVip !== curVip || dPs5 !== curPs5 || dVr !== curVr) return true;
   if (JSON.stringify(d.adminIds) !== JSON.stringify(origAdmins)) return true;
   if (String(S.settingsAdminInput || "").trim().length > 0) return true;
@@ -5426,6 +6311,12 @@ function getClubSettingsChangesSummary() {
   const curVr = Number(c.vrHourPrice) || Math.round(curStd * 1.8);
   if (d.subPaid !== (c.subPaid !== false) || d.suspended !== !!c.suspended || d.hidden !== !!c.hidden) {
     changes.push(t("unsavedChangeAccess"));
+  }
+  if (Number(d.open) !== (Number(c.open) || 0) || Number(d.close) !== (Number(c.close) || 24)) {
+    changes.push(t("unsavedChangeHours"));
+  }
+  if (String(d.addr || "").trim() !== String(c.addr || "").trim() || String(d.landmark || "").trim() !== String(c.landmark || "").trim() || String(d.locInput || "").trim() !== formatClubLocInputValue(c).trim()) {
+    changes.push(t("unsavedChangeLoc"));
   }
   if (JSON.stringify(d.adminIds) !== JSON.stringify(origAdmins) || String(S.settingsAdminInput || "").trim().length > 0) {
     changes.push(t("unsavedChangeAdmins"));
@@ -5505,7 +6396,7 @@ function clubSettingsModal() {
         <div class="settings-modal-body">
           <div class="settings-sec-label">
             <span>🛡️ ${t("clubSettingsSecAccess")}</span>
-            <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-cyan);font-size:11px;">${fm(c.subFee || 500000)} ${t("perMonth")}</span>
+            <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-cyan);font-size:11px;">${fm(c.subFee || 200000)} ${t("perMonth")}</span>
           </div>
           <div class="info-row-box" style="margin-bottom:14px;">
             <div style="margin-bottom:10px;">
@@ -5530,6 +6421,62 @@ function clubSettingsModal() {
                 <button type="button" class="toggle-seg-btn ${!d.hidden ? "active-blue" : ""}" onclick="setDraftField('hidden', false)">${t("clubSettingsVisOn")}</button>
                 <button type="button" class="toggle-seg-btn ${d.hidden ? "active-yellow" : ""}" onclick="setDraftField('hidden', true)">${t("clubSettingsVisOff")}</button>
               </div>
+            </div>
+          </div>
+
+          <div class="settings-sec-label">
+            <span>🕒 ${t("clubHoursSecTitle")}</span>
+            <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-cyan);font-size:11px;">
+              ${Number(d.open) === 0 && Number(d.close) === 24 ? "24/7" : `${hh(Number(d.open))}–${Number(d.close) === 24 ? "00:00" : hh(Number(d.close))}`}
+            </span>
+          </div>
+          <div class="info-row-box" style="margin-bottom:14px;">
+            <div class="toggle-seg-2" style="margin-bottom:${Number(d.open) === 0 && Number(d.close) === 24 ? "0" : "10px"};">
+              <button type="button" class="toggle-seg-btn ${Number(d.open) === 0 && Number(d.close) === 24 ? "active-green" : ""}" onclick="setDraftWorkMode(true)">${t("clubHours247")}</button>
+              <button type="button" class="toggle-seg-btn ${!(Number(d.open) === 0 && Number(d.close) === 24) ? "active-blue" : ""}" onclick="setDraftWorkMode(false)">${t("clubHoursCustom")}</button>
+            </div>
+            ${!(Number(d.open) === 0 && Number(d.close) === 24) ? `
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">${t("clubHoursOpenLbl")}</div>
+                  <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="setDraftField('open', +this.value)">
+                    ${[...Array(24)].map((_, hr) => `<option value="${hr}" ${Number(d.open) === hr ? "selected" : ""}>${hh(hr)}</option>`).join("")}
+                  </select>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">${t("clubHoursCloseLbl")}</div>
+                  <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="setDraftField('close', +this.value)">
+                    ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24].map(hr => `<option value="${hr}" ${Number(d.close) === hr ? "selected" : ""}>${hr === 24 ? "24:00 (00:00)" : hh(hr)}</option>`).join("")}
+                  </select>
+                </div>
+              </div>
+              ${Number(d.close) < Number(d.open) ? `<div style="margin-top:6px;font-size:11px;color:var(--neon-cyan);font-weight:700;">${t("clubHoursOvernightHint")}</div>` : ""}
+            ` : ""}
+          </div>
+
+          <div class="settings-sec-label">
+            <span>📍 ${t("clubLocSecTitle")}</span>
+            <span id="cs_loc_badge" class="badge ${parseClubLocationInput(d.locInput).lat !== null ? "badge-green" : "badge-yellow"}" style="font-size:10px;">
+              ${parseClubLocationInput(d.locInput).lat !== null ? t("mapExactPin") : t("mapTextSearch")}
+            </span>
+          </div>
+          <div class="info-row-box" style="margin-bottom:14px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">${t("clubLocAddrLbl")}</div>
+                <input class="styled-select" style="margin-bottom:0;font-size:12px;" value="${escHtml(d.addr || "")}" placeholder="Ташкент, Чиланзар 9" oninput="onDraftLocField('addr', this.value)">
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">${t("clubLocLandmarkLbl")}</div>
+                <input class="styled-select" style="margin-bottom:0;font-size:12px;" value="${escHtml(d.landmark || "")}" placeholder="м. Чиланзар" oninput="onDraftLocField('landmark', this.value)">
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">${t("clubLocInputLbl")}</div>
+            <input id="cs_loc_input" class="styled-select" style="margin-bottom:4px;font-size:12px;font-family:'JetBrains Mono',monospace;" value="${escHtml(d.locInput || "")}" placeholder="${escHtml(t("clubLocInputPlaceholder"))}" oninput="onDraftLocField('locInput', this.value)">
+            <div style="font-size:10px;color:var(--text-muted);line-height:1.35;margin-bottom:8px;">${t("clubLocInputHint")}</div>
+            <div style="display:flex;gap:6px;">
+              <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px 8px;font-size:11px;" onclick="detectGpsForSettingsDraft()">${t("clubLocGpsBtn")}</button>
+              <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px 8px;font-size:11px;" onclick="testLocationInputOnMap(S.settingsDraft.locInput, '${escHtml(c.name)}', S.settingsDraft.addr)">${t("clubLocTestBtn")}</button>
             </div>
           </div>
 
@@ -5559,9 +6506,14 @@ function clubSettingsModal() {
             ${priceRows}
           </div>
 
-          <button type="button" class="cta-btn btn-purple-soft" style="padding:11px;font-size:13px;" onclick="openBlueprintFromSettings()">
-            ${t("bpEditBtn")} →
-          </button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="cta-btn btn-purple-soft" style="flex:1;padding:11px;font-size:12px;" onclick="openBlueprintFromSettings()">
+              ${t("bpEditBtn")} →
+            </button>
+            <button type="button" class="cta-btn btn-secondary" style="flex:1;padding:11px;font-size:12px;" onclick="openClubAdminFromSettings()">
+              ${t("openClubAdminBtn")}
+            </button>
+          </div>
         </div>
 
         <div class="settings-modal-footer">
@@ -5672,9 +6624,338 @@ function themeDrawerModal() {
   `;
 }
 
+function createClubModal() {
+  if (!S.createClubDraft) return "";
+  const d = S.createClubDraft;
+  const adminsCount = d.adminIds.length;
+  const atLimit = adminsCount >= MAX_CLUB_ADMINS;
+  const adminChipsHtml = d.adminIds.length
+    ? d.adminIds.map(aid => `
+        <span class="admin-id-chip">
+          <span>🛡️ ${escHtml(aid)}</span>
+          <button type="button" class="admin-id-del" onclick="removeCreateAdminId('${escHtml(aid)}')" aria-label="Remove">✕</button>
+        </span>
+      `).join("")
+    : `<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">${t("clubAdminsErrMin")}</div>`;
+
+  const amenitiesHtml = Object.keys(AMENITIES).map(k => {
+    const active = d.amenities.includes(k);
+    return `<button type="button" class="receipt-mini-btn" style="padding:5px 9px;font-size:11px;${active ? "background:var(--accent-cta-bg, var(--accent-grad));color:var(--accent-cta-text, #fff);border-color:transparent;" : ""}" onclick="toggleCreateAmenity('${k}')">${AMENITIES[k][S.lang]}</button>`;
+  }).join("");
+
+  return `
+    <div class="modal-overlay" onclick="closeCreateClubModal()">
+      <div class="settings-modal" onclick="event.stopPropagation()">
+        <div class="settings-modal-head">
+          <button type="button" class="modal-close-btn" onclick="closeCreateClubModal()" aria-label="Close">✕</button>
+          <div style="font-size:16px;font-weight:800;color:#fff;">🏢 ${t("createClubTitle")}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">👑 Root · Подключение клуба под ключ</div>
+        </div>
+
+        <div class="settings-modal-body">
+          ${S.createClubErr ? `<div class="error-text" style="margin-bottom:10px;">❌ ${escHtml(S.createClubErr)}</div>` : ""}
+
+          <div class="info-row-box" style="margin-bottom:12px;">
+            <label style="font-size:11px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:4px;">${t("createClubNameLbl")}</label>
+            <input class="styled-select" style="margin-bottom:8px;" placeholder="CyberX Tashkent" value="${escHtml(d.name)}" oninput="setCreateField('name', this.value)">
+
+            <label style="font-size:11px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:4px;">${t("createClubAddrLbl")}</label>
+            <input class="styled-select" style="margin-bottom:8px;" placeholder="Ташкент, Юнусабад 7" value="${escHtml(d.addr)}" oninput="setCreateField('addr', this.value)">
+
+            <label style="font-size:11px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:4px;">${t("createClubLandmarkLbl")}</label>
+            <input class="styled-select" style="margin-bottom:8px;" placeholder="м. Шахристан" value="${escHtml(d.landmark)}" oninput="setCreateField('landmark', this.value)">
+
+            <label style="font-size:11px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:4px;">${t("clubLocInputLbl")}</label>
+            <input id="cc_loc_input" class="styled-select" style="margin-bottom:4px;font-family:'JetBrains Mono',monospace;font-size:12px;" placeholder="${escHtml(t("clubLocInputPlaceholder"))}" value="${escHtml(d.locInput || "")}" oninput="setCreateField('locInput', this.value)">
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+              <button type="button" class="receipt-mini-btn" style="flex:1;padding:6px 8px;font-size:11px;" onclick="detectGpsForCreateDraft()">${t("clubLocGpsBtn")}</button>
+              <button type="button" class="receipt-mini-btn" style="flex:1;padding:6px 8px;font-size:11px;" onclick="testLocationInputOnMap(S.createClubDraft.locInput, S.createClubDraft.name, S.createClubDraft.addr)">${t("clubLocTestBtn")}</button>
+            </div>
+
+            <label style="font-size:11px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:4px;">${t("createClubCardLbl")}</label>
+            <input class="styled-select" style="margin-bottom:8px;font-family:'JetBrains Mono',monospace;" placeholder="8600 1234 5678 9012" value="${escHtml(d.card)}" oninput="setCreateField('card', this.value)">
+
+            <label style="font-size:11px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:4px;">${t("createClubGpuLbl")}</label>
+            <input class="styled-select" style="margin-bottom:8px;" placeholder="RTX 4070 · 240Hz" value="${escHtml(d.gpu)}" oninput="setCreateField('gpu', this.value)">
+
+            <label style="font-size:11px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:4px;">${t("createClubContactsLbl")}</label>
+            <div style="display:flex;gap:6px;">
+              <input class="styled-select" style="margin-bottom:0;flex:1;" placeholder="@club_tg" value="${escHtml(d.tg)}" oninput="setCreateField('tg', this.value)">
+              <input class="styled-select" style="margin-bottom:0;flex:1;" placeholder="+998 90 ..." value="${escHtml(d.phone)}" oninput="setCreateField('phone', this.value)">
+            </div>
+          </div>
+
+          <div class="settings-sec-label"><span>💰 ${t("clubPricesSecTitle")}</span></div>
+          <div class="info-row-box" style="margin-bottom:12px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div>
+                <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">🖥️ Standart</div>
+                <input type="number" step="1000" min="1000" class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" value="${d.hourPrice}" oninput="setCreateField('hourPrice', +this.value)">
+              </div>
+              <div>
+                <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">👑 VIP</div>
+                <input type="number" step="1000" min="1000" class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" value="${d.vipHourPrice}" oninput="setCreateField('vipHourPrice', +this.value)">
+              </div>
+              <div>
+                <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">🎮 PS5</div>
+                <input type="number" step="1000" min="1000" class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" value="${d.ps5HourPrice}" oninput="setCreateField('ps5HourPrice', +this.value)">
+              </div>
+              <div>
+                <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">🥽 VR</div>
+                <input type="number" step="1000" min="1000" class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" value="${d.vrHourPrice}" oninput="setCreateField('vrHourPrice', +this.value)">
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-sec-label">
+            <span>🕒 ${t("clubHoursSecTitle")}</span>
+            <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-cyan);font-size:11px;">
+              ${Number(d.open) === 0 && Number(d.close) === 24 ? "24/7" : `${hh(Number(d.open))}–${Number(d.close) === 24 ? "00:00" : hh(Number(d.close))}`}
+            </span>
+          </div>
+          <div class="info-row-box" style="margin-bottom:14px;">
+            <div class="toggle-seg-2" style="margin-bottom:${Number(d.open) === 0 && Number(d.close) === 24 ? "0" : "10px"};">
+              <button type="button" class="toggle-seg-btn ${Number(d.open) === 0 && Number(d.close) === 24 ? "active-green" : ""}" onclick="setCreateWorkMode(true)">${t("clubHours247")}</button>
+              <button type="button" class="toggle-seg-btn ${!(Number(d.open) === 0 && Number(d.close) === 24) ? "active-blue" : ""}" onclick="setCreateWorkMode(false)">${t("clubHoursCustom")}</button>
+            </div>
+            ${!(Number(d.open) === 0 && Number(d.close) === 24) ? `
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">${t("clubHoursOpenLbl")}</div>
+                  <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="setCreateField('open', +this.value, true)">
+                    ${[...Array(24)].map((_, hr) => `<option value="${hr}" ${Number(d.open) === hr ? "selected" : ""}>${hh(hr)}</option>`).join("")}
+                  </select>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">${t("clubHoursCloseLbl")}</div>
+                  <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="setCreateField('close', +this.value, true)">
+                    ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24].map(hr => `<option value="${hr}" ${Number(d.close) === hr ? "selected" : ""}>${hr === 24 ? "24:00 (00:00)" : hh(hr)}</option>`).join("")}
+                  </select>
+                </div>
+              </div>
+              ${Number(d.close) < Number(d.open) ? `<div style="margin-top:6px;font-size:11px;color:var(--neon-cyan);font-weight:700;">${t("clubHoursOvernightHint")}</div>` : ""}
+            ` : ""}
+          </div>
+
+          <div class="settings-sec-label">
+            <span>👥 ${t("clubAdminsSecTitle")}</span>
+            <span class="badge badge-purple" style="font-size:10px;">${adminsCount}/${MAX_CLUB_ADMINS}</span>
+          </div>
+          <div class="info-row-box" style="margin-bottom:12px;">
+            <div class="admin-add-row" style="margin-top:0;">
+              <input type="text" inputmode="numeric" class="styled-select" style="margin-bottom:0;flex:1;font-family:'JetBrains Mono',monospace;" placeholder="${escHtml(t("clubAdminsPlaceholder"))}" value="${escHtml(S.createClubAdminInput)}" ${atLimit ? "disabled" : ""} oninput="S.createClubAdminInput=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();addCreateAdminId();}">
+              <button type="button" class="receipt-mini-btn" style="padding:8px 11px;" ${atLimit ? "disabled" : ""} onclick="addCreateAdminId()">${t("clubAdminsAddBtn")}</button>
+            </div>
+            <div class="admin-id-chips">${adminChipsHtml}</div>
+          </div>
+
+          <div class="settings-sec-label"><span>📐 ${t("createClubPresetLbl")}</span></div>
+          <div class="info-row-box" style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px;${d.preset === "arena" ? "background:var(--accent-cta-bg, var(--accent-grad));color:var(--accent-cta-text, #fff);border-color:transparent;" : ""}" onclick="setCreateField('preset', 'arena', true)">🏛️ Арена</button>
+            <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px;${d.preset === "bootcamp" ? "background:var(--accent-cta-bg, var(--accent-grad));color:var(--accent-cta-text, #fff);border-color:transparent;" : ""}" onclick="setCreateField('preset', 'bootcamp', true)">⚔️ 5v5</button>
+            <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px;${d.preset === "clear" ? "background:var(--accent-cta-bg, var(--accent-grad));color:var(--accent-cta-text, #fff);border-color:transparent;" : ""}" onclick="setCreateField('preset', 'clear', true)">🧹 Пусто</button>
+          </div>
+
+          <div class="settings-sec-label"><span>✨ ${t("createClubAmenitiesLbl")}</span></div>
+          <div class="info-row-box" style="display:flex;gap:5px;flex-wrap:wrap;">
+            ${amenitiesHtml}
+          </div>
+        </div>
+
+        <div class="settings-modal-footer">
+          <button type="button" class="cta-btn btn-secondary" style="flex:0.75;padding:12px;font-size:13px;" onclick="closeCreateClubModal()">${t("clubSettingsCancelBtn")}</button>
+          <button type="button" class="cta-btn ok" style="flex:1.35;padding:12px;font-size:13px;" onclick="submitCreateClub()">${t("createClubSubmitBtn")}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function openCreateClubModal() {
+  S.createClubDraft = {
+    name: "", addr: "", landmark: "", locInput: "", card: "", gpu: "RTX 4070 · 240Hz",
+    open: 0, close: 24, tg: "", phone: "", subFee: 200000,
+    hourPrice: 15000, vipHourPrice: 25000, ps5HourPrice: 20000, vrHourPrice: 30000,
+    adminIds: [String(getClientUserId())],
+    preset: "arena",
+    amenities: ["ac", "gigabit"]
+  };
+  S.createClubAdminInput = "";
+  S.createClubErr = "";
+  haptic();
+  render();
+}
+
+function detectGpsForCreateDraft() {
+  if (!S.createClubDraft) return;
+  detectGpsForTarget(coordStr => {
+    if (!S.createClubDraft) return;
+    S.createClubDraft.locInput = coordStr;
+    const inp = $("cc_loc_input");
+    if (inp) inp.value = coordStr;
+  });
+}
+
+function setCreateWorkMode(is247) {
+  if (!S.createClubDraft) return;
+  if (is247) {
+    S.createClubDraft.open = 0;
+    S.createClubDraft.close = 24;
+  } else {
+    if (Number(S.createClubDraft.open) === 0 && Number(S.createClubDraft.close) === 24) {
+      S.createClubDraft.open = 10;
+      S.createClubDraft.close = 24;
+    }
+  }
+  haptic();
+  render();
+}
+
+function closeCreateClubModal() {
+  S.createClubDraft = null;
+  S.createClubAdminInput = "";
+  S.createClubErr = "";
+  haptic();
+  render();
+}
+
+function setCreateField(field, val, shouldRender = false) {
+  if (!S.createClubDraft) return;
+  S.createClubDraft[field] = val;
+  if (S.createClubErr) S.createClubErr = "";
+  if (shouldRender) { haptic(); render(); }
+}
+
+function toggleCreateAmenity(k) {
+  if (!S.createClubDraft) return;
+  const list = S.createClubDraft.amenities;
+  const idx = list.indexOf(k);
+  if (idx >= 0) list.splice(idx, 1);
+  else list.push(k);
+  haptic();
+  render();
+}
+
+function addCreateAdminId() {
+  if (!S.createClubDraft) return;
+  const raw = String(S.createClubAdminInput || "").trim();
+  if (!/^\d{1,20}$/.test(raw)) { S.createClubErr = t("clubAdminsErrFormat"); haptic("warning"); return render(); }
+  if (S.createClubDraft.adminIds.length >= MAX_CLUB_ADMINS) { S.createClubErr = t("clubAdminsErrMax"); haptic("warning"); return render(); }
+  if (S.createClubDraft.adminIds.includes(raw)) { S.createClubErr = t("clubAdminsErrDup"); haptic("warning"); return render(); }
+  S.createClubDraft.adminIds.push(raw);
+  S.createClubAdminInput = "";
+  S.createClubErr = "";
+  haptic("success");
+  render();
+}
+
+function removeCreateAdminId(aid) {
+  if (!S.createClubDraft) return;
+  S.createClubDraft.adminIds = S.createClubDraft.adminIds.filter(x => x !== String(aid));
+  haptic();
+  render();
+}
+
+async function submitCreateClub() {
+  const d = S.createClubDraft;
+  if (!d) return;
+  const pendingAdmin = String(S.createClubAdminInput || "").trim();
+  if (pendingAdmin) {
+    if (!/^\d{1,20}$/.test(pendingAdmin)) { S.createClubErr = t("clubAdminsErrFormat"); haptic("warning"); return render(); }
+    if (!d.adminIds.includes(pendingAdmin) && d.adminIds.length < MAX_CLUB_ADMINS) d.adminIds.push(pendingAdmin);
+    S.createClubAdminInput = "";
+  }
+  if (!String(d.name || "").trim()) { S.createClubErr = t("createClubErrName"); haptic("warning"); return render(); }
+  if (!String(d.addr || "").trim()) { S.createClubErr = t("createClubErrAddr"); haptic("warning"); return render(); }
+  if (!String(d.card || "").trim()) { S.createClubErr = t("createClubErrCard"); haptic("warning"); return render(); }
+  if (d.adminIds.length < 1) { S.createClubErr = t("clubAdminsErrMin"); haptic("warning"); return render(); }
+
+  const nextId = Math.max(100, ...clubs.map(x => Number(x.id) || 0)) + 1;
+  const parsedLoc = parseClubLocationInput(d.locInput);
+  const newClub = upsertClubFromData({
+    id: nextId,
+    name: d.name.trim(),
+    addr: d.addr.trim(),
+    landmark: d.landmark.trim(),
+    lat: parsedLoc.lat,
+    lng: parsedLoc.lng,
+    mapUrl: parsedLoc.mapUrl,
+    open: Number.isFinite(Number(d.open)) ? Number(d.open) : 0,
+    close: Number.isFinite(Number(d.close)) ? Number(d.close) : 24,
+    card: d.card.trim(),
+    gpu: d.gpu.trim() || "RTX 4070 · 240Hz",
+    contact: { tg: d.tg.trim(), phone: d.phone.trim(), public: Boolean(d.tg.trim() || d.phone.trim()) },
+    amenities: d.amenities.slice(),
+    subFee: Number(d.subFee) || 200000,
+    hourPrice: Math.max(1000, Number(d.hourPrice) || 15000),
+    vipHourPrice: Math.max(1000, Number(d.vipHourPrice) || 25000),
+    ps5HourPrice: Math.max(1000, Number(d.ps5HourPrice) || 20000),
+    vrHourPrice: Math.max(1000, Number(d.vrHourPrice) || 30000),
+    adminIds: d.adminIds.slice(),
+    preset: d.preset || "arena",
+    ok: true,
+    gone: false,
+    subPaid: true,
+    suspended: false,
+    hidden: false
+  });
+  saveBlueprintsLocal();
+  await syncClubState(newClub);
+  S.createClubDraft = null;
+  S.createClubAdminInput = "";
+  S.createClubErr = "";
+  haptic("success");
+  showToast(t("createClubSavedToast"));
+}
+
+function openClubAdminFromSettings() {
+  if (S.settingsClubId === null) return;
+  if (isClubSettingsDirty()) {
+    S.settingsConfirmAction = "admin";
+    haptic("warning");
+    render();
+    return;
+  }
+  const targetId = S.settingsClubId;
+  clearClubSettingsModalState();
+  S.adminClubId = targetId;
+  S.role = "admin";
+  haptic();
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function shotPreviewModal() {
+  if (!S.previewShotImg) return "";
+  return `
+    <div class="modal-overlay" style="z-index:1300;" onclick="closeShotPreview()">
+      <div class="info-modal" style="max-width:400px;padding:14px;text-align:center;" onclick="event.stopPropagation()">
+        <button type="button" class="modal-close-btn" onclick="closeShotPreview()" aria-label="Close">✕</button>
+        <div style="font-size:15px;font-weight:800;margin-bottom:10px;color:var(--text);">🖼️ Чек об оплате</div>
+        <img src="${S.previewShotImg}" alt="Receipt Preview" style="max-width:100%;max-height:70vh;border-radius:14px;border:1px solid var(--border);object-fit:contain;">
+      </div>
+    </div>
+  `;
+}
+
+function openShotPreview(bookingId) {
+  const item = bk.find(b => String(b.id) === String(bookingId));
+  if (!item || !item.shotImg) return;
+  S.previewShotImg = item.shotImg;
+  haptic();
+  render();
+}
+
+function closeShotPreview() {
+  S.previewShotImg = "";
+  haptic();
+  render();
+}
+
 let lastRenderedScreenKey = "";
 function render() {
-  if (S.role !== "user" && S.role !== S.authRole) {
+  const canUseRole = r => r === "user" || r === S.authRole || (S.authRole === "sys" && r === "admin");
+  if (!canUseRole(S.role)) {
     S.role = "user";
   }
   const prevSettingsBody = document.querySelector(".settings-modal-body");
@@ -5687,7 +6968,7 @@ function render() {
   const sameScreen = screenKey === lastRenderedScreenKey;
   lastRenderedScreenKey = screenKey;
   rootEl.classList.toggle("no-anim", sameScreen);
-  rootEl.innerHTML = head() + v + playerBottomNav() + sysBottomNav() + clubInfoModal() + receiptModal() + clubSettingsModal() + clubSettingsConfirmModal() + themeDrawerModal() + (S.toast ? `<div class="toast-msg">${escHtml(S.toast)}</div>` : "");
+  rootEl.innerHTML = head() + v + playerBottomNav() + sysBottomNav() + clubInfoModal() + receiptModal() + clubSettingsModal() + clubSettingsConfirmModal() + createClubModal() + themeDrawerModal() + shotPreviewModal() + mapSheetModal() + (S.toast ? `<div class="toast-msg">${escHtml(S.toast)}</div>` : "");
   applyAppleEmojis(rootEl);
   if (prevSettingsScroll > 0) {
     const nextSettingsBody = document.querySelector(".settings-modal-body");
@@ -5695,60 +6976,39 @@ function render() {
   }
 }
 
-function detectAuthRole(switchActiveRole = true) {
-  const tgUser = getTelegramUser();
-  if (tgUser && tgUser.id) {
-    const numId = Number(tgUser.id);
-    const strId = String(tgUser.id);
-
-    if (SUPER_ADMIN_IDS.has(numId)) {
-      S.authRole = "sys";
-      if (switchActiveRole) S.role = "sys";
-      return;
-    }
-    const matchedClub = findClubByAdminTgId(strId);
-    if (matchedClub) {
-      S.authRole = "admin";
-      S.adminClubId = matchedClub.id;
-      if (switchActiveRole) S.role = "admin";
-      return;
-    }
-    if (CLUB_ADMIN_REGISTRY[strId]) {
-      S.authRole = "admin";
-      S.adminClubId = Number(CLUB_ADMIN_REGISTRY[strId]) || 1;
-      if (switchActiveRole) S.role = "admin";
-      return;
-    }
-  }
-  if (S.authRole !== "sys") {
-    S.authRole = "user";
-    if (switchActiveRole || S.role === "admin") S.role = "user";
-  }
-}
-
 function applyPersonaRoleFromClubAdmins(_p, switchActiveRole = false) {
-  detectAuthRole(switchActiveRole);
+  const uid = getClientUserId();
+  if (SUPER_ADMIN_IDS.has(String(uid))) {
+    S.authRole = "sys";
+    if (!S.adminClubId && clubs.length) S.adminClubId = clubs[0].id;
+    return;
+  }
+  const matchedClub = findClubByAdminTgId(uid);
+  if (matchedClub) {
+    S.authRole = "admin";
+    S.adminClubId = matchedClub.id;
+    if (switchActiveRole && S.role === "sys") S.role = "admin";
+  } else {
+    S.authRole = "user";
+    if (S.role !== "user") S.role = "user";
+  }
 }
 
 function setRole(r) {
-  if (r !== "user" && r !== S.authRole) return;
+  if (r !== "user" && r !== S.authRole && !(S.authRole === "sys" && r === "admin")) return;
   S.role = r;
   S.err = "";
   haptic();
   render();
 }
-
 function setLang() { S.lang = S.lang === "ru" ? "uz" : "ru"; haptic(); render(); }
 function go(v) { S.view = v; S.err = ""; haptic(); render(); }
 function openClub(id) {
   const c = C(id);
-  const nowH = new Date().getHours();
-  const openH = (c && c.open) || 0;
-  const closeH = (c && c.close) || 24;
   S.club = id;
   S.squadSeats = [];
   S.day = 0;
-  S.start = Math.min(Math.max(openH, nowH), closeH - 1);
+  S.start = getValidClubHour(c, 0, new Date().getHours());
   go("club");
 }
 function openSeat(s) {
@@ -5758,12 +7018,33 @@ function openSeat(s) {
 }
 
 function onShotPicked(input) {
-  const name = input.files && input.files[0] ? input.files[0].name : "";
+  const file = input.files && input.files[0];
+  const name = file ? file.name : "";
   S.shot = name;
+  S.shotImg = "";
   S.err = "";
-  const fnEl = $("fn");
-  if (fnEl) fnEl.textContent = name ? ("📎 " + name) : t("attach");
   haptic();
+  if (!file) { render(); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 540;
+      const scale = img.width > maxW ? (maxW / img.width) : 1;
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      const cv = document.createElement("canvas");
+      cv.width = w;
+      cv.height = h;
+      const ctx = cv.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      S.shotImg = cv.toDataURL("image/jpeg", 0.6);
+      render();
+    };
+    img.onerror = () => { render(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function copyCard(num) {
@@ -5821,9 +7102,11 @@ function submitClubRating(clubId, stars) {
   const rec = { clubId: Number(clubId), uid: String(uid), stars: s, updatedAt: Date.now() };
   clubRatings[key] = rec;
   try {
-    localStorage.setItem("nova_ratings_v1", JSON.stringify(clubRatings));
+    localStorage.setItem("nova_prod_ratings_v1", JSON.stringify(clubRatings));
   } catch (e) {}
-  fsSet(COL_RATINGS, key, rec);
+  if (db) {
+    db.collection(COL_RATINGS).doc(key).set(rec).catch(() => {});
+  }
   haptic("success");
   showToast(t("ratedToast"));
 }
@@ -5856,7 +7139,9 @@ function rateClubFromHistory(clubId, ev) {
 
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
-    if (S.settingsConfirmAction) cancelSettingsConfirm();
+    if (S.mapSheetClubId) closeMapSheet();
+    else if (S.settingsConfirmAction) cancelSettingsConfirm();
+    else if (S.createClubDraft) closeCreateClubModal();
     else if (S.themeOpen) closeThemeDrawer();
     else if (S.settingsClubId !== null) requestCloseClubSettings();
     else if (S.receiptId !== null) closeReceipt();
@@ -5878,31 +7163,61 @@ function toPay() {
   if (closedAt(c.id, S.day, S.start, h)) { S.err = t("closed"); haptic("warning"); return render(); }
   if (clash(c.id, S.seat, S.day, S.start, h)) { S.err = t("conflict"); haptic("warning"); return render(); }
   S.shot = "";
+  S.shotImg = "";
   go("pay");
 }
 
 function saveBookingCloud(item) {
-  fsSet(COL_BOOKINGS, String(item.id), item);
+  if (!db) return;
+  db.collection(COL_BOOKINGS).doc(String(item.id)).set(item).catch(console.error);
 }
 
 function saveClubCloud(c) {
-  fsSet(COL_CLUBS, String(c.id), {
-    id: Number(c.id),
+  if (!db) return;
+  const payload = {
+    id: c.id,
     ok: !!c.ok,
     gone: !!c.gone,
     subPaid: c.subPaid !== false,
     suspended: !!c.suspended,
     hidden: !!c.hidden,
-    adminIdsJson: JSON.stringify(normalizeAdminIds(c.adminIds, String(2000 + Number(c.id)))),
+    open: Number.isFinite(Number(c.open)) ? Number(c.open) : 0,
+    close: Number.isFinite(Number(c.close)) ? Number(c.close) : 24,
+    addr: String(c.addr || ""),
+    landmark: String(c.landmark || ""),
+    lat: isValidLatLng(Number(c.lat), Number(c.lng)) ? Number(c.lat) : null,
+    lng: isValidLatLng(Number(c.lat), Number(c.lng)) ? Number(c.lng) : null,
+    mapUrl: String(c.mapUrl || ""),
+    adminIds: normalizeAdminIds(c.adminIds, String(2000 + Number(c.id))),
     hourPrice: Number(c.hourPrice) || 30000,
     vipHourPrice: Number(c.vipHourPrice) || 45000,
     ps5HourPrice: Number(c.ps5HourPrice) || 42000,
     vrHourPrice: Number(c.vrHourPrice) || 55000,
-    floorMapJson: c.floorMap ? JSON.stringify(c.floorMap) : ""
-  });
+    floorMap: c.floorMap || null
+  };
+  if (c.isCustom) {
+    Object.assign(payload, {
+      isCustom: true,
+      logo: c.logo,
+      name: c.name,
+      addr: c.addr,
+      landmark: c.landmark || "",
+      mapUrl: c.mapUrl || "",
+      open: c.open,
+      close: c.close,
+      card: c.card,
+      subFee: Number(c.subFee) || 200000,
+      gpu: c.gpu || "",
+      specs: c.specs || null,
+      contact: c.contact || null,
+      amenities: Array.isArray(c.amenities) ? c.amenities : []
+    });
+  }
+  db.collection(COL_CLUBS).doc(String(c.id)).set(payload, { merge: true }).catch(console.error);
 }
 
 async function submitPay() {
+  if (S.submitting) return;
   if (!S.shot) { S.err = t("needShot"); haptic("warning"); return render(); }
   const c = C(S.club);
   const seatTars = c ? getTariffsForSeat(c, S.seat) : null;
@@ -5914,54 +7229,39 @@ async function submitPay() {
   if (closedAt(c.id, S.day, S.start, x[0])) { S.err = t("closed"); haptic("warning"); return render(); }
   if (clash(c.id, S.seat, S.day, S.start, x[0])) { S.err = t("conflict"); haptic("warning"); return render(); }
 
-  const newItem = {
-    id: newBookingId(),
-    club: c.id,
-    seat: S.seat,
-    day: S.day,
-    start: S.start,
-    hours: x[0],
-    price: x[1],
-    st: "new",
-    by: "user",
-    ownerId: getClientUserId(),
-    shot: S.shot,
-    created: Date.now()
-  };
-
-  if (serverOnline) {
-    const res = await apiPost("/api/bookings/create", newItem);
-    if (!res.data.ok) {
-      S.err = res.data.error || "Ошибка сервера";
-      haptic("warning");
-      return render();
-    }
-  } else {
+  S.submitting = true;
+  try {
+    const newItem = {
+      id: newBookingId(),
+      club: c.id,
+      seat: S.seat,
+      day: S.day,
+      start: S.start,
+      hours: x[0],
+      price: x[1],
+      st: "new",
+      by: "user",
+      ownerId: getClientUserId(),
+      shot: S.shot,
+      shotImg: S.shotImg || "",
+      created: Date.now()
+    };
     bk.push(newItem);
     saveBookingCloud(newItem);
+    haptic("success");
+    S.view = "home";
+    S.err = "";
+    showToast(t("sent"));
+  } finally {
+    setTimeout(() => { S.submitting = false; }, 1200);
   }
-
-  haptic("success");
-  S.view = "home";
-  S.err = "";
-  showToast(t("sent"));
 }
 
 async function decide(id, st) {
   const item = bk.find(b => String(b.id) === String(id));
   if (!item) return;
-
-  if (serverOnline) {
-    const res = await apiPost("/api/bookings/decide", { id: item.id, st, club: item.club });
-    if (!res.data.ok) {
-      showToast("⛔ " + (res.data.error || "Доступ запрещён"));
-      haptic("warning");
-      return;
-    }
-  } else {
-    item.st = st;
-    saveBookingCloud(item);
-  }
+  item.st = st;
+  saveBookingCloud(item);
   haptic("success");
   render();
 }
@@ -5983,18 +7283,8 @@ async function manual(clubId) {
     by: "manual",
     created: Date.now()
   };
-
-  if (serverOnline) {
-    const res = await apiPost("/api/bookings/manual", newItem);
-    if (!res.data.ok) {
-      S.err = res.data.error || "Доступ запрещён";
-      haptic("warning");
-      return render();
-    }
-  } else {
-    bk.push(newItem);
-    saveBookingCloud(newItem);
-  }
+  bk.push(newItem);
+  saveBookingCloud(newItem);
   S.err = "";
   S.tab = "active";
   haptic("success");
@@ -6008,25 +7298,7 @@ function setSysTab(k) {
 }
 
 async function syncClubState(c) {
-  if (serverOnline) {
-    const res = await apiPost("/api/clubs/action", {
-      id: c.id,
-      ok: !!c.ok,
-      gone: !!c.gone,
-      subPaid: c.subPaid !== false,
-      suspended: !!c.suspended,
-      hidden: !!c.hidden,
-      adminIds: normalizeAdminIds(c.adminIds, String(2000 + Number(c.id)))
-    });
-    if (!res.data.ok) {
-      showToast("⛔ " + (res.data.error || "Доступ запрещён"));
-      haptic("warning");
-      return false;
-    }
-    saveClubCloud(c);
-  } else {
-    saveClubCloud(c);
-  }
+  saveClubCloud(c);
   return true;
 }
 
@@ -6057,6 +7329,11 @@ function openClubSettings(clubId) {
     subPaid: c.subPaid !== false,
     suspended: !!c.suspended,
     hidden: !!c.hidden,
+    open: Number.isFinite(Number(c.open)) ? Number(c.open) : 0,
+    close: Number.isFinite(Number(c.close)) ? Number(c.close) : 24,
+    addr: String(c.addr || ""),
+    landmark: String(c.landmark || ""),
+    locInput: formatClubLocInputValue(c),
     hourPrice: stdBase,
     vipHourPrice: Number(c.vipHourPrice) || Math.round(stdBase * 1.5),
     ps5HourPrice: Number(c.ps5HourPrice) || Math.round(stdBase * 1.4),
@@ -6087,6 +7364,101 @@ function updateClubSettingsDirtyDOM() {
   if (saveBtn) {
     saveBtn.className = "cta-btn " + (dirty && adminsValid ? "ok" : (!dirty ? "btn-muted" : "btn-danger-soft"));
   }
+}
+
+function setDraftWorkMode(is247) {
+  if (!S.settingsDraft) return;
+  if (is247) {
+    S.settingsDraft.open = 0;
+    S.settingsDraft.close = 24;
+  } else if (Number(S.settingsDraft.open) === 0 && Number(S.settingsDraft.close) === 24) {
+    S.settingsDraft.open = 10;
+    S.settingsDraft.close = 24;
+  }
+  haptic();
+  render();
+}
+
+async function adminUpdateClubHours(clubId, openVal, closeVal) {
+  const c = C(clubId);
+  if (!c) return;
+  if (S.authRole !== "sys" && Number(S.adminClubId) !== Number(c.id)) {
+    haptic("warning");
+    return;
+  }
+  c.open = Number.isFinite(Number(openVal)) ? Number(openVal) : 0;
+  c.close = Number.isFinite(Number(closeVal)) ? Number(closeVal) : 24;
+  c.nightPack = (c.open === 0 && c.close === 24) || (c.close < c.open);
+  saveBlueprintsLocal();
+  const ok = await syncClubState(c);
+  if (!ok) return;
+  haptic("success");
+  showToast(`🕒 ${formatClubHoursLabel(c, true)}`);
+}
+
+function onDraftLocField(field, val) {
+  if (!S.settingsDraft) return;
+  S.settingsDraft[field] = val;
+  if (field === "locInput") {
+    const badge = $("cs_loc_badge");
+    if (badge) {
+      const ok = parseClubLocationInput(val).lat !== null;
+      badge.className = "badge " + (ok ? "badge-green" : "badge-yellow");
+      badge.textContent = ok ? t("mapExactPin") : t("mapTextSearch");
+    }
+  }
+  updateClubSettingsDirtyDOM();
+}
+
+function detectGpsForSettingsDraft() {
+  if (!S.settingsDraft) return;
+  detectGpsForTarget(coordStr => {
+    if (!S.settingsDraft) return;
+    S.settingsDraft.locInput = coordStr;
+    const inp = $("cs_loc_input");
+    if (inp) inp.value = coordStr;
+    onDraftLocField("locInput", coordStr);
+  });
+}
+
+function detectGpsForAdminLoc() {
+  detectGpsForTarget(coordStr => {
+    const inp = $("admin_loc_coords");
+    if (inp) inp.value = coordStr;
+  });
+}
+
+function testAdminLocInput(clubId) {
+  const c = C(clubId);
+  const coordsEl = $("admin_loc_coords");
+  const addrEl = $("admin_loc_addr");
+  testLocationInputOnMap(coordsEl ? coordsEl.value : "", c ? c.name : "", addrEl ? addrEl.value : (c ? c.addr : ""));
+}
+
+async function adminSaveClubLocation(clubId) {
+  const c = C(clubId);
+  if (!c) return;
+  if (S.authRole !== "sys" && Number(S.adminClubId) !== Number(c.id)) {
+    haptic("warning");
+    return;
+  }
+  const addrEl = $("admin_loc_addr");
+  const lmEl = $("admin_loc_landmark");
+  const coordsEl = $("admin_loc_coords");
+  const newAddr = addrEl ? addrEl.value.trim() : c.addr;
+  const newLm = lmEl ? lmEl.value.trim() : (c.landmark || "");
+  const rawLoc = coordsEl ? coordsEl.value.trim() : "";
+  const parsed = parseClubLocationInput(rawLoc);
+  if (newAddr) c.addr = newAddr;
+  c.landmark = newLm;
+  c.lat = parsed.lat;
+  c.lng = parsed.lng;
+  c.mapUrl = parsed.mapUrl;
+  saveBlueprintsLocal();
+  const ok = await syncClubState(c);
+  if (!ok) return;
+  haptic("success");
+  showToast(t("clubLocSavedToast"));
 }
 
 function setDraftField(field, val) {
@@ -6210,6 +7582,13 @@ function confirmDiscardClubSettings() {
     openClubBlueprintEditor(targetId);
     return;
   }
+  if (action === "admin" && targetId) {
+    S.adminClubId = targetId;
+    S.role = "admin";
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
   render();
 }
 
@@ -6267,6 +7646,15 @@ async function saveClubSettingsDraft() {
   c.subPaid = !!d.subPaid;
   c.suspended = !!d.suspended;
   c.hidden = !!d.hidden;
+  c.open = Number.isFinite(Number(d.open)) ? Number(d.open) : 0;
+  c.close = Number.isFinite(Number(d.close)) ? Number(d.close) : 24;
+  c.nightPack = (c.open === 0 && c.close === 24) || (c.close < c.open);
+  if (String(d.addr || "").trim()) c.addr = String(d.addr).trim();
+  c.landmark = String(d.landmark || "").trim();
+  const parsedLoc = parseClubLocationInput(d.locInput);
+  c.lat = parsedLoc.lat;
+  c.lng = parsedLoc.lng;
+  c.mapUrl = parsedLoc.mapUrl;
   c.adminIds = normalizeAdminIds(d.adminIds);
   applyClubHourPrice(c, d.hourPrice, d.vipHourPrice, d.ps5HourPrice, d.vrHourPrice);
   saveBlueprintsLocal();
@@ -6278,66 +7666,55 @@ async function saveClubSettingsDraft() {
   showToast(t("clubSettingsSavedToast"));
 }
 
-async function syncCloudNow() {
+function initFirebase() {
+  if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId || typeof firebase === "undefined") {
+    return;
+  }
   try {
-    let changed = false;
-
-    const uid = getClientUserId();
-    if (uid && !uid.startsWith("guest_")) {
-      const rData = await fsGet(COL_ROLES, String(uid));
-      if (rData) {
-        if (rData.role === "sys" && S.authRole !== "sys") {
-          S.authRole = "sys";
-          S.role = "sys";
-          changed = true;
-        } else if (rData.role === "admin" && S.authRole !== "admin" && S.authRole !== "sys") {
-          S.authRole = "admin";
-          S.adminClubId = Number(rData.clubId) || 1;
-          S.role = "admin";
-          changed = true;
-        }
-      }
+    if (!firebase.apps.length) {
+      firebase.initializeApp(FIREBASE_CONFIG);
     }
+    db = firebase.firestore();
 
-    const [bkDocs, clubDocs, ratingDocs] = await Promise.all([
-      fsList(COL_BOOKINGS),
-      fsList(COL_CLUBS),
-      fsList(COL_RATINGS)
-    ]);
-
-    if (Array.isArray(bkDocs)) {
+    db.collection(COL_BOOKINGS).onSnapshot(snap => {
       fbLive = true;
-      if (bkDocs.length === 0 && !seededBookings) {
+      if (snap.empty && !seededBookings) {
         seededBookings = true;
         bk.forEach(item => saveBookingCloud(item));
-      } else if (bkDocs.length > 0) {
-        const remote = bkDocs.map(d => d.data);
+      } else {
+        const remote = [];
+        snap.forEach(doc => remote.push(doc.data()));
         remote.sort((a, b) => (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id)));
         bk = remote;
       }
-    }
+      safeRenderPreserveModalFocus();
+    }, err => console.error("Firestore bookings error:", err));
 
-    if (Array.isArray(clubDocs)) {
-      if (clubDocs.length === 0 && !seededClubs) {
+    db.collection(COL_CLUBS).onSnapshot(snap => {
+      if (snap.empty && !seededClubs) {
         seededClubs = true;
         clubs.forEach(c => saveClubCloud(c));
       } else {
-        clubDocs.forEach(d => {
-          const data = d.data;
-          const target = C(data.id);
+        snap.forEach(doc => {
+          const data = doc.data();
+          const target = C(data.id) || upsertClubFromData(data);
           if (target) {
             target.ok = !!data.ok;
             target.gone = !!data.gone;
             if (typeof data.subPaid === "boolean") target.subPaid = data.subPaid;
             if (typeof data.suspended === "boolean") target.suspended = data.suspended;
             if (typeof data.hidden === "boolean") target.hidden = data.hidden;
-            if (typeof data.adminIdsJson === "string" && data.adminIdsJson.startsWith("[")) {
-              try {
-                const parsedIds = JSON.parse(data.adminIdsJson);
-                if (Array.isArray(parsedIds) && parsedIds.length) {
-                  target.adminIds = normalizeAdminIds(parsedIds, String(2000 + Number(target.id)));
-                }
-              } catch (e) {}
+            if (Number.isFinite(Number(data.open))) target.open = Number(data.open);
+            if (Number.isFinite(Number(data.close))) target.close = Number(data.close);
+            if (typeof data.addr === "string" && data.addr.trim()) target.addr = data.addr.trim();
+            if (typeof data.landmark === "string") target.landmark = data.landmark;
+            if (data.lat !== undefined || data.lng !== undefined) {
+              target.lat = isValidLatLng(Number(data.lat), Number(data.lng)) ? Number(data.lat) : null;
+              target.lng = isValidLatLng(Number(data.lat), Number(data.lng)) ? Number(data.lng) : null;
+            }
+            if (typeof data.mapUrl === "string") target.mapUrl = data.mapUrl;
+            if (Array.isArray(data.adminIds) && data.adminIds.length) {
+              target.adminIds = normalizeAdminIds(data.adminIds, String(2000 + Number(target.id)));
             }
             if (Number(data.hourPrice) > 0 || Number(data.vipHourPrice) > 0 || Number(data.ps5HourPrice) > 0 || Number(data.vrHourPrice) > 0) {
               applyClubHourPrice(
@@ -6348,55 +7725,33 @@ async function syncCloudNow() {
                 Number(data.vrHourPrice) || target.vrHourPrice
               );
             }
-            if (typeof data.floorMapJson === "string" && data.floorMapJson.startsWith("{")) {
-              try {
-                const parsedMap = JSON.parse(data.floorMapJson);
-                if (parsedMap && parsedMap.size && parsedMap.cells) {
-                  target.floorMap = parsedMap;
-                }
-              } catch (e) {}
+            if (data.floorMap && data.floorMap.size && data.floorMap.cells) {
+              target.floorMap = data.floorMap;
             }
           }
         });
-        const prevAuth = S.authRole;
-        const prevClub = S.adminClubId;
-        detectAuthRole(false);
-        if (S.authRole !== prevAuth || S.adminClubId !== prevClub) changed = true;
+        applyPersonaRoleFromClubAdmins(S.persona, false);
       }
-    }
+      safeRenderPreserveModalFocus();
+    }, err => console.error("Firestore clubs error:", err));
 
-    if (Array.isArray(ratingDocs) && ratingDocs.length > 0) {
+    db.collection(COL_RATINGS).onSnapshot(snap => {
       const merged = { ...clubRatings };
-      ratingDocs.forEach(d => {
-        const r = d.data;
-        if (r && r.clubId && r.uid && r.stars) {
-          merged[d._id] = r;
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d && d.clubId && d.uid && d.stars) {
+          merged[doc.id] = d;
         }
       });
       clubRatings = merged;
       try {
-        localStorage.setItem("nova_ratings_v1", JSON.stringify(clubRatings));
+        localStorage.setItem("nova_prod_ratings_v1", JSON.stringify(clubRatings));
       } catch (e) {}
-    }
-
-    const newSig = JSON.stringify({
-      r: S.authRole,
-      ac: S.adminClubId,
-      b: bk.map(x => [x.id, x.st, x.seat, x.club, x.day, x.start, x.hours]),
-      c: clubs.map(x => [x.id, x.ok, x.gone, x.subPaid, x.suspended, x.hidden, x.hourPrice, x.vipHourPrice, x.ps5HourPrice, x.vrHourPrice, x.adminIds]),
-      rt: Object.keys(clubRatings).length
-    });
-
-    if (newSig !== lastCloudSig || changed) {
-      lastCloudSig = newSig;
       safeRenderPreserveModalFocus();
-    }
-  } catch (e) {}
-}
-
-function initFirebase() {
-  syncCloudNow();
-  setInterval(syncCloudNow, 5000);
+    }, () => {});
+  } catch (e) {
+    console.error("Firebase init error:", e);
+  }
 }
 
 setInterval(() => {
@@ -6406,8 +7761,9 @@ setInterval(() => {
     if (b.st === "new" && b.created && b.created + 3e5 <= now) {
       b.st = "exp";
       ch = true;
-      if (S.role === "admin" || String(b.ownerId || "") === String(getClientUserId())) {
-        saveBookingCloud(b);
+      // Обновляем в облаке только владелец или админ, чтобы избежать шторма записей
+      if (db && (S.role === "admin" || String(b.ownerId || "") === String(getClientUserId()))) {
+        db.collection(COL_BOOKINGS).doc(String(b.id)).update({ st: "exp" }).catch(() => {});
       }
     }
   });
@@ -6418,7 +7774,7 @@ setInterval(() => {
   });
 }, 1000);
 
-detectAuthRole(true);
+applyPersonaRoleFromClubAdmins(S.persona, true);
 render();
 initFirebase();
 </script>
