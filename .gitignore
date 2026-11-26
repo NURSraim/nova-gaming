@@ -1,0 +1,13 @@
+# Секреты (НИКОГДА не коммитить!)
+.env
+.env.*
+
+# Python кэш
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Локальные системные файлы
+.DS_Store
+Thumbs.db
