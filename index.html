@@ -2060,14 +2060,65 @@ h2.section-title {
 [data-theme="light"] .confirm-box [style*="color:#fff"] {
   color: var(--text) !important;
 }
-[data-theme="light"] .cta-btn,
-[data-theme="light"] .cta-btn * {
+[data-theme="light"] .cta-btn:not(.btn-secondary):not(.btn-muted):not(.btn-purple-soft):not(.btn-danger-soft),
+[data-theme="light"] .cta-btn:not(.btn-secondary):not(.btn-muted):not(.btn-purple-soft):not(.btn-danger-soft) * {
   color: var(--accent-cta-text, #fff) !important;
 }
 [data-theme="light"] .cta-btn.ok,
 [data-theme="light"] .cta-btn.no {
   color: #ffffff !important;
 }
+.cta-btn.btn-secondary {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #e2ddf8 !important;
+  box-shadow: none !important;
+}
+.cta-btn.btn-muted {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+}
+.cta-btn.btn-purple-soft {
+  background: rgba(168, 85, 247, 0.18) !important;
+  border: 1px solid rgba(168, 85, 247, 0.5) !important;
+  color: #e9d5ff !important;
+  box-shadow: none !important;
+}
+.cta-btn.btn-danger-soft {
+  background: rgba(255, 51, 102, 0.2) !important;
+  border: 1px solid rgba(255, 51, 102, 0.5) !important;
+  color: #ff8fa3 !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .cta-btn.btn-secondary {
+  background: #eef2f0 !important;
+  border-color: rgba(15, 23, 20, 0.16) !important;
+  color: var(--text) !important;
+}
+[data-theme="light"] .cta-btn.btn-muted {
+  background: #e9eeeb !important;
+  border-color: rgba(15, 23, 20, 0.14) !important;
+  color: var(--text-muted) !important;
+}
+[data-theme="light"] .cta-btn.btn-purple-soft {
+  background: rgba(124, 58, 237, 0.1) !important;
+  border-color: rgba(124, 58, 237, 0.36) !important;
+  color: #6d28d9 !important;
+}
+[data-theme="light"] .cta-btn.btn-danger-soft {
+  background: rgba(220, 38, 38, 0.1) !important;
+  border-color: rgba(220, 38, 38, 0.38) !important;
+  color: #dc2626 !important;
+}
+[data-theme="light"] [style*="color:#93c5fd"] { color: #1d4ed8 !important; }
+[data-theme="light"] [style*="color:#f5d0fe"] { color: #a21caf !important; }
+[data-theme="light"] [style*="color:#d8b4fe"] { color: #6d28d9 !important; }
+[data-theme="light"] [style*="color:#a5f3fc"] { color: #0369a1 !important; }
+[data-theme="light"] [style*="color:#ff8fa3"] { color: #dc2626 !important; }
+[data-theme="light"] [style*="color:#fde68a"] { color: #92400e !important; background: #fffbeb !important; border-color: rgba(217, 119, 6, 0.32) !important; }
+[data-theme="light"] [style*="color:#e2ddf8"] { color: var(--text) !important; }
 </style>
 </head>
 <body>
@@ -5323,16 +5374,16 @@ function clubSettingsModal() {
             ${priceRows}
           </div>
 
-          <button type="button" class="cta-btn" style="padding:11px;background:rgba(168,85,247,0.18);border:1px solid rgba(168,85,247,0.5);font-size:13px;" onclick="openBlueprintFromSettings()">
+          <button type="button" class="cta-btn btn-purple-soft" style="padding:11px;font-size:13px;" onclick="openBlueprintFromSettings()">
             ${t("bpEditBtn")} →
           </button>
         </div>
 
         <div class="settings-modal-footer">
-          <button type="button" class="cta-btn" style="flex:0.85;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);color:#e2ddf8;font-size:13px;" onclick="requestCloseClubSettings()">
+          <button type="button" class="cta-btn btn-secondary" style="flex:0.85;padding:12px;font-size:13px;" onclick="requestCloseClubSettings()">
             ${t("clubSettingsCancelBtn")}
           </button>
-          <button type="button" id="club_settings_save_btn" class="cta-btn ${dirty && adminsValid ? "ok" : ""}" style="flex:1.25;padding:12px;font-size:13px;${!dirty ? "background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text-muted);" : (!adminsValid ? "background:rgba(255,51,102,0.2);border:1px solid rgba(255,51,102,0.5);color:#ff8fa3;" : "")}" onclick="saveClubSettingsDraft()">
+          <button type="button" id="club_settings_save_btn" class="cta-btn ${dirty && adminsValid ? "ok" : (!dirty ? "btn-muted" : "btn-danger-soft")}" style="flex:1.25;padding:12px;font-size:13px;" onclick="saveClubSettingsDraft()">
             ${t("clubSettingsSaveBtn")}
           </button>
         </div>
@@ -5844,20 +5895,7 @@ function updateClubSettingsDirtyDOM() {
   }
   const saveBtn = $("club_settings_save_btn");
   if (saveBtn) {
-    saveBtn.className = "cta-btn " + (dirty && adminsValid ? "ok" : "");
-    if (!dirty) {
-      saveBtn.style.background = "rgba(255,255,255,0.08)";
-      saveBtn.style.border = "1px solid rgba(255,255,255,0.15)";
-      saveBtn.style.color = "var(--text-muted)";
-    } else if (!adminsValid) {
-      saveBtn.style.background = "rgba(255,51,102,0.2)";
-      saveBtn.style.border = "1px solid rgba(255,51,102,0.5)";
-      saveBtn.style.color = "#ff8fa3";
-    } else {
-      saveBtn.style.background = "";
-      saveBtn.style.border = "";
-      saveBtn.style.color = "";
-    }
+    saveBtn.className = "cta-btn " + (dirty && adminsValid ? "ok" : (!dirty ? "btn-muted" : "btn-danger-soft"));
   }
 }
 
