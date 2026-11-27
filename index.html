@@ -52,11 +52,11 @@
 body {
   background: var(--bg);
   background-image: var(--bg-gradient);
-  background-attachment: fixed;
   color: var(--text);
   font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  touch-action: manipulation;
   padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
@@ -2688,19 +2688,30 @@ function getClientUserId() {
 
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) {
-  tg.ready();
-  tg.expand();
-  if (tg.setHeaderColor) tg.setHeaderColor("#0b0914");
-  if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0914");
+  try {
+    if (tg.ready) tg.ready();
+    if (tg.expand) tg.expand();
+    if (tg.setHeaderColor) tg.setHeaderColor("#0b0914");
+    if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0914");
+  } catch (e) {}
 }
 
 function haptic(type = "light") {
-  if (tg && tg.HapticFeedback) {
-    if (type === "success") tg.HapticFeedback.notificationOccurred("success");
-    else if (type === "warning") tg.HapticFeedback.notificationOccurred("warning");
-    else tg.HapticFeedback.impactOccurred(type);
-  }
+  try {
+    if (tg && tg.HapticFeedback) {
+      if (type === "success" && tg.HapticFeedback.notificationOccurred) tg.HapticFeedback.notificationOccurred("success");
+      else if (type === "warning" && tg.HapticFeedback.notificationOccurred) tg.HapticFeedback.notificationOccurred("warning");
+      else if (tg.HapticFeedback.impactOccurred) tg.HapticFeedback.impactOccurred(type);
+    }
+  } catch (e) {}
 }
+
+window.addEventListener("error", ev => {
+  try {
+    const msg = ev && ev.message ? String(ev.message) : "Script error";
+    if (typeof showToast === "function") showToast("⚠️ " + msg.slice(0, 90));
+  } catch (e) {}
+});
 
 const L = {
   ru: {
@@ -3532,8 +3543,14 @@ function setAppTheme(mode) { S.theme = mode; applyAppTheme(); haptic(); render()
 function setAppPalette(pal) { S.palette = pal; applyAppTheme(); haptic(); render(); }
 function toggleAppleEmoji(val) { S.appleEmoji = !!val; applyAppTheme(); haptic(); render(); }
 
-// Apple Emoji Engine: renders crisp iOS 64px Apple emojis on Windows/Android/iOS with instant native fallback
-const APPLE_EMOJI_RE = /(?:\p{RI}\p{RI}|\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?)*)/gu;
+// Apple Emoji Engine: на iPhone/iPad/MacBook оставляем родные системные Apple Emoji (мгновенно и без багов WebKit)
+const IS_APPLE_OS = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent || "") || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let APPLE_EMOJI_RE = null;
+try {
+  APPLE_EMOJI_RE = new RegExp("(?:\\p{Regional_Indicator}\\p{Regional_Indicator}|\\p{Extended_Pictographic}(?:\\uFE0F|\\p{Emoji_Modifier})?(?:\\u200D\\p{Extended_Pictographic}(?:\\uFE0F|\\p{Emoji_Modifier})?)*)", "gu");
+} catch (e) {
+  APPLE_EMOJI_RE = null;
+}
 
 function emojiToAppleUrl(emoji) {
   const cps = [];
@@ -3546,7 +3563,7 @@ function emojiToAppleUrl(emoji) {
 }
 
 function applyAppleEmojis(rootEl) {
-  if (!rootEl || !S.appleEmoji) return;
+  if (!rootEl || !S.appleEmoji || IS_APPLE_OS || !APPLE_EMOJI_RE) return;
   const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
       if (!node.nodeValue || !APPLE_EMOJI_RE.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
