@@ -38,6 +38,18 @@ DEFAULT_CLUB_NAMES: dict[int, str] = {
 
 DAYS_RU = ["Сегодня", "Завтра", "Послезавтра"]
 
+# Кэш последних заявок в памяти бота (0 лишних чтений Firestore при нажатии кнопок!)
+_RECENT_BOOKINGS: dict[str, tuple[dict[str, Any], dict[str, Any] | None]] = {}
+
+
+def _cache_booking(booking_id: str, b: dict[str, Any], club_doc: dict[str, Any] | None) -> None:
+    if not booking_id:
+        return
+    if len(_RECENT_BOOKINGS) > 500:
+        for old_k in list(_RECENT_BOOKINGS.keys())[:150]:
+            _RECENT_BOOKINGS.pop(old_k, None)
+    _RECENT_BOOKINGS[booking_id] = (b, club_doc)
+
 
 def _from_fs_value(v: dict[str, Any]) -> Any:
     if "integerValue" in v:
@@ -84,6 +96,9 @@ async def is_user_authorized_for_booking(env: str, booking_id: str, user_id: int
         return False
     if int(user_id) == ROOT_FALLBACK_TG_ID:
         return True
+    cached = _RECENT_BOOKINGS.get(str(booking_id))
+    if cached is not None:
+        return int(user_id) in _extract_admin_ids(cached[1])
     bk_col = "dev_bookings" if env == "dev" else "bookings"
     club_col = "dev_clubs_status" if env == "dev" else "clubs_status"
     try:
@@ -101,6 +116,35 @@ async def is_user_authorized_for_booking(env: str, booking_id: str, user_id: int
     except Exception as exc:
         logger.error("Ошибка проверки прав админа: %s", exc)
         return False
+
+
+async def notify_new_booking_direct(
+    bot: Bot,
+    env: str,
+    b: dict[str, Any],
+    club_doc: dict[str, Any] | None,
+) -> None:
+    """Мгновенная отправка уведомления админам напрямую от Mini App (0 чтений Firestore!)."""
+    bid = str(b.get("id") or "")
+    _cache_booking(bid, b, club_doc)
+    await _notify_admins_new_booking(bot, env, b, club_doc)
+
+
+async def notify_player_status_direct(
+    bot: Bot,
+    b: dict[str, Any],
+    club_doc: dict[str, Any] | None,
+    new_st: str,
+) -> None:
+    """Мгновенное уведомление игрока о подтверждении/отклонении брони (0 чтений Firestore!)."""
+    await _notify_player_status(bot, b, club_doc, new_st)
+
+
+async def notify_player_by_cached_id(bot: Bot, booking_id: str, new_st: str) -> None:
+    """Уведомляет игрока сразу после нажатия админом кнопки в Telegram."""
+    cached = _RECENT_BOOKINGS.get(str(booking_id))
+    if cached is not None:
+        await _notify_player_status(bot, cached[0], cached[1], new_st)
 
 
 async def update_booking_status(env: str, booking_id: str, new_status: str) -> bool:

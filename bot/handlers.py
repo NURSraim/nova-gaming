@@ -10,7 +10,11 @@ from aiogram.types import (
     WebAppInfo,
 )
 from bot.config import WEBAPP_URL
-from bot.notifier import is_user_authorized_for_booking, update_booking_status
+from bot.notifier import (
+    is_user_authorized_for_booking,
+    notify_player_by_cached_id,
+    update_booking_status,
+)
 
 router = Router()
 
@@ -117,6 +121,8 @@ async def cb_booking_decision(callback: types.CallbackQuery):
 
     stamp = "\n\n✅ <b>СТАТУС: ОДОБРЕНО АДМИНИСТРАТОРОМ</b>" if new_st == "ok" else "\n\n❌ <b>СТАТУС: ОТКЛОНЕНО АДМИНИСТРАТОРОМ</b>"
     await callback.answer("✅ Бронь подтверждена!" if new_st == "ok" else "❌ Бронь отклонена")
+    if callback.bot:
+        await notify_player_by_cached_id(callback.bot, booking_id, new_st)
 
     if callback.message:
         try:

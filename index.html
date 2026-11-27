@@ -4723,6 +4723,91 @@ function receiptModal() {
   `;
 }
 
+function openAdminClubSettings(clubId) {
+  S.adminSettingsClubId = Number(clubId);
+  haptic();
+  render();
+}
+
+function closeAdminClubSettings() {
+  S.adminSettingsClubId = null;
+  haptic();
+  render();
+}
+
+function adminClubSettingsModal() {
+  if (!S.adminSettingsClubId) return "";
+  const curClub = C(S.adminSettingsClubId);
+  if (!curClub) return "";
+  return `
+    <div class="modal-overlay" onclick="closeAdminClubSettings()">
+      <div class="settings-modal" onclick="event.stopPropagation()">
+        <div class="settings-modal-head">
+          <button type="button" class="modal-close-btn" onclick="closeAdminClubSettings()" aria-label="Close">✕</button>
+          <div style="font-size:16px;font-weight:800;color:var(--text);padding-right:34px;">⚙️ ${escHtml(curClub.name)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">🕒 ${t("clubHoursSecTitle")} · 📍 ${t("clubLocSecTitle")}</div>
+        </div>
+        <div class="settings-modal-body">
+          <div class="settings-sec-label">
+            <span>🕒 ${t("clubHoursSecTitle")}</span>
+            <span class="badge badge-green" style="font-family:'JetBrains Mono',monospace;">⚡ ${formatClubHoursLabel(curClub, true)}</span>
+          </div>
+          <div class="info-row-box" style="margin-bottom:14px;">
+            <div class="toggle-seg-2" style="margin-bottom:${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "0" : "8px"};">
+              <button type="button" class="toggle-seg-btn ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "active-green" : ""}" onclick="adminUpdateClubHours(${curClub.id}, 0, 24)">${t("clubHours247")}</button>
+              <button type="button" class="toggle-seg-btn ${!(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "active-blue" : ""}" onclick="adminUpdateClubHours(${curClub.id}, ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? 10 : Number(curClub.open)}, ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? 24 : Number(curClub.close)})">${t("clubHoursCustom")}</button>
+            </div>
+            ${!(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? `
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubHoursOpenLbl")}</div>
+                  <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="adminUpdateClubHours(${curClub.id}, +this.value, ${Number(curClub.close)})">
+                    ${[...Array(24)].map((_, hr) => `<option value="${hr}" ${Number(curClub.open) === hr ? "selected" : ""}>${hh(hr)}</option>`).join("")}
+                  </select>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubHoursCloseLbl")}</div>
+                  <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="adminUpdateClubHours(${curClub.id}, ${Number(curClub.open)}, +this.value)">
+                    ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24].map(hr => `<option value="${hr}" ${Number(curClub.close) === hr ? "selected" : ""}>${hr === 24 ? "24:00 (00:00)" : hh(hr)}</option>`).join("")}
+                  </select>
+                </div>
+              </div>
+              ${Number(curClub.close) < Number(curClub.open) ? `<div style="margin-top:6px;font-size:11px;color:var(--neon-cyan);font-weight:700;">${t("clubHoursOvernightHint")}</div>` : ""}
+            ` : ""}
+          </div>
+
+          <div class="settings-sec-label">
+            <span>📍 ${t("clubLocSecTitle")}</span>
+            <span class="badge ${isValidLatLng(Number(curClub.lat), Number(curClub.lng)) ? "badge-green" : "badge-yellow"}" style="font-size:10px;">
+              ${isValidLatLng(Number(curClub.lat), Number(curClub.lng)) ? t("mapExactPin") : t("mapTextSearch")}
+            </span>
+          </div>
+          <div class="info-row-box" style="margin-bottom:8px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+              <div>
+                <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocAddrLbl")}</div>
+                <input id="admin_loc_addr" class="styled-select" style="margin-bottom:0;font-size:12px;padding:8px 10px;" value="${escHtml(curClub.addr || "")}" placeholder="Ташкент, Чиланзар 9">
+              </div>
+              <div>
+                <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocLandmarkLbl")}</div>
+                <input id="admin_loc_landmark" class="styled-select" style="margin-bottom:0;font-size:12px;padding:8px 10px;" value="${escHtml(curClub.landmark || "")}" placeholder="м. Чиланзар">
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocInputLbl")}</div>
+            <input id="admin_loc_coords" class="styled-select" style="margin-bottom:4px;font-size:12px;padding:8px 10px;font-family:'JetBrains Mono',monospace;" value="${escHtml(formatClubLocInputValue(curClub))}" placeholder="${escHtml(t("clubLocInputPlaceholder"))}">
+            <div style="font-size:10px;color:var(--text-muted);line-height:1.35;margin-bottom:8px;">${t("clubLocInputHint")}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px 8px;font-size:11px;white-space:nowrap;" onclick="detectGpsForAdminLoc()">${t("clubLocGpsBtn")}</button>
+              <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px 8px;font-size:11px;white-space:nowrap;" onclick="testAdminLocInput(${curClub.id})">${t("clubLocTestBtn")}</button>
+            </div>
+            <button type="button" class="cta-btn ok" style="margin-top:8px;padding:10px;font-size:13px;" onclick="adminSaveClubLocation(${curClub.id})">${t("clubLocSaveBtn")}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function mapSheetModal() {
   if (!S.mapSheetClubId) return "";
   const c = C(S.mapSheetClubId);
@@ -5512,7 +5597,12 @@ function adminView() {
 
   return `
     <div class="anim-fade">
-      <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">💻 ${t("adminTitle")}</h1>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+        <h1 style="font-size:21px;font-weight:800;margin:0;">💻 ${t("adminTitle")}</h1>
+        <button type="button" class="receipt-mini-btn" style="padding:7px 11px;font-size:12px;font-weight:700;border-color:var(--border-focus);color:var(--neon-cyan);" onclick="openAdminClubSettings(${curClub.id})">
+          ⚙️ ${t("clubSettingsBtn")}
+        </button>
+      </div>
       ${S.authRole === "sys" ? `
         <div class="card-box" style="padding:10px 12px;margin-bottom:12px;border-color:var(--border-focus);">
           <div style="font-size:11px;font-weight:700;color:var(--neon-cyan);margin-bottom:6px;">👑 ${t("rootPickAdminClub")}</div>
@@ -5527,61 +5617,6 @@ function adminView() {
           <span class="badge badge-green">🔒 Клуб #${curClub.id}</span>
         </div>
       `}
-
-      <div class="card-box" style="padding:10px 12px;margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
-          <span style="font-size:12px;font-weight:800;color:var(--text);">🕒 ${t("clubHoursSecTitle")}</span>
-          <span class="badge badge-green" style="font-family:'JetBrains Mono',monospace;">⚡ ${formatClubHoursLabel(curClub, true)}</span>
-        </div>
-        <div class="toggle-seg-2" style="margin-bottom:${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "0" : "8px"};">
-          <button type="button" class="toggle-seg-btn ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "active-green" : ""}" onclick="adminUpdateClubHours(${curClub.id}, 0, 24)">${t("clubHours247")}</button>
-          <button type="button" class="toggle-seg-btn ${!(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? "active-blue" : ""}" onclick="adminUpdateClubHours(${curClub.id}, ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? 10 : Number(curClub.open)}, ${(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? 24 : Number(curClub.close)})">${t("clubHoursCustom")}</button>
-        </div>
-        ${!(Number(curClub.open) === 0 && Number(curClub.close) === 24) ? `
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubHoursOpenLbl")}</div>
-              <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="adminUpdateClubHours(${curClub.id}, +this.value, ${Number(curClub.close)})">
-                ${[...Array(24)].map((_, hr) => `<option value="${hr}" ${Number(curClub.open) === hr ? "selected" : ""}>${hh(hr)}</option>`).join("")}
-              </select>
-            </div>
-            <div>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubHoursCloseLbl")}</div>
-              <select class="styled-select" style="margin-bottom:0;font-family:'JetBrains Mono',monospace;" onchange="adminUpdateClubHours(${curClub.id}, ${Number(curClub.open)}, +this.value)">
-                ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24].map(hr => `<option value="${hr}" ${Number(curClub.close) === hr ? "selected" : ""}>${hr === 24 ? "24:00 (00:00)" : hh(hr)}</option>`).join("")}
-              </select>
-            </div>
-          </div>
-          ${Number(curClub.close) < Number(curClub.open) ? `<div style="margin-top:6px;font-size:11px;color:var(--neon-cyan);font-weight:700;">${t("clubHoursOvernightHint")}</div>` : ""}
-        ` : ""}
-      </div>
-
-      <div class="card-box" style="padding:10px 12px;margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
-          <span style="font-size:12px;font-weight:800;color:var(--text);">📍 ${t("clubLocSecTitle")}</span>
-          <span class="badge ${isValidLatLng(Number(curClub.lat), Number(curClub.lng)) ? "badge-green" : "badge-yellow"}" style="font-size:10px;">
-            ${isValidLatLng(Number(curClub.lat), Number(curClub.lng)) ? t("mapExactPin") : t("mapTextSearch")}
-          </span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
-          <div>
-            <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocAddrLbl")}</div>
-            <input id="admin_loc_addr" class="styled-select" style="margin-bottom:0;font-size:12px;padding:8px 10px;" value="${escHtml(curClub.addr || "")}" placeholder="Ташкент, Чиланзар 9">
-          </div>
-          <div>
-            <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocLandmarkLbl")}</div>
-            <input id="admin_loc_landmark" class="styled-select" style="margin-bottom:0;font-size:12px;padding:8px 10px;" value="${escHtml(curClub.landmark || "")}" placeholder="м. Чиланзар">
-          </div>
-        </div>
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:600;">${t("clubLocInputLbl")}</div>
-        <input id="admin_loc_coords" class="styled-select" style="margin-bottom:4px;font-size:12px;padding:8px 10px;font-family:'JetBrains Mono',monospace;" value="${escHtml(formatClubLocInputValue(curClub))}" placeholder="${escHtml(t("clubLocInputPlaceholder"))}">
-        <div style="font-size:10px;color:var(--text-muted);line-height:1.35;margin-bottom:8px;">${t("clubLocInputHint")}</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px 8px;font-size:11px;white-space:nowrap;" onclick="detectGpsForAdminLoc()">${t("clubLocGpsBtn")}</button>
-          <button type="button" class="receipt-mini-btn" style="flex:1;padding:7px 8px;font-size:11px;white-space:nowrap;" onclick="testAdminLocInput(${curClub.id})">${t("clubLocTestBtn")}</button>
-          <button type="button" class="cta-btn ok" style="flex:1.2;padding:8px 10px;font-size:12px;white-space:nowrap;" onclick="adminSaveClubLocation(${curClub.id})">${t("clubLocSaveBtn")}</button>
-        </div>
-      </div>
 
       <h2 class="section-title">📐 ${t("adminMapTitle")}</h2>
       <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">${t("adminMapHint")}</p>
@@ -6968,7 +7003,7 @@ function render() {
   const sameScreen = screenKey === lastRenderedScreenKey;
   lastRenderedScreenKey = screenKey;
   rootEl.classList.toggle("no-anim", sameScreen);
-  rootEl.innerHTML = head() + v + playerBottomNav() + sysBottomNav() + clubInfoModal() + receiptModal() + clubSettingsModal() + clubSettingsConfirmModal() + createClubModal() + themeDrawerModal() + shotPreviewModal() + mapSheetModal() + (S.toast ? `<div class="toast-msg">${escHtml(S.toast)}</div>` : "");
+  rootEl.innerHTML = head() + v + playerBottomNav() + sysBottomNav() + clubInfoModal() + receiptModal() + clubSettingsModal() + clubSettingsConfirmModal() + createClubModal() + themeDrawerModal() + shotPreviewModal() + adminClubSettingsModal() + mapSheetModal() + (S.toast ? `<div class="toast-msg">${escHtml(S.toast)}</div>` : "");
   applyAppleEmojis(rootEl);
   if (prevSettingsScroll > 0) {
     const nextSettingsBody = document.querySelector(".settings-modal-body");
@@ -7140,6 +7175,7 @@ function rateClubFromHistory(clubId, ev) {
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     if (S.mapSheetClubId) closeMapSheet();
+    else if (S.adminSettingsClubId) closeAdminClubSettings();
     else if (S.settingsConfirmAction) cancelSettingsConfirm();
     else if (S.createClubDraft) closeCreateClubModal();
     else if (S.themeOpen) closeThemeDrawer();
@@ -7165,6 +7201,37 @@ function toPay() {
   S.shot = "";
   S.shotImg = "";
   go("pay");
+}
+
+const BOT_PUSH_URL = "https://nova-gaming.onrender.com";
+
+function notifyBotNewBooking(env, booking, club) {
+  try {
+    fetch(`${BOT_PUSH_URL}/api/notify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        env,
+        booking,
+        club: club ? { id: club.id, name: club.name, adminIds: normalizeAdminIds(club.adminIds, String(2000 + Number(club.id))) } : null
+      })
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function notifyBotBookingStatus(env, booking, club, status) {
+  try {
+    fetch(`${BOT_PUSH_URL}/api/notify-status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        env,
+        booking,
+        club: club ? { id: club.id, name: club.name } : null,
+        status
+      })
+    }).catch(() => {});
+  } catch (e) {}
 }
 
 function saveBookingCloud(item) {
@@ -7224,7 +7291,6 @@ async function submitPay() {
   if (!c || S.tar === null || !seatTars || !seatTars[S.tar]) return go("home");
   const x = seatTars[S.tar];
 
-  // Повторная проверка перед записью (защита от двойного бронирования)
   if (isPastSlot(S.day, S.start)) { S.err = t("pastTime"); haptic("warning"); return render(); }
   if (closedAt(c.id, S.day, S.start, x[0])) { S.err = t("closed"); haptic("warning"); return render(); }
   if (clash(c.id, S.seat, S.day, S.start, x[0])) { S.err = t("conflict"); haptic("warning"); return render(); }
@@ -7248,6 +7314,7 @@ async function submitPay() {
     };
     bk.push(newItem);
     saveBookingCloud(newItem);
+    notifyBotNewBooking("prod", newItem, c);
     haptic("success");
     S.view = "home";
     S.err = "";
@@ -7262,6 +7329,7 @@ async function decide(id, st) {
   if (!item) return;
   item.st = st;
   saveBookingCloud(item);
+  notifyBotBookingStatus("prod", item, C(item.club), st);
   haptic("success");
   render();
 }
