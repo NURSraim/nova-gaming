@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="light" data-palette="green">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Nova Gaming</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,6 @@ body {
   font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
-  touch-action: manipulation;
   padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
@@ -2796,12 +2795,33 @@ function haptic(type = "light") {
   }, 0);
 }
 
+let _dbgTaps = 0;
+function _showHardErr(msg) {
+  let el = document.getElementById("_nova_dbg_bar");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "_nova_dbg_bar";
+    el.style.cssText = "position:fixed;top:4px;left:8px;right:8px;z-index:99999;background:#111;color:#88eb21;font:11px monospace;padding:5px 8px;border-radius:8px;border:1px solid #88eb21;pointer-events:none;";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+}
 window.addEventListener("error", ev => {
   try {
     const msg = ev && ev.message ? String(ev.message) : "Script error";
-    if (typeof showToast === "function") showToast("⚠️ " + msg.slice(0, 90));
+    _showHardErr("ERR: " + msg + " @L" + (ev.lineno || "?"));
   } catch (e) {}
 });
+window.addEventListener("unhandledrejection", ev => {
+  try {
+    _showHardErr("PROMISE: " + String(ev && ev.reason ? ev.reason : "rejected"));
+  } catch (e) {}
+});
+document.addEventListener("click", ev => {
+  _dbgTaps++;
+  const tag = ev.target ? (ev.target.tagName + (ev.target.className ? "." + String(ev.target.className).split(" ")[0] : "")) : "?";
+  _showHardErr(`v7 | taps:${_dbgTaps} | ${tag} | view:${S.view} | plat:${(tg && tg.platform) || "web"}`);
+}, true);
 
 const L = {
   ru: {
