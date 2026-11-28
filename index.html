@@ -2782,23 +2782,18 @@ function getClientUserId() {
 }
 
 const tg = window.Telegram && window.Telegram.WebApp;
-if (tg) {
-  try {
-    if (tg.ready) tg.ready();
-    if (tg.expand) tg.expand();
-    if (tg.setHeaderColor) tg.setHeaderColor("#0b0914");
-    if (tg.setBackgroundColor) tg.setBackgroundColor("#0b0914");
-  } catch (e) {}
-}
+const IS_APPLE_OS = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent || "") || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+if (IS_APPLE_OS) document.documentElement.classList.add("is-apple");
 
 function haptic(type = "light") {
-  try {
-    if (tg && tg.HapticFeedback) {
+  if (!tg || !tg.HapticFeedback) return;
+  setTimeout(() => {
+    try {
       if (type === "success" && tg.HapticFeedback.notificationOccurred) tg.HapticFeedback.notificationOccurred("success");
       else if (type === "warning" && tg.HapticFeedback.notificationOccurred) tg.HapticFeedback.notificationOccurred("warning");
       else if (tg.HapticFeedback.impactOccurred) tg.HapticFeedback.impactOccurred(type);
-    }
-  } catch (e) {}
+    } catch (e) {}
+  }, 0);
 }
 
 window.addEventListener("error", ev => {
@@ -3625,7 +3620,7 @@ function applyAppTheme() {
     localStorage.setItem("nova_prod_palette_v1", S.palette);
     localStorage.setItem("nova_prod_apple_emoji_v1", S.appleEmoji ? "1" : "0");
   } catch (e) {}
-  if (tg) {
+  if (tg && !IS_APPLE_OS) {
     const hdr = S.theme === "light" ? "#f2f7f3" : "#0a0d0c";
     if (tg.setHeaderColor) try { tg.setHeaderColor(hdr); } catch (e) {}
     if (tg.setBackgroundColor) try { tg.setBackgroundColor(hdr); } catch (e) {}
@@ -3639,8 +3634,6 @@ function setAppPalette(pal) { S.palette = pal; applyAppTheme(); haptic(); render
 function toggleAppleEmoji(val) { S.appleEmoji = !!val; applyAppTheme(); haptic(); render(); }
 
 // Apple Emoji Engine: на iPhone/iPad/MacBook оставляем родные системные Apple Emoji (мгновенно и без багов WebKit)
-const IS_APPLE_OS = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent || "") || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-if (IS_APPLE_OS) document.documentElement.classList.add("is-apple");
 let APPLE_EMOJI_RE = null;
 try {
   APPLE_EMOJI_RE = new RegExp("(?:\\p{Regional_Indicator}\\p{Regional_Indicator}|\\p{Extended_Pictographic}(?:\\uFE0F|\\p{Emoji_Modifier})?(?:\\u200D\\p{Extended_Pictographic}(?:\\uFE0F|\\p{Emoji_Modifier})?)*)", "gu");
@@ -7970,6 +7963,14 @@ setInterval(() => {
 applyPersonaRoleFromClubAdmins(S.persona, true);
 render();
 initFirebase();
+if (tg) {
+  setTimeout(() => {
+    try {
+      if (tg.ready) tg.ready();
+      if (tg.expand) tg.expand();
+    } catch (e) {}
+  }, 80);
+}
 </script>
 </body>
 </html>
