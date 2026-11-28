@@ -2795,33 +2795,11 @@ function haptic(type = "light") {
   }, 0);
 }
 
-let _dbgTaps = 0;
-function _showHardErr(msg) {
-  let el = document.getElementById("_nova_dbg_bar");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "_nova_dbg_bar";
-    el.style.cssText = "position:fixed;top:4px;left:8px;right:8px;z-index:99999;background:#111;color:#88eb21;font:11px monospace;padding:5px 8px;border-radius:8px;border:1px solid #88eb21;pointer-events:none;";
-    document.body.appendChild(el);
-  }
-  el.textContent = msg;
-}
 window.addEventListener("error", ev => {
   try {
-    const msg = ev && ev.message ? String(ev.message) : "Script error";
-    _showHardErr("ERR: " + msg + " @L" + (ev.lineno || "?"));
+    console.error("Nova error:", ev && ev.message);
   } catch (e) {}
 });
-window.addEventListener("unhandledrejection", ev => {
-  try {
-    _showHardErr("PROMISE: " + String(ev && ev.reason ? ev.reason : "rejected"));
-  } catch (e) {}
-});
-document.addEventListener("click", ev => {
-  _dbgTaps++;
-  const tag = ev.target ? (ev.target.tagName + (ev.target.className ? "." + String(ev.target.className).split(" ")[0] : "")) : "?";
-  _showHardErr(`v7 | taps:${_dbgTaps} | ${tag} | view:${S.view} | plat:${(tg && tg.platform) || "web"}`);
-}, true);
 
 const L = {
   ru: {
@@ -4345,7 +4323,7 @@ function cdHtml(b) {
   return ` <span style="font-family:'JetBrains Mono',monospace;color:var(--neon-gold);font-size:12px;" data-exp="${b.created + 3e5}"></span>`;
 }
 
-function head() {
+function renderTopBar() {
   const allowedRoles = S.authRole === "sys"
     ? ["user", "admin", "sys"]
     : S.authRole === "admin"
@@ -7129,7 +7107,7 @@ function render() {
   const sameScreen = screenKey === lastRenderedScreenKey;
   lastRenderedScreenKey = screenKey;
   rootEl.classList.toggle("no-anim", sameScreen);
-  rootEl.innerHTML = head() + v + playerBottomNav() + sysBottomNav() + clubInfoModal() + receiptModal() + clubSettingsModal() + clubSettingsConfirmModal() + createClubModal() + themeDrawerModal() + shotPreviewModal() + adminClubSettingsModal() + mapSheetModal() + (S.toast ? `<div class="toast-msg">${escHtml(S.toast)}</div>` : "");
+  rootEl.innerHTML = renderTopBar() + v + playerBottomNav() + sysBottomNav() + clubInfoModal() + receiptModal() + clubSettingsModal() + clubSettingsConfirmModal() + createClubModal() + themeDrawerModal() + shotPreviewModal() + adminClubSettingsModal() + mapSheetModal() + (S.toast ? `<div class="toast-msg">${escHtml(S.toast)}</div>` : "");
   applyAppleEmojis(rootEl);
   if (prevSettingsScroll > 0) {
     const nextSettingsBody = document.querySelector(".settings-modal-body");
