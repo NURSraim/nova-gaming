@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Nova Gaming</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -2620,6 +2618,16 @@ h2.section-title {
   font-size: 10px;
   color: var(--text-muted);
 }
+/* iOS / macOS WebKit stability: prevent backdrop-filter compositor & touch freezes */
+html.is-apple .club-card,
+html.is-apple .role-seg,
+html.is-apple .lang-btn,
+html.is-apple .bottom-nav-dock,
+html.is-apple .modal-overlay,
+html.is-apple .confirm-overlay {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
 </style>
 </head>
 <body>
@@ -2641,14 +2649,101 @@ const FIREBASE_CONFIG = {
   measurementId: "G-W1J5P9FSWB"
 };
 
-// Продакшн-коллекции Firestore
+// Продакшн-коллекции Firestore (чистый REST API — 0 зависаний на iPhone/MacBook WebKit!)
 const COL_BOOKINGS = "bookings";
 const COL_CLUBS = "clubs_status";
 const COL_RATINGS = "club_ratings";
 const SUPER_ADMIN_IDS = new Set(["5619771997"]);
+const FS_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
 
-let db = null;
+function safeLsGet(k, defVal) {
+  try {
+    const v = localStorage.getItem(k);
+    return v === null ? defVal : v;
+  } catch (e) {
+    return defVal;
+  }
+}
+
+function fsToVal(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === "boolean") return { booleanValue: v };
+  if (typeof v === "number") return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (typeof v === "string") return { stringValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(fsToVal) } };
+  if (typeof v === "object") {
+    const fields = {};
+    for (const [kk, vv] of Object.entries(v)) {
+      if (vv !== undefined) fields[kk] = fsToVal(vv);
+    }
+    return { mapValue: { fields } };
+  }
+  return { stringValue: String(v) };
+}
+
+function fsFromVal(v) {
+  if (!v || typeof v !== "object") return null;
+  if ("integerValue" in v) return Number(v.integerValue);
+  if ("doubleValue" in v) return Number(v.doubleValue);
+  if ("booleanValue" in v) return Boolean(v.booleanValue);
+  if ("stringValue" in v) return String(v.stringValue);
+  if ("nullValue" in v) return null;
+  if ("arrayValue" in v) return (v.arrayValue.values || []).map(fsFromVal);
+  if ("mapValue" in v) {
+    const out = {};
+    const flds = (v.mapValue && v.mapValue.fields) || {};
+    for (const [kk, vv] of Object.entries(flds)) out[kk] = fsFromVal(vv);
+    return out;
+  }
+  return null;
+}
+
+function fsFromDoc(doc) {
+  const out = {};
+  const flds = (doc && doc.fields) || {};
+  for (const [kk, vv] of Object.entries(flds)) out[kk] = fsFromVal(vv);
+  return out;
+}
+
+async function fsList(col) {
+  try {
+    const r = await fetch(`${FS_BASE}/${col}?pageSize=200`, { cache: "no-store" });
+    if (!r.ok) return null;
+    const data = await r.json();
+    return (data.documents || []).map(fsFromDoc);
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fsSet(col, docId, obj) {
+  try {
+    const fields = {};
+    for (const [kk, vv] of Object.entries(obj || {})) {
+      if (vv !== undefined) fields[kk] = fsToVal(vv);
+    }
+    await fetch(`${FS_BASE}/${col}/${encodeURIComponent(String(docId))}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fields })
+    });
+  } catch (e) {}
+}
+
+async function fsPatchField(col, docId, fieldName, val) {
+  try {
+    const url = `${FS_BASE}/${col}/${encodeURIComponent(String(docId))}?updateMask.fieldPaths=${encodeURIComponent(fieldName)}`;
+    await fetch(url, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fields: { [fieldName]: fsToVal(val) } })
+    });
+  } catch (e) {}
+}
+
+let db = true;
 let fbLive = false;
+let _lastCloudSig = "";
 let seededBookings = false;
 let seededClubs = false;
 let clubRatings = {};
@@ -3493,9 +3588,9 @@ let S = {
   settingsAdminInput: "",
   settingsAdminErr: "",
   settingsConfirmAction: null,
-  theme: localStorage.getItem("nova_prod_theme_v1") || "light",
-  palette: localStorage.getItem("nova_prod_palette_v1") || "green",
-  appleEmoji: localStorage.getItem("nova_prod_apple_emoji_v1") !== "0",
+  theme: safeLsGet("nova_prod_theme_v1", "light"),
+  palette: safeLsGet("nova_prod_palette_v1", "green"),
+  appleEmoji: safeLsGet("nova_prod_apple_emoji_v1", "1") !== "0",
   themeOpen: false,
   createClubDraft: null,
   createClubAdminInput: "",
@@ -3545,6 +3640,7 @@ function toggleAppleEmoji(val) { S.appleEmoji = !!val; applyAppTheme(); haptic()
 
 // Apple Emoji Engine: на iPhone/iPad/MacBook оставляем родные системные Apple Emoji (мгновенно и без багов WebKit)
 const IS_APPLE_OS = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent || "") || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+if (IS_APPLE_OS) document.documentElement.classList.add("is-apple");
 let APPLE_EMOJI_RE = null;
 try {
   APPLE_EMOJI_RE = new RegExp("(?:\\p{Regional_Indicator}\\p{Regional_Indicator}|\\p{Extended_Pictographic}(?:\\uFE0F|\\p{Emoji_Modifier})?(?:\\u200D\\p{Extended_Pictographic}(?:\\uFE0F|\\p{Emoji_Modifier})?)*)", "gu");
@@ -7157,7 +7253,7 @@ function submitClubRating(clubId, stars) {
     localStorage.setItem("nova_prod_ratings_v1", JSON.stringify(clubRatings));
   } catch (e) {}
   if (db) {
-    db.collection(COL_RATINGS).doc(key).set(rec).catch(() => {});
+    fsSet(COL_RATINGS, key, rec);
   }
   haptic("success");
   showToast(t("ratedToast"));
@@ -7253,7 +7349,7 @@ function notifyBotBookingStatus(env, booking, club, status) {
 
 function saveBookingCloud(item) {
   if (!db) return;
-  db.collection(COL_BOOKINGS).doc(String(item.id)).set(item).catch(console.error);
+  fsSet(COL_BOOKINGS, String(item.id), item);
 }
 
 function saveClubCloud(c) {
@@ -7297,7 +7393,7 @@ function saveClubCloud(c) {
       amenities: Array.isArray(c.amenities) ? c.amenities : []
     });
   }
-  db.collection(COL_CLUBS).doc(String(c.id)).set(payload, { merge: true }).catch(console.error);
+  fsSet(COL_CLUBS, String(c.id), payload);
 }
 
 async function submitPay() {
@@ -7751,92 +7847,104 @@ async function saveClubSettingsDraft() {
   showToast(t("clubSettingsSavedToast"));
 }
 
-function initFirebase() {
-  if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId || typeof firebase === "undefined") {
-    return;
-  }
+async function pullCloudStateOnce() {
   try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    db = firebase.firestore();
+    const [remoteBk, remoteClubs, remoteRatings] = await Promise.all([
+      fsList(COL_BOOKINGS),
+      fsList(COL_CLUBS),
+      fsList(COL_RATINGS)
+    ]);
+    let changed = false;
 
-    db.collection(COL_BOOKINGS).onSnapshot(snap => {
+    if (Array.isArray(remoteBk)) {
       fbLive = true;
-      if (snap.empty && !seededBookings) {
+      if (remoteBk.length === 0 && !seededBookings) {
         seededBookings = true;
         bk.forEach(item => saveBookingCloud(item));
-      } else {
-        const remote = [];
-        snap.forEach(doc => remote.push(doc.data()));
-        remote.sort((a, b) => (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id)));
-        bk = remote;
+      } else if (remoteBk.length > 0) {
+        remoteBk.sort((a, b) => (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id)));
+        const sigBk = JSON.stringify(remoteBk.map(x => [x.id, x.st, x.seat, x.start, x.hours]));
+        const curBk = JSON.stringify(bk.map(x => [x.id, x.st, x.seat, x.start, x.hours]));
+        if (sigBk !== curBk) {
+          bk = remoteBk;
+          changed = true;
+        }
       }
-      safeRenderPreserveModalFocus();
-    }, err => console.error("Firestore bookings error:", err));
+    }
 
-    db.collection(COL_CLUBS).onSnapshot(snap => {
-      if (snap.empty && !seededClubs) {
+    if (Array.isArray(remoteClubs)) {
+      if (remoteClubs.length === 0 && !seededClubs) {
         seededClubs = true;
         clubs.forEach(c => saveClubCloud(c));
-      } else {
-        snap.forEach(doc => {
-          const data = doc.data();
-          const target = C(data.id) || upsertClubFromData(data);
-          if (target) {
-            target.ok = !!data.ok;
-            target.gone = !!data.gone;
-            if (typeof data.subPaid === "boolean") target.subPaid = data.subPaid;
-            if (typeof data.suspended === "boolean") target.suspended = data.suspended;
-            if (typeof data.hidden === "boolean") target.hidden = data.hidden;
-            if (Number.isFinite(Number(data.open))) target.open = Number(data.open);
-            if (Number.isFinite(Number(data.close))) target.close = Number(data.close);
-            if (typeof data.addr === "string" && data.addr.trim()) target.addr = data.addr.trim();
-            if (typeof data.landmark === "string") target.landmark = data.landmark;
-            if (data.lat !== undefined || data.lng !== undefined) {
-              target.lat = isValidLatLng(Number(data.lat), Number(data.lng)) ? Number(data.lat) : null;
-              target.lng = isValidLatLng(Number(data.lat), Number(data.lng)) ? Number(data.lng) : null;
+      } else if (remoteClubs.length > 0) {
+        const sigClubs = JSON.stringify(remoteClubs);
+        if (sigClubs !== _lastCloudSig) {
+          _lastCloudSig = sigClubs;
+          remoteClubs.forEach(data => {
+            const target = C(data.id) || upsertClubFromData(data);
+            if (target) {
+              target.ok = !!data.ok;
+              target.gone = !!data.gone;
+              if (typeof data.subPaid === "boolean") target.subPaid = data.subPaid;
+              if (typeof data.suspended === "boolean") target.suspended = data.suspended;
+              if (typeof data.hidden === "boolean") target.hidden = data.hidden;
+              if (Number.isFinite(Number(data.open))) target.open = Number(data.open);
+              if (Number.isFinite(Number(data.close))) target.close = Number(data.close);
+              if (typeof data.addr === "string" && data.addr.trim()) target.addr = data.addr.trim();
+              if (typeof data.landmark === "string") target.landmark = data.landmark;
+              if (data.lat !== undefined || data.lng !== undefined) {
+                target.lat = isValidLatLng(Number(data.lat), Number(data.lng)) ? Number(data.lat) : null;
+                target.lng = isValidLatLng(Number(data.lat), Number(data.lng)) ? Number(data.lng) : null;
+              }
+              if (typeof data.mapUrl === "string") target.mapUrl = data.mapUrl;
+              if (Array.isArray(data.adminIds) && data.adminIds.length) {
+                target.adminIds = normalizeAdminIds(data.adminIds, String(2000 + Number(target.id)));
+              }
+              if (Number(data.hourPrice) > 0 || Number(data.vipHourPrice) > 0 || Number(data.ps5HourPrice) > 0 || Number(data.vrHourPrice) > 0) {
+                applyClubHourPrice(
+                  target,
+                  Number(data.hourPrice) || target.hourPrice,
+                  Number(data.vipHourPrice) || target.vipHourPrice,
+                  Number(data.ps5HourPrice) || target.ps5HourPrice,
+                  Number(data.vrHourPrice) || target.vrHourPrice
+                );
+              }
+              if (data.floorMap && data.floorMap.size && data.floorMap.cells) {
+                target.floorMap = data.floorMap;
+              }
             }
-            if (typeof data.mapUrl === "string") target.mapUrl = data.mapUrl;
-            if (Array.isArray(data.adminIds) && data.adminIds.length) {
-              target.adminIds = normalizeAdminIds(data.adminIds, String(2000 + Number(target.id)));
-            }
-            if (Number(data.hourPrice) > 0 || Number(data.vipHourPrice) > 0 || Number(data.ps5HourPrice) > 0 || Number(data.vrHourPrice) > 0) {
-              applyClubHourPrice(
-                target,
-                Number(data.hourPrice) || target.hourPrice,
-                Number(data.vipHourPrice) || target.vipHourPrice,
-                Number(data.ps5HourPrice) || target.ps5HourPrice,
-                Number(data.vrHourPrice) || target.vrHourPrice
-              );
-            }
-            if (data.floorMap && data.floorMap.size && data.floorMap.cells) {
-              target.floorMap = data.floorMap;
-            }
-          }
-        });
-        applyPersonaRoleFromClubAdmins(S.persona, false);
+          });
+          applyPersonaRoleFromClubAdmins(S.persona, false);
+          changed = true;
+        }
       }
-      safeRenderPreserveModalFocus();
-    }, err => console.error("Firestore clubs error:", err));
+    }
 
-    db.collection(COL_RATINGS).onSnapshot(snap => {
+    if (Array.isArray(remoteRatings) && remoteRatings.length > 0) {
       const merged = { ...clubRatings };
-      snap.forEach(doc => {
-        const d = doc.data();
+      let rChanged = false;
+      remoteRatings.forEach(d => {
         if (d && d.clubId && d.uid && d.stars) {
-          merged[doc.id] = d;
+          const rk = `${d.clubId}_${d.uid}`;
+          if (!merged[rk] || merged[rk].stars !== d.stars) rChanged = true;
+          merged[rk] = d;
         }
       });
-      clubRatings = merged;
-      try {
-        localStorage.setItem("nova_prod_ratings_v1", JSON.stringify(clubRatings));
-      } catch (e) {}
-      safeRenderPreserveModalFocus();
-    }, () => {});
-  } catch (e) {
-    console.error("Firebase init error:", e);
-  }
+      if (rChanged) {
+        clubRatings = merged;
+        try { localStorage.setItem("nova_prod_ratings_v1", JSON.stringify(clubRatings)); } catch (e) {}
+        changed = true;
+      }
+    }
+
+    if (changed) safeRenderPreserveModalFocus();
+  } catch (e) {}
+}
+
+function initFirebase() {
+  if (!FIREBASE_CONFIG.projectId) return;
+  pullCloudStateOnce();
+  setInterval(pullCloudStateOnce, 12000);
 }
 
 setInterval(() => {
@@ -7848,7 +7956,7 @@ setInterval(() => {
       ch = true;
       // Обновляем в облаке только владелец или админ, чтобы избежать шторма записей
       if (db && (S.role === "admin" || String(b.ownerId || "") === String(getClientUserId()))) {
-        db.collection(COL_BOOKINGS).doc(String(b.id)).update({ st: "exp" }).catch(() => {});
+        fsPatchField(COL_BOOKINGS, String(b.id), "st", "exp");
       }
     }
   });
